@@ -1,0 +1,41 @@
+pipeline {
+    agent { node 'xapi194' }
+    stages {
+        stage('Test') {
+            parallel {
+                stage('F1 stage') {
+                    steps {
+                        build job: 'F1', parameters: [
+                            string(name: 'BlockFrom', value: "0"),
+                            string(name: 'BlockTo', value: "1000000"),
+                        ]
+                    }
+                }
+                stage('F2 stage') {
+                    steps {
+                        build job: 'F2', parameters: [
+                            string(name: 'BlockFrom', value: "0"),
+                            string(name: 'BlockTo', value: "1000000"),
+                        ]
+                    }
+                }
+                stage('F3 stage') {
+                    steps {
+                        build job: 'F3', parameters: [
+                            string(name: 'BlockFrom', value: "0"),
+                            string(name: 'BlockTo', value: "1000000"),
+                        ]
+                    }
+                }
+                stage('F4 stage') {
+                    steps {
+                        build job: 'F4', parameters: [
+                            string(name: 'BlockFrom', value: "0"),
+                            string(name: 'BlockTo', value: "1000000"),
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
