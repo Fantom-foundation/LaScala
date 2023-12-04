@@ -24,6 +24,7 @@ pipeline {
                         build job: 'F3', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'ArchiveQueryRate', value: "200"),
                         ]
                     }
                 }
@@ -32,6 +33,7 @@ pipeline {
                         build job: 'F4', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'ArchiveQueryRate', value: "200"),
                         ]
                     }
                 }
