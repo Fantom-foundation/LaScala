@@ -1,5 +1,10 @@
 pipeline {
     agent { node 'xapi194' }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
     stages {
         stage('Test') {
             parallel {
