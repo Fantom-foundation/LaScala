@@ -1,8 +1,16 @@
+// Master job for running release candidate tests in parallel
+
 pipeline {
     agent { node 'xapi194' }
 
     environment {
         PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
     }
 
     stages {
@@ -13,6 +21,9 @@ pipeline {
                         build job: 'F1', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
                         ]
                     }
                 }
@@ -21,6 +32,9 @@ pipeline {
                         build job: 'F2', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
                         ]
                     }
                 }
@@ -30,6 +44,9 @@ pipeline {
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "200"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
                         ]
                     }
                 }
@@ -39,6 +56,9 @@ pipeline {
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "200"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
                         ]
                     }
                 }
