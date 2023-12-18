@@ -16,9 +16,9 @@ pipeline {
     stages {
         stage('Test') {
             parallel {
-                stage('F1 stage') {
+                stage('F01 stage') {
                     steps {
-                        build job: 'F1', parameters: [
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F01', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
@@ -27,9 +27,9 @@ pipeline {
                         ]
                     }
                 }
-                stage('F2 stage') {
+                stage('F02 stage') {
                     steps {
-                        build job: 'F2', parameters: [
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
@@ -38,9 +38,9 @@ pipeline {
                         ]
                     }
                 }
-                stage('F3 stage') {
+                stage('F03 stage') {
                     steps {
-                        build job: 'F3', parameters: [
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F03', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "200"),
@@ -50,9 +50,9 @@ pipeline {
                         ]
                     }
                 }
-                stage('F4 stage') {
+                stage('F04 stage') {
                     steps {
-                        build job: 'F4', parameters: [
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
                             string(name: 'BlockFrom', value: "0"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "200"),
