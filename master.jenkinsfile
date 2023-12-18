@@ -8,6 +8,8 @@ pipeline {
     }
 
     parameters {
+        string(defaultValue: "zero", description: '', name: 'BlockFrom')
+        string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
@@ -19,8 +21,8 @@ pipeline {
                 stage('F01 stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F01', parameters: [
-                            string(name: 'BlockFrom', value: "0"),
-                            string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}")
@@ -30,8 +32,8 @@ pipeline {
                 stage('F02 stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
-                            string(name: 'BlockFrom', value: "0"),
-                            string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}")
@@ -41,8 +43,8 @@ pipeline {
                 stage('F03 stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F03', parameters: [
-                            string(name: 'BlockFrom', value: "0"),
-                            string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'ArchiveQueryRate', value: "200"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
@@ -53,8 +55,8 @@ pipeline {
                 stage('F04 stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
-                            string(name: 'BlockFrom', value: "0"),
-                            string(name: 'BlockTo', value: "1000000"),
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'ArchiveQueryRate', value: "200"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
