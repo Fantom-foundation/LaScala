@@ -18,6 +18,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "/var/opera/Aida/register-run-db", description: '', name: 'RegisterRunPath')
     }
 
     stages {
@@ -71,6 +72,7 @@ pipeline {
                                          --db-tmp /var/opera/Aida/dbtmpjenkins --aida-db /var/opera/Aida/testnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                         --register-run ${RegisterRunPath} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 // archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
