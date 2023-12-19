@@ -37,10 +37,6 @@ pipeline {
                 )
                 sh "git submodule update --init --recursive"
 
-                withCredentials([usernamePassword(credentialsId: 'AidaCI_PR', usernameVariable: 'PR_USERNAME', passwordVariable: 'PR_PASSWORD')]) {
-                    sh 'echo "machine github.com login $PR_USERNAME password $PR_PASSWORD" >~/.netrc'
-                }
-
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: "${CarmenVersion}"]],
