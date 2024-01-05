@@ -60,7 +60,7 @@ pipeline {
             steps {
                 sh 'echo "Running testing stage"'
 
-                // sh "rm -f *.cpuprofile *.memprofile *.log"
+                sh "rm -f *.cpuprofile *.memprofile *.log"
 
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
@@ -71,7 +71,7 @@ pipeline {
                                          --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
                                          ${BlockFrom} ${BlockTo}"""
 
-                // archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
