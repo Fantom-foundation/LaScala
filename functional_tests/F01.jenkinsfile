@@ -1,7 +1,7 @@
 // Test functional correctness of live-db using testnet
 
 pipeline {
-    agent { label 'aida-db-mainnet' }
+    agent { label 'aida-db-testnet' }
 
     options {
         timestamps ()
