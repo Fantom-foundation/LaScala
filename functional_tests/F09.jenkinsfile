@@ -1,0 +1,71 @@
+// Runs unit test of Carmen to secure that Carmen functions operates as intended
+pipeline {
+    agent any
+
+    options {
+        timestamps ()
+        timeout(time: 24, unit: 'HOURS')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('Run') {
+            steps {
+                sh 'echo "Running testing stage"'
+
+                dir('carmen') {
+                	sh 'cd go && go test ./...'
+                }
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}
