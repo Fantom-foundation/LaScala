@@ -1,4 +1,4 @@
-// Master job for running release candidate tests in parallel
+// Master job for testing carmen stable branch
 
 pipeline {
     agent { node 'xapi194' }
