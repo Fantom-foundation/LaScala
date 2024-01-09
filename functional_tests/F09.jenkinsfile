@@ -52,13 +52,21 @@ pipeline {
             }
         }
 
-        stage('Run') {
+        stage('Run unit tests') {
             steps {
-                sh 'echo "Running testing stage"'
-
-                dir('carmen') {
-                	sh 'cd go && go test ./...'
+                dir('carmen/go') {
+                    sh "go test -race ./... -count 1 -timeout 36000s -parallel 2"
                 }
+            }
+        }
+
+        stage('Run integration test') {
+            steps {
+                sh """go run -race ./cmd/aida-vm-sdb  substate --validate-state-hash --db-impl carmen \
+                         --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 \
+                         --archive-query-rate 150 --vm-impl lfvm --track-progress \
+                         --db-tmp=/var/opera/Aida/dbtmpjenkins --aida-db=/var/opera/Aida/mainnet-data/aida-db \
+                         0 1000000"""
             }
         }
 

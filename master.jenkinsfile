@@ -64,6 +64,15 @@ pipeline {
                         ]
                     }
                 }
+                stage('F09 stage') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                        ]
+                    }
+                }
             }
         }
     }
