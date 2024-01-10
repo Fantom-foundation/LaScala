@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Test') {
             parallel {
-                stage('F02 stage') {
+                stage('aida-vm-sdb stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -29,7 +29,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('F09 stage') {
+                stage('unit and race condition test stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
