@@ -1,7 +1,7 @@
 // Master job for testing carmen stable branch
 
 pipeline {
-    agent { node 'xapi194' }
+    agent { label 'coordinator' }
 
     environment {
         PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
