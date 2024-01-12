@@ -5,6 +5,9 @@ pipeline {
 
     environment {
         PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        AIDA_VERSION = ''
+        CARMEN_VERSION  = ''
+        TOSCA_VERSION = ''
     }
 
     parameters {
@@ -16,25 +19,76 @@ pipeline {
     }
 
     stages {
+        stage('Get last commit sha') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: "https://github.com/Fantom-foundation/Aida.git"
+                    ]]
+                )
+
+                script {
+                   AIDA_VERSION = sh (
+                        script: 'git log -1 --pretty=format:"%H"',
+                        returnStdout: true
+                    ).trim()
+                    echo "Aida branch last commit id: ${AIDA_VERSION}"
+                }
+
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+
+                    script {
+                       CARMEN_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "Carmen branch last commit id: ${CARMEN_VERSION}"
+                    }
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+
+                    script {
+                       TOSCA_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "Tosca branch last commit id: ${TOSCA_VERSION}"
+                    }
+                }
+            }
+        }
+
         stage('Test') {
             parallel {
-                stage('aida-vm-sdb stage') {
+                stage('Run aida-vm-sdb job') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
-                            string(name: 'AidaVersion', value: "${AidaVersion}"),
-                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
-                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
-                stage('unit and race condition test stage') {
+                stage('Run unit and integration test job') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
-                            string(name: 'AidaVersion', value: "${AidaVersion}"),
-                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
-                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
                         ]
                     }
                 }
