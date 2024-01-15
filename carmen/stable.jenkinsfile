@@ -84,11 +84,23 @@ pipeline {
                         ]
                     }
                 }
-                stage('Run unit and integration test job') {
+                stage('Run unit test job') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
+                        ]
+                    }
+                }
+                stage('Run integration test job') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'ArchiveQueryRate', value: "150"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
