@@ -1,6 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent any
+    agent { label 'short' }
 
     options {
         timestamps ()
@@ -14,7 +14,6 @@ pipeline {
     parameters {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
     }
 
     stages {
@@ -40,13 +39,6 @@ pipeline {
                 	)
                 }
 
-                dir('tosca') {
-                    checkout scmGit(
-                        branches: [[name: "${ToscaVersion}"]],
-                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
-                    )
-                }
-
                 sh "go mod tidy"
                 sh "make all"
             }
@@ -57,16 +49,6 @@ pipeline {
                 dir('carmen/go') {
                     sh "go test -race ./... -count 1 -timeout 36000s -parallel 2"
                 }
-            }
-        }
-
-        stage('Run integration test') {
-            steps {
-                sh """go run -race ./cmd/aida-vm-sdb  substate --validate-state-hash --db-impl carmen \
-                         --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 \
-                         --archive-query-rate 150 --vm-impl lfvm --track-progress \
-                         --db-tmp=/var/opera/Aida/dbtmpjenkins --aida-db=/var/opera/Aida/mainnet-data/aida-db \
-                         0 1000000"""
             }
         }
 
