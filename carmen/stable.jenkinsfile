@@ -95,8 +95,8 @@ pipeline {
                 stage('Run integration test job') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
-                            string(name: 'BlockFrom', value: "${BlockFrom}"),
-                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'BlockFrom', value: "zero"),
+                            string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "150"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),

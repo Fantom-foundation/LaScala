@@ -1,6 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent any
+    agent { label 'short' }
 
     options {
         timestamps ()
@@ -12,8 +12,6 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "zero", description: '', name: 'BlockFrom')
-        string(defaultValue: "1000000", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
     }
