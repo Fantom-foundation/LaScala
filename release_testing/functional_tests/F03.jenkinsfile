@@ -1,7 +1,7 @@
 // Test functional correctness of an RPC-like node using testnet
 
 pipeline {
-    agent { label 'aida-db-testnet' }
+    agent { label 'short' }
 
     options {
         timestamps ()
