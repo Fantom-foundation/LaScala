@@ -6,6 +6,7 @@ pipeline {
     options {
         timestamps ()
         timeout(time: 2, unit: 'DAYS')
+	// expected = 2.5 hours
     }
 
     environment {
@@ -19,6 +20,8 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+	string(defaultValue: "/var/opera/Aida/register-run-db", description: '', name: 'RegisterRunPath')
+	string(defaultvalue: "f3-s5", description: '', name: 'RunId')
     }
 
     stages {
@@ -62,6 +65,8 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
+		sh "mkdir -p ${RegisterRunPath}"
+
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
@@ -69,11 +74,29 @@ pipeline {
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
+					 --register-run ${RegisterRunPath} --overwrite-run-id ${RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
+
+	stage('Generate Report') {
+	    steps {
+                sh 'echo "Running report generation stage"'
+
+                sh """./scripts/analytics/rmd/gen_processing/reports.sh \
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunId}/${RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
+
+		// current script always output f1.html, this is a temporary workaround.
+		sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/f3.html'
+
+                archiveArtifacts artifacts: 'scripts/analytics/rmd/f3.html'
+	    }
+	}
 
         stage('Teardown') {
             steps {
