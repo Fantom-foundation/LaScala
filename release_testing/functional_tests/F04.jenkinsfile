@@ -1,7 +1,7 @@
 // Test functional correctness of an RPC-like node using mainnet
 
 pipeline {
-    agent { label 'long' }
+    agent { label 'large-storage' }
 
     options {
         timestamps ()
