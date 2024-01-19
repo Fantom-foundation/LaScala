@@ -20,7 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "/var/opera/Aida/register-run-db", description: '', name: 'RegisterRunPath')
-	string(defaultvalue: "f1-s5", description: '', name: 'RunId', defaultValue: '')
+	string(defaultvalue: "f1-s5", description: '', name: 'RunId')
     }
 
     stages {
@@ -72,8 +72,7 @@ pipeline {
                                          --db-tmp /var/opera/Aida/dbtmpjenkins --aida-db /var/opera/Aida/testnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
-                                         --register-run ${RegisterRunPath} \
-					 $(overwriteRunId(${RunId}) \
+                                         --register-run ${RegisterRunPath} --overwrite-run-id ${RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
@@ -100,12 +99,4 @@ pipeline {
             }
         }
     }
-}
-
-def overwriteRunId(runId) {
-	if(runId.equals("")) {
-		return ""
-	} else {
-		return "--overwrite-run-id ${runId}"
-	}
 }
