@@ -6,6 +6,7 @@ pipeline {
     options {
         timestamps ()
         timeout(time: 2, unit: 'DAYS')
+	// expected = 2.5 hours
     }
 
     environment {
@@ -19,6 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "/var/opera/Aida/register-run-db", description: '', name: 'RegisterRunPath')
+	string(defaultvalue: "f1-s5", description: '', name: 'RunId')
     }
 
     stages {
@@ -56,11 +58,13 @@ pipeline {
             }
         }
 
-        stage('Test stage') {
+        stage('Run') {
             steps {
                 sh 'echo "Running testing stage"'
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
+
+		sh "mkdir -p ${RegisterRunPath}"
 
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
@@ -68,12 +72,26 @@ pipeline {
                                          --db-tmp /var/opera/Aida/dbtmpjenkins --aida-db /var/opera/Aida/testnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
-                                         --register-run ${RegisterRunPath} \
+                                         --register-run ${RegisterRunPath} --overwrite-run-id ${RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
+
+	stage('Generate Report') {
+	    steps {
+                sh 'echo "Running report generation stage"'
+
+                sh """./scripts/analytics/rmd/gen_processing/reports.sh \
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunId}/${RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
+
+                archiveArtifacts artifacts: 'scripts/analytics/rmd/f1.html'
+	    }
+	}
 
         stage('Teardown') {
             steps {
