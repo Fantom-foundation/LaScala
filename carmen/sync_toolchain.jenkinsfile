@@ -98,6 +98,7 @@ pipeline {
     }
     post {
         always {
+            sh "make clean"
             sh "rm -rf ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/"
             sh "rm -rf ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}-recov/"
             sh "rm -rf ${params.tmpDb}/state_db_carmen_go-file_${params.secondBlockHeight}/"
