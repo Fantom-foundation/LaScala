@@ -4,8 +4,8 @@ pipeline {
     parameters {
         string(name: 'tmpDb', defaultValue: '/var/opera/Aida/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
         string(name: 'aidaDb', defaultValue: '/var/opera/Aida/mainnet-data/aida-db', description: 'Temporary directory to read Aida DB from.')
-        string(name: 'firstBlockHeight', defaultValue: '1000000', description: 'First block height to import.')
-        string(name: 'secondBlockHeight', defaultValue: '2000000', description: 'Second block height to import.')
+        string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
+        string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
     }
 
     stages {
