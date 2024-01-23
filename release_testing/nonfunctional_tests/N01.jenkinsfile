@@ -18,6 +18,8 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
+        string(defaultValue: "run-eval", description: 'Overrides name of the register run db', name: 'RunId')
     }
 
     stages {
@@ -61,6 +63,8 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
+                sh "mkdir -p ${RegisterRunPath}"
+
                 sh """build/aida-vm-sdb  substate \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
@@ -68,9 +72,25 @@ pipeline {
                                          --aida-db /var/opera/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                         --register-run ${RegisterRunPath} \
+					                     ${RunId != '' ? '--overwrite-run-id '+RunId : '' } \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+        }
+
+        stage('Generate Report') {
+            steps {
+                sh 'echo "Running report generation stage"'
+
+                sh """./scripts/analytics/rmd/gen_processing/reports.sh \
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunId}/${RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
+
+                archiveArtifacts artifacts: 'scripts/analytics/rmd/f1.html'
             }
         }
 
