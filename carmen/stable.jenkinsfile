@@ -71,7 +71,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Start parallel stage execution') {
             parallel {
                 stage('Run aida-vm-sdb job') {
                     steps {
