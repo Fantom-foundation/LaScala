@@ -1,0 +1,69 @@
+// Runs unit test of Carmen to secure that Carmen functions operates as intended
+
+pipeline {
+    agent { node 'xapi249' }
+
+    options {
+        timestamps ()
+        timeout(time: 5, unit: 'DAYS')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${NormaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Norma.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                sh "go mod tidy"
+                sh "make -j"
+            }
+        }
+
+        stage('Run small scenario') {
+            steps {
+                sh "echo 'Starting Norma scenarion'"
+
+                sh "rm -rf /tmp/norma*"
+
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/norma run --label='report' ${ScenarioPath}"
+                }
+            }
+        }
+
+        stage('Archive the report') {
+            steps {
+                sh "echo 'Moving report file'"
+
+                sh "cp /tmp/norma*/*.html ."
+                sh "cp /tmp/norma*/*.csv ."
+
+                archiveArtifacts artifacts: '*.html,*.csv'
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}
