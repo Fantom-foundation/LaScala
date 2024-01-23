@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'coordinator' }
 
     parameters {
         string(defaultValue: "Missing name", description: 'Name of the job', name: 'name')
