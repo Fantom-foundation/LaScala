@@ -75,7 +75,7 @@ pipeline {
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
                                          --register-run ${RegisterRunPath} \
-					                     ${RunId != '' ? '--overwrite-run-id '+RunId : '' } \
+					 --overwrite-run-id ${RunId == '' ? JOB_BASE_NAME+'_'+BUILD_NUMBER : RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
@@ -88,11 +88,13 @@ pipeline {
 
                 sh """./scripts/analytics/rmd/gen_processing/reports.sh \
                       ./scripts/analytics/rmd/knit.R \
-                      ${RegisterRunId}/${RunId}.db \
+                      ${RegisterRunId}/${RunId == '' ? JOB_BASE_NAME+'_'+BUILD_NUMBER : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
-                archiveArtifacts artifacts: 'scripts/analytics/rmd/f1.html'
+		sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n3.html'
+                        
+                archiveArtifacts artifacts: 'scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n3.html'
             }
         }
 
