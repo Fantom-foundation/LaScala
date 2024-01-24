@@ -1,11 +1,11 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
-
 pipeline {
     agent { node 'xapi249' }
 
     options {
         timestamps ()
-        timeout(time: 5, unit: 'DAYS')
+        timeout(time: 2, unit: 'HOURS')
+        // estimated 20-30 minutes
     }
 
     environment {
@@ -37,26 +37,21 @@ pipeline {
             }
         }
 
-        stage('Run small scenario') {
+        stage('Run dynamic scenario') {
             steps {
-                sh "echo 'Starting Norma scenarion'"
-
-                sh "rm -rf /tmp/norma*"
-
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh "build/norma run --label='report' ${ScenarioPath}"
-                }
+                runScenario("dynamic")
             }
         }
 
-        stage('Archive the report') {
+        stage('Run slope scenario') {
             steps {
-                sh "echo 'Moving report file'"
+                runScenario("slope")
+            }
+        }
 
-                sh "cp /tmp/norma*/*.html ."
-                sh "cp /tmp/norma*/*.csv ."
-
-                archiveArtifacts artifacts: '*.html,*.csv'
+        stage('Run static scenario') {
+            steps {
+                runScenario("static")
             }
         }
 
@@ -66,4 +61,21 @@ pipeline {
             }
         }
     }
+}
+
+def runScenario(scenario) {
+    echo "Starting Norma demonet ${scenario} scenarion"
+
+    sh "rm -rf /tmp/norma*"
+
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenarion") {
+        sh "build/norma run --label='report' ./scenarios/demonet/${scenario}.yml"
+    }
+
+    sh "echo 'Moving report file'"
+
+    sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_${scenario}_single_eval_report.html"
+    sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_${scenario}_measurements.csv"
+
+    archiveArtifacts artifacts: "${env.BUILD_NUMBER}_${scenario}_single_eval_report.html,${env.BUILD_NUMBER}_${scenario}_measurements.csv"
 }
