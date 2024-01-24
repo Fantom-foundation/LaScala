@@ -20,7 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
-	string(defaultValue: "s5-f1", description: 'Forced name of the database', name: 'RunId')
+	string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
     }
 
     stages {
@@ -73,7 +73,7 @@ pipeline {
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --register-run ${RegisterRunPath} \
-					 ${RunId != '' ? '--overwrite-run-id '+RunId : '' } \
+					 --overwrite-run-id ${RunId != '' ? JOB_NAME+'_'+BUILD_NUMBER : RunId} \					 
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
@@ -86,7 +86,7 @@ pipeline {
 
                 sh """./scripts/analytics/rmd/gen_processing/reports.sh \
                       ./scripts/analytics/rmd/knit.R \
-                      ${RegisterRunId}/${RunId}.db \
+                      ${RegisterRunId}/${RunId != '' ? JOB_NAME+'_'+BUILD_NUMBER : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
