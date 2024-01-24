@@ -94,7 +94,7 @@ pipeline {
 
 		sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n3.html'
                         
-                archiveArtifacts artifacts: 'scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n3.html'
+                archiveArtifacts artifacts: "scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n3.html"
             }
         }
 
