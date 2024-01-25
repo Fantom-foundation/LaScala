@@ -1,7 +1,8 @@
 // Measure transaction processing time
 
 pipeline {
-    agent { label 'long' }
+    // agent { label 'long' } 
+    agent { node 'xapi246' }
 
     options {
         timestamps ()
