@@ -19,7 +19,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
-        string(defaultValue: "run-eval", description: 'Overrides name of the register run db', name: 'RunId')
+        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
     }
 
     stages {
@@ -73,7 +73,7 @@ pipeline {
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --register-run ${RegisterRunPath} \
-				         --overwrite-run-id ${RunId == '' ? JOB_BASE_NAME+'_'+BUILD_NUMBER : RunId} \
+				                         --overwrite-run-id ${RunId == '' ? JOB_BASE_NAME+'_'+BUILD_NUMBER : RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
@@ -90,7 +90,7 @@ pipeline {
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
-		sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n2.html'
+		        sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n2.html'
 
                 archiveArtifacts artifacts: "scripts/analytics/rmd/${JOB_BASE_NAME}_${BUILD_NUMBER}_n2.html"
             }
