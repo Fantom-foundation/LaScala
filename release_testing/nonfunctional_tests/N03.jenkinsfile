@@ -87,7 +87,7 @@ pipeline {
             steps {
                 sh 'echo "Running report generation stage"'
 
-                sh """./scripts/analytics/rmd/gen_processing/reports.sh \
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                       ./scripts/analytics/rmd/knit.R \
                       ${RegisterRunPath}/${RunId == '' ? JOB_BASE_NAME+'_'+BUILD_NUMBER : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
