@@ -1,0 +1,81 @@
+// Runs unit test of Carmen to secure that Carmen functions operates as intended
+pipeline {
+    agent { node 'xapi249' }
+
+    options {
+        timestamps ()
+        timeout(time: 2, unit: 'HOURS')
+        // estimated 20-30 minutes
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${NormaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Norma.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                sh "go mod tidy"
+                sh "make -j"
+            }
+        }
+
+        stage('Run dynamic scenario') {
+            steps {
+                runScenario("dynamic")
+            }
+        }
+
+        stage('Run slope scenario') {
+            steps {
+                runScenario("slope")
+            }
+        }
+
+        stage('Run static scenario') {
+            steps {
+                runScenario("static")
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}
+
+def runScenario(scenario) {
+    echo "Starting Norma demonet ${scenario} scenarion"
+
+    sh "rm -rf /tmp/norma*"
+
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenarion") {
+        sh "build/norma run --label='report' ./scenarios/demonet/${scenario}.yml"
+    }
+
+    sh "echo 'Moving report file'"
+
+    sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_${scenario}_single_eval_report.html"
+    sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_${scenario}_measurements.csv"
+
+    archiveArtifacts artifacts: "${env.BUILD_NUMBER}_${scenario}_single_eval_report.html,${env.BUILD_NUMBER}_${scenario}_measurements.csv"
+}
