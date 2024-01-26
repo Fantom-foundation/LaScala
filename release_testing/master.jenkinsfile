@@ -129,6 +129,40 @@ pipeline {
                         ]
                     }
                 }
+                stage('N01 stage') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N01', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
+                stage('N02 stage') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
+                stage('N03 stage') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N03', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'ArchiveQueryRate', value: "150"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
             }
         }
     }

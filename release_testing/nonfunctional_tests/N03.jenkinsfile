@@ -1,0 +1,107 @@
+// Measure transaction processing time while
+
+pipeline {
+    agent { label 'long' }
+
+    options {
+        timestamps ()
+        timeout(time: 5, unit: 'DAYS')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "zero", description: '', name: 'BlockFrom')
+        string(defaultValue: "last", description: '', name: 'BlockTo')
+        string(defaultValue: "150", description: '', name: 'ArchiveQueryRate')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
+        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('Test stage') {
+            steps {
+                sh 'echo "Running testing stage"'
+
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+
+                sh "mkdir -p ${RegisterRunPath}"
+
+                sh """build/aida-vm-sdb  substate \
+                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                         --vm-impl geth \
+                                         --db-tmp /var/opera/Aida/dbtmpjenkins \
+                                         --aida-db /var/opera/Aida/testnet-data/aida-db \
+                                         --track-progress --no-heartbeat-logging \
+                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                         --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
+                                         --register-run ${RegisterRunPath} \
+					                     --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
+                                         ${BlockFrom} ${BlockTo}"""
+
+                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+        }
+
+        stage('Generate Report') {
+            steps {
+                sh 'echo "Running report generation stage"'
+
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
+
+		        sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+                        
+                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}
