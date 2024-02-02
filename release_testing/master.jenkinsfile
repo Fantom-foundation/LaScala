@@ -16,6 +16,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
     }
 
     stages {
@@ -116,6 +117,13 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
+                stage('F08 stage') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F08', parameters: [
+                            string(name: 'NormaVersion', value: "${NormaVersion}"),
                         ]
                     }
                 }
