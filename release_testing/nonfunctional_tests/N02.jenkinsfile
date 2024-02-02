@@ -1,7 +1,7 @@
 // Measure transaction processing time
 
 pipeline {
-    agent { label 'large-storage' }
+    agent { label 'release' }
 
     options {
         timestamps ()
