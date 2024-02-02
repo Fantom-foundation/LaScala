@@ -91,7 +91,7 @@ pipeline {
                       ./scripts/analytics/rmd"""
 
                     sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
-                        
+
                     archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
 	        }
 	    }
