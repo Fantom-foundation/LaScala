@@ -1,7 +1,7 @@
 // Test functional correctness of live-db using testnet
 
 pipeline {
-    agent { label 'short' }
+    agent { label 'release' }
 
     options {
         timestamps ()
@@ -64,7 +64,7 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
-		sh "mkdir -p ${RegisterRunPath}"
+                sh "mkdir -p ${RegisterRunPath}"
 
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
@@ -73,7 +73,7 @@ pipeline {
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --register-run ${RegisterRunPath} \
-					 --overwrite-run-id ${RunId != '' ? JOB_NAME+'_'+BUILD_NUMBER : RunId} \					 
+                                         --overwrite-run-id ${RunId != '' ? JOB_NAME+'_'+BUILD_NUMBER : RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
