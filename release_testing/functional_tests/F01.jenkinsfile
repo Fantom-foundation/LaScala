@@ -19,7 +19,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
+        string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
 	    string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
     }
 
@@ -87,7 +87,7 @@ pipeline {
 
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                       ./scripts/analytics/rmd/knit.R \
-                      ${RegisterRunPath}/${RunId != '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                      ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
