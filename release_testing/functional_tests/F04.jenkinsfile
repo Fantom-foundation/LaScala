@@ -67,7 +67,8 @@ pipeline {
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
-                                         --db-tmp /var/opera/Aida/dbtmpjenkins --aida-db /var/opera/Aida/mainnet-data/aida-db \
+                                         --db-tmp /var/data/Aida/statedb \
+                                         --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
 					 --register-run ${RegisterRunPath} \
