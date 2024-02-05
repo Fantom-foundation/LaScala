@@ -71,6 +71,22 @@ pipeline {
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
+
+	    post {
+	        always {
+                    sh 'echo "Running report generation post-test"'
+
+                    sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunId}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
+
+                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+
+                    archiveArtifacts artifacts: 'scripts/analytics/rmd/${BUILD_NUMBER}_${JOBASE_NAME}.html'
+	        }
+	    }
         }
 
         stage('Teardown') {

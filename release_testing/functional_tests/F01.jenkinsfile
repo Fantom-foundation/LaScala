@@ -78,21 +78,21 @@ pipeline {
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
-        }
 
-	stage('Generate Report') {
-	    steps {
-                sh 'echo "Running report generation stage"'
+	    post {
+	        always {
+                    sh 'echo "Running report generation post-test"'
 
-                sh """./scripts/analytics/rmd/gen_processing/reports.sh \
+                    sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                       ./scripts/analytics/rmd/knit.R \
-                      ${RegisterRunId}/${RunId != '' ? JOB_NAME+'_'+BUILD_NUMBER : RunId}.db \
+                      ${RegisterRunId}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${JOB_NAME}_${BUILD_NUMBER}_f1.html'
+                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
                         
-                archiveArtifacts artifacts: 'scripts/analytics/rmd/${JOB_NAME}_${BUILD_NUMBER}_f1.html'
+                    archiveArtifacts artifacts: 'scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+	        }
 	    }
 	}
 
