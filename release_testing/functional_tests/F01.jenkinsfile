@@ -85,7 +85,7 @@ pipeline {
 
                     sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                       ./scripts/analytics/rmd/knit.R \
-                      ${RegisterRunId}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                      ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
