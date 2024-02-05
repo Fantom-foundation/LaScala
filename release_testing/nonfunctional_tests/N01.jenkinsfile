@@ -78,7 +78,7 @@ pipeline {
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
-         }
+        }
 
         stage('Teardown') {
             steps {
