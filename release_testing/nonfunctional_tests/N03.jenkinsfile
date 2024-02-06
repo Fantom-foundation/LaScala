@@ -1,7 +1,7 @@
 // Measure transaction processing time while
 
 pipeline {
-    agent { label 'release' }
+    agent { label 'non-functional' }
 
     options {
         timestamps ()
