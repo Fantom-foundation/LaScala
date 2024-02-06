@@ -20,7 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
-	    string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
+        string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
     }
 
     stages {
@@ -64,7 +64,7 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
-		        sh "mkdir -p ${RegisterRunPath}"
+                sh "mkdir -p ${RegisterRunPath}"
 
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
@@ -74,7 +74,7 @@ pipeline {
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --register-run ${RegisterRunPath} \
-      		                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
+                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
