@@ -104,6 +104,16 @@ pipeline {
                         ]
                     }
                 }
+                stage('Run genesis test job') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/Carmen/Sync-Toolchain', parameters: [
+                            string(name: 'tmpDb', value: "/var/opera/Aida/dbtmpjenkins"),
+                            string(name: 'aidaDb', value: "/var/opera/Aida/mainnet-data/aida-db"),
+                            string(name: 'firstBlockHeight', value: "5000000"),
+                            string(name: 'secondBlockHeight', value: "6000000"),
+                        ]
+                    }
+                }
             }
         }
     }
