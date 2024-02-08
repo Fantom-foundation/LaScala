@@ -120,7 +120,7 @@ pipeline {
 
                 script {
                     STATE_DB_DIRECTORY = sh (
-                        script: "ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1",
+                        script: '''ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1''',
                         returnStdout: true
                     ).trim()
                 }
