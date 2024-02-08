@@ -1,7 +1,7 @@
 // Test functional correctness of live-db using mainnet and aida-rpc tool
 
 pipeline {
-    agent { label 'functional' }
+    agent { label "${NodeLabel}" }
 
     options {
         timestamps ()
@@ -13,6 +13,7 @@ pipeline {
     }
 
     parameters {
+        string(defaultValue: "functional", description: '', name: 'NodeLabel')
         string(defaultValue: "first", description: '', name: 'BlockFrom')
         string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
