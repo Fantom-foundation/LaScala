@@ -19,7 +19,8 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
-        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+        booleanParam(defaultValue: true, description: 'If true, F02 stage will be executed', name: 'RunF02')
+        booleanParam(defaultValue: true, description: 'If true, F05 stage will be executed', name: 'RunF05')
     }
 
     stages {
@@ -57,9 +58,14 @@ pipeline {
             }
         }
 
-        stage('Test stage') {
+        stage('F02 stage') {
+            when {
+                expression {
+                    return ${params.RunF02};
+                }
+            }
             steps {
-                sh 'echo "Running testing stage"'
+                sh 'echo "Running F02 stage"'
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
@@ -72,8 +78,8 @@ pipeline {
                                          --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --register-run ${RegisterRunPath} \
-                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
-                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02' : RunId} \
+                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F02.cpuprofile --memory-profile ${BUILD_NUMBER}_F02.memprofile \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
@@ -85,13 +91,53 @@ pipeline {
 
                         sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                           ./scripts/analytics/rmd/knit.R \
-                          ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                          ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F02' : RunId}.db \
                           ./scripts/analytics/rmd/f1.rmd \
                           ./scripts/analytics/rmd"""
 
-                        sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+                        sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
 
-                        archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
+                        archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
+                }
+            }
+        }
+
+        stage('F05 stage') {
+            when {
+                expression {
+                    return ${params.RunF05};
+                }
+            }
+            steps {
+                sh 'echo "Running F05 stage"'
+
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+
+                sh """build/aida-rpc --db-src=/var/data/Aida/statedb/state_db_carmen_go-file_*/ \
+                                     --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                     --vm-impl=geth \
+                                     --workers=40 \
+                                     --register-run ${RegisterRunPath} \
+                                     --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F05' : RunId} \
+                                     --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
+                                     ${BlockFrom} ${BlockTo}"""
+
+                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+
+            post {
+                always {
+                        sh 'echo "Running report generation post-test"'
+
+                        sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                          ./scripts/analytics/rmd/knit.R \
+                          ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F05' : RunId}.db \
+                          ./scripts/analytics/rmd/f1.rmd \
+                          ./scripts/analytics/rmd"""
+
+                        sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
+
+                        archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
                 }
             }
         }
