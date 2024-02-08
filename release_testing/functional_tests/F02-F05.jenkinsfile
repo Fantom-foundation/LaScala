@@ -19,6 +19,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "150", description: '', name: 'ArchiveQueryRate')
+        string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
         booleanParam(defaultValue: true, description: 'If true, F02 stage will be executed', name: 'RunF02')
@@ -120,7 +121,7 @@ pipeline {
                                      --db-src=/var/data/Aida/statedb/state_db_carmen_go-file_*/ \
                                      --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                      --vm-impl=geth \
-                                     --workers=40 \
+                                     --workers=${Workers} \
                                      --register-run ${RegisterRunPath} \
                                      --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F05' : RunId} \
                                      --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
