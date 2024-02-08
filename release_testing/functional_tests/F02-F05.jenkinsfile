@@ -118,13 +118,15 @@ pipeline {
 
                 sh "rm -f *_F05.cpuprofile *_F05.memprofile *.log"
 
-                stateDbDirectory = sh (
-                    script: "ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1",
-                    returnStdout: true
-                ).trim()
+                script {
+                    STATE_DB_DIRECTORY = sh (
+                        script: "ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1",
+                        returnStdout: true
+                    ).trim()
+                }
 
                 sh """build/aida-rpc --validate --continue-on-failure \
-                                     --db-src=/var/data/Aida/statedb/${stateDbDirectory}/ \
+                                     --db-src=/var/data/Aida/statedb/${STATE_DB_DIRECTORY}/ \
                                      --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                      --vm-impl=geth \
                                      --workers=${Workers} \
