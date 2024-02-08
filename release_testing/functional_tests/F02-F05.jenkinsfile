@@ -64,7 +64,7 @@ pipeline {
         stage('F02 stage') {
             when {
                 expression {
-                    return ${params.RunF02};
+                    return params.RunF02;
                 }
             }
             steps {
@@ -109,7 +109,7 @@ pipeline {
         stage('F05 stage') {
             when {
                 expression {
-                    return ${params.RunF05};
+                    return params.RunF05;
                 }
             }
             steps {
