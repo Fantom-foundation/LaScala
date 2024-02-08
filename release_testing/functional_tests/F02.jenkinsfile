@@ -18,6 +18,8 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+	string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
+        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
     }
 
     stages {
@@ -66,11 +68,29 @@ pipeline {
                                          --vm-impl geth \
                                          --db-tmp /var/opera/Aida/dbtmpjenkins --aida-db /var/opera/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
+					 --register-run ${RegisterRunPath} \
+					 --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
+
+	    post {
+	        always {
+                    sh 'echo "Running report generation post-test"'
+
+                    sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
+
+                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+
+                    archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOBASE_NAME}.html"
+	        }
+	    }
         }
 
         stage('Teardown') {
