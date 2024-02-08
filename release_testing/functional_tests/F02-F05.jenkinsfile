@@ -119,7 +119,7 @@ pipeline {
                 sh "rm -f *_F05.cpuprofile *_F05.memprofile *.log"
 
                 stateDbDirectory = sh (
-                    script: "file_name=$(ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1)",
+                    script: "ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1",
                     returnStdout: true
                 ).trim()
 
