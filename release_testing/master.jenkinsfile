@@ -85,11 +85,12 @@ pipeline {
                         ]
                     }
                 }
-                stage('F02 stage') {
+                stage('F02-F05 stage') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'ArchiveQueryRate', value: "150"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
