@@ -148,7 +148,13 @@ pipeline {
 
         stage('Teardown') {
             steps {
+                sh 'echo "Running teardown stage"'
+
                 sh "make clean"
+
+                sh 'echo "Removing state db with archive"'
+
+                sh "rm -rf /var/data/Aida/statedb/state_db_carmen_go-file_*"
             }
         }
     }
