@@ -63,6 +63,8 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
+                sh "mkdir -p ${RegisterRunPath}"
+
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
