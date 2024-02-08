@@ -1,6 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent { node 'xapi249' }
+    agent { node 'rel-norma' }
 
     options {
         timestamps ()

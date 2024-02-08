@@ -11,7 +11,7 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "zero", description: '', name: 'BlockFrom')
+        string(defaultValue: "first", description: '', name: 'BlockFrom')
         string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
@@ -95,7 +95,7 @@ pipeline {
                 stage('Run integration test job') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
-                            string(name: 'BlockFrom', value: "zero"),
+                            string(name: 'BlockFrom', value: "first"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "150"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),

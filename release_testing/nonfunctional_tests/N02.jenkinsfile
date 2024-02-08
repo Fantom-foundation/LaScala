@@ -1,7 +1,7 @@
 // Measure transaction processing time
 
 pipeline {
-    agent { label 'large-storage' }
+    agent { label 'non-functional' }
 
     options {
         timestamps ()
@@ -13,12 +13,12 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "zero", description: '', name: 'BlockFrom')
+        string(defaultValue: "first", description: '', name: 'BlockFrom')
         string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "/var/opera/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
+        string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
     }
 
@@ -68,8 +68,8 @@ pipeline {
                 sh """build/aida-vm-sdb  substate \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
-                                         --db-tmp /var/opera/Aida/dbtmpjenkins \
-                                         --aida-db /var/opera/Aida/mainnet-data/aida-db \
+                                         --db-tmp /var/data/Aida/statedb \
+                                         --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          --register-run ${RegisterRunPath} \
@@ -80,8 +80,8 @@ pipeline {
             }
 
             post {
-	        always {
-		    sh 'echo "Running report generation post-test"'
+                always {
+                    sh 'echo "Running report generation post-test"'
 		    
                     sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                         ./scripts/analytics/rmd/knit.R \
@@ -89,10 +89,10 @@ pipeline {
                         ./scripts/analytics/rmd/f1.rmd \
                         ./scripts/analytics/rmd"""
 
-		    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+
                     archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
-		    
-	        }
+	            }
             }
         }
 
