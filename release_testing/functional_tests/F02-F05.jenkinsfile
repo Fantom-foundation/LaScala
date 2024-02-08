@@ -71,7 +71,7 @@ pipeline {
             steps {
                 sh 'echo "Running F02 stage"'
 
-                sh "rm -f *.cpuprofile *.memprofile *.log"
+                sh "rm -f *_F02.cpuprofile *_F02.memprofile *.log"
 
                 sh "mkdir -p ${RegisterRunPath}"
 
@@ -87,7 +87,7 @@ pipeline {
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F02.cpuprofile --memory-profile ${BUILD_NUMBER}_F02.memprofile \
                                          ${BlockFrom} ${BlockTo}"""
 
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+                archiveArtifacts artifacts: '*_F02.cpuprofile,*_F02.memprofile,*.log'
             }
 
             post {
@@ -116,17 +116,22 @@ pipeline {
             steps {
                 sh 'echo "Running F05 stage"'
 
-                sh "rm -f *.cpuprofile *.memprofile *.log"
+                sh "rm -f *_F05.cpuprofile *_F05.memprofile *.log"
+
+                stateDbDirectory = sh (
+                    script: "file_name=$(ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1)",
+                    returnStdout: true
+                ).trim()
 
                 sh """build/aida-rpc --validate --continue-on-failure \
-                                     --db-src=/var/data/Aida/statedb/state_db_carmen_go-file_1000000/ \
+                                     --db-src=/var/data/Aida/statedb/${stateDbDirectory}/ \
                                      --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                      --vm-impl=geth \
                                      --workers=${Workers} \
                                      --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
                                      ${BlockFrom} ${BlockTo}"""
 
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+                archiveArtifacts artifacts: '*_F05.cpuprofile,*_F05.memprofile,*.log'
             }
         }
 
