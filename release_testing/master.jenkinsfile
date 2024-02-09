@@ -150,7 +150,7 @@ pipeline {
                 }
                 stage('N02-N04 stage') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02', parameters: [
+                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02-N04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
