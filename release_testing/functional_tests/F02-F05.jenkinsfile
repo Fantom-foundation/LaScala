@@ -23,8 +23,8 @@ pipeline {
         string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
-        booleanParam(defaultValue: true, description: 'If true, F02 stage will be executed', name: 'RunF02')
-        booleanParam(defaultValue: true, description: 'If true, F05 stage will be executed', name: 'RunF05')
+        booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunF02')
+        booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunF05')
     }
 
     stages {
@@ -71,7 +71,7 @@ pipeline {
             steps {
                 sh 'echo "Running F02 stage"'
 
-                sh "rm -f *_F02.cpuprofile *_F02.memprofile *.log"
+                sh "rm -f *_F02.cpuprofile *_F02.memprofile *_F02.log"
 
                 sh "mkdir -p ${RegisterRunPath}"
 
@@ -87,7 +87,7 @@ pipeline {
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F02.cpuprofile --memory-profile ${BUILD_NUMBER}_F02.memprofile \
                                          ${BlockFrom} ${BlockTo}"""
 
-                archiveArtifacts artifacts: '*_F02.cpuprofile,*_F02.memprofile,*.log'
+                archiveArtifacts artifacts: '*_F02.cpuprofile,*_F02.memprofile,*_F02.log'
             }
 
             post {
@@ -116,7 +116,7 @@ pipeline {
             steps {
                 sh 'echo "Running F05 stage"'
 
-                sh "rm -f *_F05.cpuprofile *_F05.memprofile *.log"
+                sh "rm -f *_F05.cpuprofile *_F05.memprofile *_F05.log"
 
                 script {
                     STATE_DB_DIRECTORY = sh (
@@ -133,7 +133,7 @@ pipeline {
                                      --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
                                      ${BlockFrom} ${BlockTo}"""
 
-                archiveArtifacts artifacts: '*_F05.cpuprofile,*_F05.memprofile,*.log'
+                archiveArtifacts artifacts: '*_F05.cpuprofile,*_F05.memprofile,*_F05.log'
             }
         }
 

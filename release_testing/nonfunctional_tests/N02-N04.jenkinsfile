@@ -1,7 +1,7 @@
 // Measure transaction processing time
 
 pipeline {
-    agent { label 'non-functional' }
+    agent { label "${NodeLabel}" }
 
     options {
         timestamps ()
@@ -13,13 +13,18 @@ pipeline {
     }
 
     parameters {
+        string(defaultValue: "non-functional", description: '', name: 'NodeLabel')
         string(defaultValue: "first", description: '', name: 'BlockFrom')
         string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "150", description: '', name: 'ArchiveQueryRate')
+        string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+        booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunN02')
+        booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunN04')
     }
 
     stages {
@@ -57,11 +62,16 @@ pipeline {
             }
         }
 
-        stage('Test stage') {
+        stage('N02 stage') {
+            when {
+                expression {
+                    return params.RunN02;
+                }
+            }
             steps {
-                sh 'echo "Running testing stage"'
+                sh 'echo "Running N02 stage"'
 
-                sh "rm -f *.cpuprofile *.memprofile *.log"
+                sh "rm -f *_N02.cpuprofile *_N02.memprofile *.log"
 
                 sh "mkdir -p ${RegisterRunPath}"
 
@@ -71,12 +81,12 @@ pipeline {
                                          --db-tmp /var/data/Aida/statedb \
                                          --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
-                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
                                          --register-run ${RegisterRunPath} \
-				                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
+				                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N02' : RunId} \
                                          ${BlockFrom} ${BlockTo}"""
 
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+                archiveArtifacts artifacts: '*_N02.cpuprofile,*_N02.memprofile,*_N02.log'
             }
 
             post {
@@ -85,20 +95,55 @@ pipeline {
 		    
                     sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                         ./scripts/analytics/rmd/knit.R \
-                        ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                        ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N02' : RunId}.db \
                         ./scripts/analytics/rmd/f1.rmd \
                         ./scripts/analytics/rmd"""
 
-                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N02.html'
 
-                    archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
+                    archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N02.html"
 	            }
+            }
+        }
+
+        stage('N04 stage') {
+            when {
+                expression {
+                    return params.RunN04;
+                }
+            }
+            steps {
+                sh 'echo "Running N04 stage"'
+
+                sh "rm -f *_N04.cpuprofile *_N04.memprofile *_N04.log"
+
+                script {
+                    STATE_DB_DIRECTORY = sh (
+                        script: '''ls /var/data/Aida/statedb | grep -E '^state_db_carmen_go-file_[0-9]+$' | head -n 1''',
+                        returnStdout: true
+                    ).trim()
+                }
+
+                sh """build/aida-rpc --db-src=/var/data/Aida/statedb/${STATE_DB_DIRECTORY}/ \
+                                     --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                     --vm-impl=geth \
+                                     --workers=${Workers} \
+                                     --cpu-profile ${BUILD_NUMBER}_N04.cpuprofile --memory-profile ${BUILD_NUMBER}_N04.memprofile \
+                                     ${BlockFrom} ${BlockTo}"""
+
+                archiveArtifacts artifacts: '*_N04.cpuprofile,*_N04.memprofile,*_N04.log'
             }
         }
 
         stage('Teardown') {
             steps {
+                sh 'echo "Running teardown stage"'
+
                 sh "make clean"
+
+                sh 'echo "Removing state db with archive"'
+
+                sh "rm -rf /var/data/Aida/statedb/state_db_carmen_go-file_*"
             }
         }
     }
