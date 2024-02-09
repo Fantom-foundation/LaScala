@@ -149,11 +149,12 @@ pipeline {
                         ]
                     }
                 }
-                stage('N02 stage') {
+                stage('N02-N04 stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'ArchiveQueryRate', value: "150"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")

@@ -78,12 +78,13 @@ pipeline {
                 sh """build/aida-vm-sdb  substate \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
-                                         --db-tmp /var/data/Aida/statedb \
+                                         --db-tmp /var/data/Aida/statedb --keep-db \
                                          --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
-                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
+                                         --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
                                          --register-run ${RegisterRunPath} \
 				                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N02' : RunId} \
+                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
                                          ${BlockFrom} ${BlockTo}"""
 
                 archiveArtifacts artifacts: '*_N02.cpuprofile,*_N02.memprofile,*_N02.log'
