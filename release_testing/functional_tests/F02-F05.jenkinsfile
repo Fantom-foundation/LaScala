@@ -129,6 +129,8 @@ pipeline {
                                      --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                      --vm-impl=geth \
                                      --workers=${Workers} \
+                                     --register-run ${RegisterRunPath} \
+                                     --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F05' : RunId} \
                                      --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
                                      ${BlockFrom} ${BlockTo}"""
 
