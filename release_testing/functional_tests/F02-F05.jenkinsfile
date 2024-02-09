@@ -72,12 +72,16 @@ pipeline {
 
                 sh "rm -f *_F02.cpuprofile *_F02.memprofile *_F02.log"
 
+                sh 'echo "Removing old state db with archive"'
+
+                sh "rm -rf /var/data/Aida/statedb/state_db_F02"
+
                 sh "mkdir -p ${RegisterRunPath}"
 
                 sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
-                                         --db-tmp /var/data/Aida/statedb --keep-db \
+                                         --db-tmp /var/data/Aida/statedb --keep-db --custom-db-name="state_db_F02" \
                                          --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --archive --archive-variant s5 \
@@ -143,10 +147,6 @@ pipeline {
                 sh 'echo "Running teardown stage"'
 
                 sh "make clean"
-
-                sh 'echo "Removing state db with archive"'
-
-                sh "rm -rf /var/data/Aida/statedb/state_db_carmen_go-file_*"
             }
         }
     }

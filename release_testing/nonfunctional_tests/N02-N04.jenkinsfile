@@ -72,12 +72,16 @@ pipeline {
 
                 sh "rm -f *_N02.cpuprofile *_N02.memprofile *.log"
 
+                sh 'echo "Removing old state db with archive"'
+
+                sh "rm -rf /var/data/Aida/statedb/state_db_N02"
+
                 sh "mkdir -p ${RegisterRunPath}"
 
                 sh """build/aida-vm-sdb  substate \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
-                                         --db-tmp /var/data/Aida/statedb --keep-db \
+                                         --db-tmp /var/data/Aida/statedb --keep-db --custom-db-name="state_db_N02"\
                                          --aida-db /var/src/Aida/mainnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --archive --archive-variant s5 \
