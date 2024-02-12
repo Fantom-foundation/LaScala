@@ -132,6 +132,22 @@ pipeline {
 
                 archiveArtifacts artifacts: '*_N04.cpuprofile,*_N04.memprofile,*_N04.log'
             }
+
+            post {
+                always {
+                    sh 'echo "Running report generation post-test"'
+
+                    sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                        ./scripts/analytics/rmd/knit.R \
+                        ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N04' : RunId}.db \
+                        ./scripts/analytics/rmd/f1.rmd \
+                        ./scripts/analytics/rmd"""
+
+                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N04.html'
+
+                    archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N04.html"
+	            }
+            }
         }
 
         stage('Teardown') {
@@ -139,10 +155,6 @@ pipeline {
                 sh 'echo "Running teardown stage"'
 
                 sh "make clean"
-
-                sh 'echo "Removing state db with archive"'
-
-                sh "rm -rf /var/data/Aida/statedb/state_db_carmen_go-file_*"
             }
         }
     }
