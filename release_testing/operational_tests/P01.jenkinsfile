@@ -88,7 +88,7 @@ pipeline {
                 sh "cp ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}/statedb_info.json ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/"
                 sh "sed -i -r 's/\"archiveMode\": true,/\"archiveMode\": false,/' ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/statedb_info.json"
                 script {nextBlock=params.FirstBlockHeight.toInteger()+1}
-                sh "build/aida-vm-sdb substate --aida-db ${params.AidaDb} --db-tmp ${params.TmpDb} --db-src ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db --validate-state-hash ${nextBlock} ${params.secondBlockHeight}"
+                sh "build/aida-vm-sdb substate --aida-db ${params.AidaDb} --db-tmp ${params.TmpDb} --db-src ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db --validate-state-hash ${nextBlock} ${params.SecondBlockHeight}"
             }
         }    
 
