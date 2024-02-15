@@ -121,6 +121,15 @@ pipeline {
                         ]
                     }
                 }
+                stage('F06 Syntactic transactions') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F06', parameters: [
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
                 stage('F08 stage') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F08', parameters: [

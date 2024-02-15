@@ -1,0 +1,130 @@
+// Test processing of custom transactions and blocks
+
+pipeline {
+    agent { label 'functional' }
+
+    options {
+        timestamps ()
+        timeout(time: 2, unit: 'DAYS')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        booleanParam(defaultValue: true, description: 'If checked, ERC20 stage will be executed', name: 'ERC20')
+        booleanParam(defaultValue: true, description: 'If checked, Store stage will be executed', name: 'Store')
+        booleanParam(defaultValue: true, description: 'If checked, Counter stage will be executed', name: 'Counter')
+        booleanParam(defaultValue: true, description: 'If checked, Uniswap stage will be executed', name: 'Uniswap')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                //  TODO: carmen and tosca version setup temporarily removed
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('Uniswap stage') {
+            when {
+                expression {
+                    return params.Uniswap;
+                }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh 'echo "Running Uniswap stage"'
+
+                    sh """build/aida-vm-sdb tx-generator \
+                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                            --shadow-db --db-shadow-impl geth \
+                                            --tx-type uniswap --block-length 50000 \
+                                            london london+100"""
+                }
+            }
+	    }
+
+        stage('ERC20 stage') {
+            when {
+                expression {
+                    return params.ERC20;
+                }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh 'echo "Running ERC20 stage"'
+
+                    sh """build/aida-vm-sdb tx-generator \
+                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                            --shadow-db --db-shadow-impl geth \
+                                            --tx-type erc20 --block-length 50000 \
+                                            london london+100"""
+                }
+            }
+	    }
+
+        stage('Store stage') {
+            when {
+                expression {
+                    return params.Store;
+                }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh 'echo "Running Store stage"'
+
+                    // TODO: --shadow-db --db-shadow-impl geth temporarily removed for testing purposes
+                    sh """build/aida-vm-sdb tx-generator \
+                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                            --tx-type store --block-length 50000 \
+                                            london london+100"""
+                }
+            }
+	    }
+
+        stage('Counter stage') {
+            when {
+                expression {
+                    return params.Counter;
+                }
+            }
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh 'echo "Running Counter stage"'
+
+                    sh """build/aida-vm-sdb tx-generator \
+                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                            --shadow-db --db-shadow-impl geth \
+                                            --tx-type counter --block-length 50000 \
+                                            london london+100"""
+                }
+            }
+	    }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}
