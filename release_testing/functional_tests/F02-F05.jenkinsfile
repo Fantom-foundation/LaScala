@@ -1,0 +1,162 @@
+// Test functional correctness of live-db using mainnet and aida-rpc tool
+
+pipeline {
+    agent { label "${NodeLabel}" }
+
+    options {
+        timestamps ()
+        timeout(time: 10, unit: 'DAYS')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "functional", description: '', name: 'NodeLabel')
+        string(defaultValue: "first", description: '', name: 'BlockFrom')
+        string(defaultValue: "last", description: '', name: 'BlockTo')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "40", description: '', name: 'Workers')
+        string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
+        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+        booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunF02')
+        booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunF05')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('F02 stage') {
+            when {
+                expression {
+                    return params.RunF02;
+                }
+            }
+            steps {
+                sh 'echo "Running F02 stage"'
+
+                sh "rm -f *_F02.cpuprofile *_F02.memprofile *_F02.log"
+
+                sh 'echo "Removing old state db with archive"'
+
+                sh "rm -rf /var/data/Aida/statedb/state_db_F02"
+
+                sh "mkdir -p ${RegisterRunPath}"
+
+                sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
+                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                         --vm-impl geth \
+                                         --db-tmp /var/data/Aida/statedb --keep-db --custom-db-name="state_db_F02" \
+                                         --aida-db /var/src/Aida/mainnet-data/aida-db \
+                                         --track-progress --no-heartbeat-logging \
+                                         --archive --archive-variant s5 \
+                                         --register-run ${RegisterRunPath} \
+                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02' : RunId} \
+                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F02.cpuprofile --memory-profile ${BUILD_NUMBER}_F02.memprofile \
+                                         ${BlockFrom} ${BlockTo}"""
+
+                archiveArtifacts artifacts: '*_F02.cpuprofile,*_F02.memprofile,*_F02.log'
+            }
+
+            post {
+                always {
+                        sh 'echo "Running report generation post-test"'
+
+                        sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                          ./scripts/analytics/rmd/knit.R \
+                          ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F02' : RunId}.db \
+                          ./scripts/analytics/rmd/f1.rmd \
+                          ./scripts/analytics/rmd"""
+
+                        sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
+
+                        archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
+                }
+            }
+        }
+
+        stage('F05 stage') {
+            when {
+                expression {
+                    return params.RunF05;
+                }
+            }
+            steps {
+                sh 'echo "Running F05 stage"'
+
+                sh "rm -f *_F05.cpuprofile *_F05.memprofile *_F05.log"
+
+                sh """build/aida-rpc --validate --continue-on-failure \
+                                     --db-src=/var/data/Aida/statedb/state_db_F02/ \
+                                     --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                     --vm-impl=geth \
+                                     --workers=${Workers} \
+                                     --register-run ${RegisterRunPath} \
+                                     --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F05' : RunId} \
+                                     --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
+                                     ${BlockFrom} ${BlockTo}"""
+
+                archiveArtifacts artifacts: '*_F05.cpuprofile,*_F05.memprofile,*_F05.log'
+            }
+
+            post {
+                always {
+                        sh 'echo "Running report generation post-test"'
+
+                        sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                          ./scripts/analytics/rmd/knit.R \
+                          ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F05' : RunId}.db \
+                          ./scripts/analytics/rmd/aida-rpc.rmd \
+                          ./scripts/analytics/rmd"""
+
+                        sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
+
+                        archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
+                }
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh 'echo "Running teardown stage"'
+
+                sh "make clean"
+            }
+        }
+    }
+}
