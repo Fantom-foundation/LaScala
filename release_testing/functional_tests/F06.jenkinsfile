@@ -62,7 +62,7 @@ pipeline {
                                             london london+100"""
                 }
             }
-	    }
+        }
 
         stage('ERC20 stage') {
             when {
@@ -81,7 +81,7 @@ pipeline {
                                             london london+100"""
                 }
             }
-	    }
+        }
 
         stage('Store stage') {
             when {
@@ -100,7 +100,7 @@ pipeline {
                                             london london+100"""
                 }
             }
-	    }
+        }
 
         stage('Counter stage') {
             when {
@@ -119,7 +119,7 @@ pipeline {
                                             london london+100"""
                 }
             }
-	    }
+        }
 
         stage('Teardown') {
             steps {
