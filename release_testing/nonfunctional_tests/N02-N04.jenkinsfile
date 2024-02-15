@@ -22,8 +22,8 @@ pipeline {
         string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
-        booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunN02')
-        booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunN04')
+        booleanParam(defaultValue: true, description: 'If checked, N02 stage will be executed', name: 'RunN02')
+        booleanParam(defaultValue: true, description: 'If checked, N04 stage will be executed', name: 'RunN04')
     }
 
     stages {
