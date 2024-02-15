@@ -65,7 +65,7 @@ pipeline {
 
                 sh "mkdir -p ${RegisterRunPath}"
 
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl geth \
