@@ -16,6 +16,7 @@ pipeline {
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "10000", description: 'Length of the block.', name: 'BlockLength')
     }
 
     stages {
@@ -49,7 +50,7 @@ pipeline {
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                         --shadow-db --db-shadow-impl geth \
                                         --vm-impl geth \
-                                        --tx-type all --block-length 10000 \
+                                        --tx-type all --block-length ${BlockLength} \
                                         london london+100"""
             }
         }
