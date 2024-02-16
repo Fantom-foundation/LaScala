@@ -5,7 +5,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'DAYS')
+        timeout(time: 5, unit: 'DAYS')
     }
 
     environment {
@@ -16,10 +16,6 @@ pipeline {
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        booleanParam(defaultValue: true, description: 'If checked, ERC20 stage will be executed', name: 'ERC20')
-        booleanParam(defaultValue: true, description: 'If checked, Store stage will be executed', name: 'Store')
-        booleanParam(defaultValue: true, description: 'If checked, Counter stage will be executed', name: 'Counter')
-        booleanParam(defaultValue: true, description: 'If checked, Uniswap stage will be executed', name: 'Uniswap')
     }
 
     stages {
@@ -45,79 +41,16 @@ pipeline {
             }
         }
 
-        stage('Uniswap stage') {
-            when {
-                expression {
-                    return params.Uniswap;
-                }
-            }
+        stage('Test stage') {
             steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh 'echo "Running Uniswap stage"'
+                sh 'echo "Running mixed transaction types test stage"'
 
-                    sh """build/aida-vm-sdb tx-generator \
-                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                            --shadow-db --db-shadow-impl geth \
-                                            --tx-type uniswap --block-length 50000 \
-                                            london london+100"""
-                }
-            }
-        }
-
-        stage('ERC20 stage') {
-            when {
-                expression {
-                    return params.ERC20;
-                }
-            }
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh 'echo "Running ERC20 stage"'
-
-                    sh """build/aida-vm-sdb tx-generator \
-                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                            --shadow-db --db-shadow-impl geth \
-                                            --tx-type erc20 --block-length 50000 \
-                                            london london+100"""
-                }
-            }
-        }
-
-        stage('Store stage') {
-            when {
-                expression {
-                    return params.Store;
-                }
-            }
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh 'echo "Running Store stage"'
-
-                    // TODO: --shadow-db --db-shadow-impl geth temporarily removed for testing purposes
-                    sh """build/aida-vm-sdb tx-generator \
-                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                            --tx-type store --block-length 50000 \
-                                            london london+100"""
-                }
-            }
-        }
-
-        stage('Counter stage') {
-            when {
-                expression {
-                    return params.Counter;
-                }
-            }
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh 'echo "Running Counter stage"'
-
-                    sh """build/aida-vm-sdb tx-generator \
-                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                            --shadow-db --db-shadow-impl geth \
-                                            --tx-type counter --block-length 50000 \
-                                            london london+100"""
-                }
+                sh """build/aida-vm-sdb tx-generator \
+                                        --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                        --shadow-db --db-shadow-impl geth \
+                                        --vm-impl geth \
+                                        --tx-type all --block-length 50000 \
+                                        london london+100"""
             }
         }
 
