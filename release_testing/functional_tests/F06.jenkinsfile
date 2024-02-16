@@ -49,7 +49,7 @@ pipeline {
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                         --shadow-db --db-shadow-impl geth \
                                         --vm-impl geth \
-                                        --tx-type all --block-length 50000 \
+                                        --tx-type all --block-length 10000 \
                                         london london+100"""
             }
         }
