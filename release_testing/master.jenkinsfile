@@ -74,7 +74,7 @@ pipeline {
 
         stage('Start parallel stage execution') {
             parallel {
-                stage('F01 stage') {
+                stage('F01 block processing (testnet)') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F01', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -85,18 +85,19 @@ pipeline {
                         ]
                     }
                 }
-                stage('F02 stage') {
+                stage('F02/F05 block processing and RPC request processing (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'Workers', value: "1")
                         ]
                     }
                 }
-                stage('F03 stage') {
+                stage('F03 RPC node simulation (testnet)') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F03', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -108,7 +109,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('F04 stage') {
+                stage('F04 RPC node simulation (mainnet)') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -120,14 +121,14 @@ pipeline {
                         ]
                     }
                 }
-                stage('F08 stage') {
+                stage('F08 Norma') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F08', parameters: [
                             string(name: 'NormaVersion', value: "${NormaVersion}"),
                         ]
                     }
                 }
-                stage('F09 stage') {
+                stage('F09 Carmen Unit and Integration Tests') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -137,7 +138,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('N01 stage') {
+                stage('N01 block processing (mainnet)') {
                     steps {
                         build job: '/Aida/ReleaseTesting/NonfunctionalTests/N01', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -148,18 +149,19 @@ pipeline {
                         ]
                     }
                 }
-                stage('N02 stage') {
+                stage('N02/N04 block processing with archive-db and RPC request processing (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02', parameters: [
+                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02-N04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'Workers', value: "1")
                         ]
                     }
                 }
-                stage('N03 stage') {
+                stage('N03 RPC node simulation (mainnet)') {
                     steps {
                         build job: '/Aida/ReleaseTesting/NonfunctionalTests/N03', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -171,7 +173,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('P01 stage') {
+                stage('P01 Genesis Tests') {
                     steps {
                         build job: '/Aida/ReleaseTesting/operational/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
