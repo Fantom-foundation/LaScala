@@ -13,6 +13,8 @@ pipeline {
     }
 
     parameters {
+        string(defaultValue: "london", description: '', name: 'BlockFrom')
+        string(defaultValue: "london+100", description: '', name: 'BlockTo')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
@@ -51,7 +53,7 @@ pipeline {
                                         --shadow-db --db-shadow-impl geth \
                                         --vm-impl geth \
                                         --tx-type all --block-length ${BlockLength} \
-                                        london london+100"""
+                                        ${BlockFrom} ${BlockTo}"""
             }
         }
 
