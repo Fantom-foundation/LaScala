@@ -1,0 +1,64 @@
+// Test processing of custom transactions and blocks
+
+pipeline {
+    agent { label 'functional' }
+
+    options {
+        timestamps ()
+        timeout(time: 5, unit: 'DAYS')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "10000", description: 'Length of the block.', name: 'BlockLength')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                //  TODO: carmen and tosca version setup temporarily removed
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('Test stage') {
+            steps {
+                sh 'echo "Running mixed transaction types test stage"'
+
+                sh """build/aida-vm-sdb tx-generator \
+                                        --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                        --shadow-db --db-shadow-impl geth \
+                                        --vm-impl geth \
+                                        --tx-type all --block-length ${BlockLength} \
+                                        london london+100"""
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}
