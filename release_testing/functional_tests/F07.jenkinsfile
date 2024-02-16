@@ -1,0 +1,69 @@
+// Test ethereum compliant data sets
+
+pipeline {
+    agent { label 'ethereum' }
+
+    options {
+        timestamps ()
+        timeout(time: 1, unit: 'HOURS') // Expected: few minutes at most
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+    }
+
+    parameters {
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+
+                sh "git submodule update --init --recursive"
+
+                //  TODO: carmen and tosca version setup temporarily removed
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('Test stage') {
+            steps {
+                sh 'echo "Running testing stage"'
+
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+
+                sh """build/aida-vm-sdb ethereum-test --validate --continue-on-failure \
+                                        --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                        --db-tmp /var/data/Aida/statedb \
+                                        --shadow-db --db-shadow-impl geth \
+                                        --vm-impl geth \
+                                        --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                        /var/data/Aida/eth-tests/"""
+
+                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+}

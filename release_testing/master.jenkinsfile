@@ -130,6 +130,15 @@ pipeline {
                         ]
                     }
                 }
+                stage('F07 Ethereum State Tests') {
+                    steps {
+                        build job: '/Aida/ReleaseTesting/FunctionalTests/F07', parameters: [
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
                 stage('F08 Norma') {
                     steps {
                         build job: '/Aida/ReleaseTesting/FunctionalTests/F08', parameters: [
