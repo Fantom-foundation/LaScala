@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('Generate-Report') {
+        stage('Generate report') {
             steps {
                 sh 'echo "Running report generation stage"'
 
