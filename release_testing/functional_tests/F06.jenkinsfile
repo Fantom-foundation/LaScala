@@ -50,6 +50,7 @@ pipeline {
 
                 sh """build/aida-vm-sdb tx-generator \
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                        --db-tmp /var/data/Aida/statedb \
                                         --shadow-db --db-shadow-impl geth \
                                         --vm-impl geth \
                                         --tx-type all --block-length ${BlockLength} \
