@@ -48,13 +48,36 @@ pipeline {
             steps {
                 sh 'echo "Running mixed transaction types test stage"'
 
-                sh """build/aida-vm-sdb tx-generator \
-                                        --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                        --db-tmp /var/data/Aida/statedb \
-                                        --shadow-db --db-shadow-impl geth \
-                                        --vm-impl geth \
-                                        --tx-type all --block-length ${BlockLength} \
-                                        ${BlockFrom} ${BlockTo}"""
+                sh "mkdir -p ${RegisterRunPath}"
+
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh """build/aida-vm-sdb tx-generator \
+                                            --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                            --db-tmp /var/data/Aida/statedb \
+                                            --shadow-db --db-shadow-impl geth \
+                                            --vm-impl geth \
+                                            --tx-type all --block-length ${BlockLength} \
+                                            --register-run ${RegisterRunPath} \
+                                            --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
+                                            ${BlockFrom} ${BlockTo}"""
+                }
+            }
+        }
+
+        stage('Generate-Report') {
+            steps {
+                sh 'echo "Running report generation stage"'
+
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                    ./scripts/analytics/rmd/knit.R \
+                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                    ./scripts/analytics/rmd/f1.rmd \
+                    ./scripts/analytics/rmd
+                    """
+
+                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+
+                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
             }
         }
 
