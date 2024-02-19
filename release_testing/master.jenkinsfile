@@ -76,7 +76,7 @@ pipeline {
             parallel {
                 stage('F01 block processing (testnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F01', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F01', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -87,7 +87,7 @@ pipeline {
                 }
                 stage('F02/F05 block processing and RPC request processing (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -99,7 +99,7 @@ pipeline {
                 }
                 stage('F03 RPC node simulation (testnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F03', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F03', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'ArchiveQueryRate', value: "200"),
@@ -111,7 +111,7 @@ pipeline {
                 }
                 stage('F04 RPC node simulation (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'ArchiveQueryRate', value: "200"),
@@ -123,7 +123,7 @@ pipeline {
                 }
                 stage('F06 Syntactic transactions') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F06', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F06', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
@@ -132,7 +132,7 @@ pipeline {
                 }
                 stage('F07 Ethereum State Tests') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F07', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F07', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
@@ -141,14 +141,14 @@ pipeline {
                 }
                 stage('F08 Norma') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F08', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F08', parameters: [
                             string(name: 'NormaVersion', value: "${NormaVersion}"),
                         ]
                     }
                 }
                 stage('F09 Carmen Unit and Integration Tests') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F09', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -158,7 +158,7 @@ pipeline {
                 }
                 stage('N01 block processing (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N01', parameters: [
+                        build job: '/ReleaseTesting/NonfunctionalTests/N01', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -169,7 +169,7 @@ pipeline {
                 }
                 stage('N02/N04 block processing with archive-db and RPC request processing (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N02-N04', parameters: [
+                        build job: '/ReleaseTesting/NonfunctionalTests/N02-N04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -181,7 +181,7 @@ pipeline {
                 }
                 stage('N03 RPC node simulation (mainnet)') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/NonfunctionalTests/N03', parameters: [
+                        build job: '/ReleaseTesting/NonfunctionalTests/N03', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'ArchiveQueryRate', value: "150"),
@@ -193,7 +193,7 @@ pipeline {
                 }
                 stage('P01 Genesis Tests') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/operational/P01', parameters: [
+                        build job: '/ReleaseTesting/operational/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
                             string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),
