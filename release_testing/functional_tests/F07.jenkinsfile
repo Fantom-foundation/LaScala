@@ -48,7 +48,7 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
-                sh """build/aida-vm-sdb ethereum-test --validate --continue-on-failure \
+                sh """build/aida-vm-sdb ethereum-test --validate --validate-state-hash --continue-on-failure \
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                         --db-tmp /var/data/Aida/statedb \
                                         --shadow-db --db-shadow-impl geth \
