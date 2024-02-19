@@ -46,7 +46,7 @@ pipeline {
             steps {
                 sh 'echo "Running mixed transaction types test stage"'
 
-                sh """build/aida-vm-sdb tx-generator \
+                sh """build/aida-vm-sdb tx-generator --validate-state-hash \
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                         --shadow-db --db-shadow-impl geth \
                                         --vm-impl geth \
