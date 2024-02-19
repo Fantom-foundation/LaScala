@@ -78,35 +78,37 @@ pipeline {
 
                 sh "mkdir -p ${RegisterRunPath}"
 
-                sh """build/aida-vm-sdb  substate \
-                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                         --vm-impl geth \
-                                         --db-tmp /var/data/Aida/statedb --keep-db --custom-db-name="state_db_N02"\
-                                         --aida-db /var/src/Aida/mainnet-data/aida-db \
-                                         --track-progress --no-heartbeat-logging \
-                                         --archive --archive-variant s5 \
-                                         --register-run ${RegisterRunPath} \
-				                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N02' : RunId} \
-                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
-                                         ${BlockFrom} ${BlockTo}"""
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh """build/aida-vm-sdb  substate \
+                                             --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                             --vm-impl geth \
+                                             --db-tmp /var/data/Aida/statedb --keep-db --custom-db-name="state_db_N02"\
+                                             --aida-db /var/src/Aida/mainnet-data/aida-db \
+                                             --track-progress --no-heartbeat-logging \
+                                             --archive --archive-variant s5 \
+                                             --register-run ${RegisterRunPath} \
+	   	                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N02' : RunId} \
+                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
+                                             ${BlockFrom} ${BlockTo}"""
+                }
 
                 archiveArtifacts artifacts: '*_N02.cpuprofile,*_N02.memprofile,*_N02.log'
             }
+        }
 
-            post {
-                always {
-                    sh 'echo "Running report generation post-test"'
+        stage('Generate Report N02') {
+            steps {
+                sh 'echo "Running report generation post-test"'
 		    
-                    sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                       ./scripts/analytics/rmd/knit.R \
                       ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N02' : RunId}.db \
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
-                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N02.html'
+                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N02.html'
 
-                    archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N02.html"
-	            }
+                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N02.html"
             }
         }
 
@@ -121,34 +123,37 @@ pipeline {
 
                 sh "rm -f *_N04.cpuprofile *_N04.memprofile *_N04.log"
 
-                sh """build/aida-rpc --db-src=/var/data/Aida/statedb/state_db_N02/ \
-                                     --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
-                                     --vm-impl=geth \
-                                     --workers=${Workers} \
-                                     --register-run ${RegisterRunPath} \
-                                     --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N04' : RunId} \
-                                     --cpu-profile ${BUILD_NUMBER}_N04.cpuprofile --memory-profile ${BUILD_NUMBER}_N04.memprofile \
-                                     ${BlockFrom} ${BlockTo}"""
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh """build/aida-rpc --db-src=/var/data/Aida/statedb/state_db_N02/ \
+                                         --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --vm-impl=geth \
+                                         --workers=${Workers} \
+                                         --register-run ${RegisterRunPath} \
+                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N04' : RunId} \
+                                         --cpu-profile ${BUILD_NUMBER}_N04.cpuprofile --memory-profile ${BUILD_NUMBER}_N04.memprofile \
+                                         ${BlockFrom} ${BlockTo}"""
+                }
 
                 archiveArtifacts artifacts: '*_N04.cpuprofile,*_N04.memprofile,*_N04.log'
             }
+        }
 
-            post {
-                always {
-                    sh 'echo "Running report generation post-test"'
+        stage('Generate Report N04') {
+            steps {
+                sh 'echo "Running report generation post-test"'
+		    
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                    ./scripts/analytics/rmd/knit.R \
+                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N04' : RunId}.db \
+                    ./scripts/analytics/rmd/aida-rpc.rmd \
+                    ./scripts/analytics/rmd"""
 
-                    sh """./scripts/analytics/rmd/gen_processing_reports.sh \
-                      ./scripts/analytics/rmd/knit.R \
-                      ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N04' : RunId}.db \
-                      ./scripts/analytics/rmd/aida-rpc.rmd \
-                      ./scripts/analytics/rmd"""
+                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N04.html'
 
-                    sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N04.html'
-
-                    archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N04.html"
-	            }
+                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N04.html"
             }
         }
+
 
         stage('Teardown') {
             steps {
