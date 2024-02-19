@@ -82,7 +82,7 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'RunF05', value: false),
+                            string(name: 'RunF05', value: Boolean.valueOf("false")),
                         ]
                     }
                 }
@@ -108,7 +108,7 @@ pipeline {
                 }
                 stage('Run genesis test job') {
                     steps {
-                        build job: '/ReleaseTesting/operational/P01', parameters: [
+                        build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
                             string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),
