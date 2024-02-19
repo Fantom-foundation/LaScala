@@ -75,12 +75,14 @@ pipeline {
             parallel {
                 stage('Run aida-vm-sdb job') {
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
+                            string(name: 'NodeLabel', value: "rel006"),
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'RunF05', value: false),
                         ]
                     }
                 }
