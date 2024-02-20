@@ -5,7 +5,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 1, unit: 'HOURS') // Expected: few minutes at most
+        timeout(time: 10, unit: 'HOURS') // Expected: few minutes at most
     }
 
     environment {
@@ -48,13 +48,19 @@ pipeline {
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
-                sh """build/aida-vm-sdb ethereum-test --validate-state-hash --continue-on-failure \
+                script {
+                    def  FILES_LIST = sh (script: "find /var/data/Aida/eth-tests/ -type f", returnStdout: true).trim()
+
+                    for(String file : FILES_LIST.split("\\r?\\n")){
+                        sh """build/aida-vm-sdb ethereum-test --validate-state-hash --continue-on-failure \
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                         --db-tmp /var/data/Aida/statedb \
                                         --shadow-db --db-shadow-impl geth \
                                         --vm-impl geth \
                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
-                                        /var/data/Aida/eth-tests/"""
+                                        ${file}"""
+                    }
+                }
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
