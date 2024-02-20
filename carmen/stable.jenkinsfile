@@ -75,7 +75,7 @@ pipeline {
             parallel {
                 stage('Run aida-vm-sdb job') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F02', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -86,7 +86,7 @@ pipeline {
                 }
                 stage('Run unit test job') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F09', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F09', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
                         ]
@@ -94,7 +94,7 @@ pipeline {
                 }
                 stage('Run integration test job') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/FunctionalTests/F04', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F04', parameters: [
                             string(name: 'BlockFrom', value: "first"),
                             string(name: 'BlockTo', value: "1000000"),
                             string(name: 'ArchiveQueryRate', value: "150"),
@@ -106,7 +106,7 @@ pipeline {
                 }
                 stage('Run genesis test job') {
                     steps {
-                        build job: '/Aida/ReleaseTesting/operational/P01', parameters: [
+                        build job: '/ReleaseTesting/operational/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
                             string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),

@@ -66,35 +66,37 @@ pipeline {
 
                 sh "mkdir -p ${RegisterRunPath}"
 
-                sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
-                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                         --vm-impl geth \
-                                         --db-tmp /var/data/Aida/statedb \
-                                         --aida-db /var/src/Aida/testnet-data/aida-db \
-                                         --track-progress --no-heartbeat-logging \
-                                         --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
-                                         --register-run ${RegisterRunPath} \
-                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
-                                         --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
-                                         ${BlockFrom} ${BlockTo}"""
-
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
+                                             --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                             --vm-impl geth \
+                                             --db-tmp /var/data/Aida/statedb \
+                                             --aida-db /var/src/Aida/testnet-data/aida-db \
+                                             --track-progress --no-heartbeat-logging \
+                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                             --register-run ${RegisterRunPath} \
+                                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
+                                             --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
+                                             ${BlockFrom} ${BlockTo}"""
+                }
+    
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
+        }
 
-            post {
-                always {
-                        sh 'echo "Running report generation post-test"'
+        stage('Generate Report') {
+            steps {
+                sh 'echo "Running report generation post-test"'
 
-                        sh """./scripts/analytics/rmd/gen_processing_reports.sh \
-                          ./scripts/analytics/rmd/knit.R \
-                          ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
-                          ./scripts/analytics/rmd/f1.rmd \
-                          ./scripts/analytics/rmd"""
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                    ./scripts/analytics/rmd/knit.R \
+                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
+                    ./scripts/analytics/rmd/f1.rmd \
+                    ./scripts/analytics/rmd"""
 
-                        sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
 
-                        archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
-                }
+                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
             }
         }
 
