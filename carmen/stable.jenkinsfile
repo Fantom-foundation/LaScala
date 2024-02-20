@@ -75,12 +75,14 @@ pipeline {
             parallel {
                 stage('Run aida-vm-sdb job') {
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            [$class: 'BooleanParameterValue', name: 'RunF05', value: false],
+                            [$class: 'BooleanParameterValue', name: 'RunF02', value: true]
                         ]
                     }
                 }
@@ -106,7 +108,7 @@ pipeline {
                 }
                 stage('Run genesis test job') {
                     steps {
-                        build job: '/ReleaseTesting/operational/P01', parameters: [
+                        build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
                             string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),
