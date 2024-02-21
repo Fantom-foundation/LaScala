@@ -79,6 +79,7 @@ pipeline {
 
                 script {
                     def FILES_LIST = sh (script: "find /var/data/Aida/eth-tests/ -not -path '*/.*' -type f", returnStdout: true).trim()
+
                     def BLACKLIST_ARRAY = BLACKLIST.tokenize(",").collect { it.trim() }
 
                     for(String file : FILES_LIST.split("\\r?\\n")){
