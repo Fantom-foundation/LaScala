@@ -30,7 +30,7 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
     }
@@ -78,7 +78,8 @@ pipeline {
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
                 script {
-                    def FILES_LIST = sh (script: "find /var/data/Aida/eth-tests/ -type f", returnStdout: true).trim()
+                    def FILES_LIST = sh (script: "find /var/data/Aida/eth-tests/ -not -path '*/.*' -type f", returnStdout: true).trim()
+
                     def BLACKLIST_ARRAY = BLACKLIST.tokenize(",").collect { it.trim() }
 
                     for(String file : FILES_LIST.split("\\r?\\n")){

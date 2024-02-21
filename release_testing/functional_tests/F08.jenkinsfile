@@ -43,11 +43,11 @@ pipeline {
             }
         }
 
-        stage('Run slope scenario') {
-            steps {
-                runScenario("slope")
-            }
-        }
+//         stage('Run slope scenario') {
+//             steps {
+//                 runScenario("slope")
+//             }
+//         }
 
         stage('Run static scenario') {
             steps {

@@ -14,11 +14,11 @@ pipeline {
 
     parameters {
         string(defaultValue: "london", description: '', name: 'BlockFrom')
-        string(defaultValue: "london+100", description: '', name: 'BlockTo')
+        string(defaultValue: "london+500", description: '', name: 'BlockTo')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "10000", description: 'Length of the block.', name: 'BlockLength')
+        string(defaultValue: "5000", description: 'Length of the block.', name: 'BlockLength')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
     }
@@ -39,7 +39,19 @@ pipeline {
                 )
                 sh "git submodule update --init --recursive"
 
-                //  TODO: carmen and tosca version setup temporarily removed
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
 
                 sh "go mod tidy"
                 sh "make all"

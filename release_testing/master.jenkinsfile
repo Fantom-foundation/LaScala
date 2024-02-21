@@ -92,8 +92,7 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'Workers', value: "1")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
@@ -174,8 +173,7 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'Workers', value: "1")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
@@ -193,7 +191,7 @@ pipeline {
                 }
                 stage('P01 Genesis Tests') {
                     steps {
-                        build job: '/ReleaseTesting/operational/P01', parameters: [
+                        build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
                             string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),

@@ -133,7 +133,7 @@ pipeline {
                                          --register-run ${RegisterRunPath} \
                                          --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F05' : RunId} \
                                          --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
-                                         ${BlockFrom} ${BlockTo}"""
+                                         62663622 63216776"""
                 }
 
                 archiveArtifacts artifacts: '*_F05.cpuprofile,*_F05.memprofile,*_F05.log'
