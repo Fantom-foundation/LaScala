@@ -39,7 +39,19 @@ pipeline {
                 )
                 sh "git submodule update --init --recursive"
 
-                //  TODO: carmen and tosca version setup temporarily removed
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
 
                 sh "go mod tidy"
                 sh "make all"
