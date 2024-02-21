@@ -92,8 +92,7 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'Workers', value: "1")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
@@ -174,8 +173,7 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'Workers', value: "1")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
