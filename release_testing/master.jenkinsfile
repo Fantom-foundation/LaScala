@@ -191,7 +191,7 @@ pipeline {
                 }
                 stage('P01 Genesis Tests') {
                     steps {
-                        build job: '/ReleaseTesting/operational/P01', parameters: [
+                        build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
                             string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),
