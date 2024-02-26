@@ -1,0 +1,72 @@
+pipeline {
+        agent { node "${NodeLabel}" }
+
+        environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        url = "https://aida.archive.fantom.network/"
+    }
+
+    parameters {
+        string(defaultValue: "", description: '', name: 'NodeLabel')
+        string(defaultValue: "transfer.txt", description: '', name: 'FileName')
+        string(defaultValue: "/var/src/Aida/rpc-recordings", description: '', name: 'DestinationPath')
+    }
+    stages {
+        stage('Download') {
+            steps {
+                script {
+                    if ("${NodeLabel}" == "") {
+                        currentBuild.result = 'FAILURE'
+                        error("Error NodeLabel wasn't correctly supplied")
+                    }
+
+                    def outputFile = "${DestinationPath}/${FileName}"
+                    def skipExecution = false
+                    // CHECK EXISTANCE
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                        // wrapped in catchError because find gives error if not found
+                        // || true is necessary so the stage is not marked as failure
+                        def fileExistance = sh(script: "find ${outputFile} || true", returnStdout: true);
+                        if (fileExistance.trim() == outputFile.trim()) {
+                            sh "echo skip - file exists"
+                            skipExecution = true
+                        }
+                    }
+
+                    // return from skip must be done outside of catchError scope
+                    if (skipExecution) {
+                        return
+                    }
+
+                    // CREATE DIRECTORY
+                    sh "mkdir -p ${DestinationPath}"
+
+                    // DOWNLOAD FILE
+                    sh "wget ${url}${FileName} -O ${outputFile}"
+
+                    // DOWNLOAD MD5
+                    md5url = "${url}${FileName}.md5"
+                    sh "echo ${md5url}"
+
+                    def md5Expected = sh(script: "curl ${md5url}", returnStdout: true);
+
+
+                    // CALCULATE MD5
+                    def fileNameMd5 = sh(script: "md5sum ${outputFile}", returnStdout: true);
+                    int indexOfSpace = fileNameMd5.lastIndexOf(' ');
+                    String md5Calculated = fileNameMd5.substring(0, indexOfSpace);
+
+                    // COMPARE MD5
+                    if (md5Expected.trim() != md5Calculated.trim()) {
+                        sh "echo removing corrupted file ${outputFile}"
+                        sh "rm ${outputFile}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash missmatch: got ${md5Calculated}, expected got ${md5Expected}")
+                    } else {
+                        sh "echo hash ${md5Calculated} confirmed"
+                    }
+                }
+            }
+        }
+    }
+}

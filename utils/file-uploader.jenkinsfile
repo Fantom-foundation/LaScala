@@ -1,0 +1,46 @@
+pipeline {
+    agent { node 'xapi240' }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        DestinationPath = "/var/opera/Aida/mainnet-data/archive"
+    }
+    
+    parameters {
+        string(defaultValue: "xapi215", description: '', name: 'SourceNode')
+        string(defaultValue: "/var/opera/Aida/mainnet-data/transfer.txt", description: '', name: 'SourcePath')
+    }
+    
+    stages {
+        stage('Transfer') {
+            steps {
+                script {
+
+                    HashMap<String, String> serverIpMap = new HashMap<>();
+                    serverIpMap.put("xapi210", "5.9.107.121");
+                    serverIpMap.put("xapi215", "142.132.147.172");
+                    serverIpMap.put("xapi282", "135.181.161.97");
+                    serverIpMap.put("xapi310", "138.201.126.93");
+                    //TODO Map of all servers either:
+                    // config on 240
+                    // or list here
+                    // or retrieve from jenkins (stores nodes and ip addresses)
+                    
+                    String ipAddress = serverIpMap.get(SourceNode);
+                    
+                    String FileName = SourcePath.substring(SourcePath.lastIndexOf("/") + 1);
+                    sh "echo ${FileName}"
+                    try {
+                        sh "rsync -e 'ssh -p 2201' --progress -c ${ipAddress}:${SourcePath} ${DestinationPath}/${FileName}"
+                    } catch (IOException e) {
+                        sh "rsync -e 'ssh -p 2201 -o StrictHostKeyChecking=no' --progress -c ${ipAddress}:${SourcePath} ${DestinationPath}/${FileName}"
+                    }
+                    def fileNameMd5 = sh(script: "md5sum ${DestinationPath}/${FileName}", returnStdout: true);
+                    int indexOfSpace = fileNameMd5.lastIndexOf(' ');
+                    String md5 = fileNameMd5.substring(0, indexOfSpace);
+                    sh "echo ${md5} | tee ${DestinationPath}/${FileName}.md5"
+                }   
+            }
+        }
+    }
+}
