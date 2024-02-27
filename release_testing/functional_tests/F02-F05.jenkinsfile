@@ -147,7 +147,7 @@ pipeline {
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                     ./scripts/analytics/rmd/knit.R \
                     ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F05' : RunId}.db \
-                    ./scripts/analytics/rmd/f1.rmd \
+                    ./scripts/analytics/rmd/aida-rpc.rmd \
                     ./scripts/analytics/rmd"""
                 
                 sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
