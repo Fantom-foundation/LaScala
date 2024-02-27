@@ -17,11 +17,7 @@ pipeline {
     // Parameters for the pipeline
     // more info: https://www.jenkins.io/doc/book/pipeline/syntax/#parameters
     parameters {
-        string(defaultValue: "first", description: '', name: 'BlockFrom')
-        string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
     }
 
     stages {
@@ -39,22 +35,8 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
+
                 sh "git submodule update --init --recursive"
-
-                dir('carmen') {
-                	checkout scmGit(
-                		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
-                	)
-                }
-
-                dir('tosca') {
-                    checkout scmGit(
-                        branches: [[name: "${ToscaVersion}"]],
-                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
-                    )
-                }
-
                 sh "go mod tidy"
                 sh "make all"
             }
@@ -70,18 +52,11 @@ pipeline {
                 // The part which can easily fail can be wrapped in catchError block
                 // to ensure execution of subsequent stages
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh """build/aida-vm-sdb  substate \
-                                             --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                             --vm-impl geth \
-                                             --db-tmp /var/data/Aida/statedb \
-                                             --aida-db /var/src/Aida/mainnet-data/aida-db \
-                                             --track-progress --no-heartbeat-logging \
-                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
-                                             ${BlockFrom} ${BlockTo}"""
+                    sh 'echo "do something"'
                 }
 
                 // archiveArtifacts can be used to save any files or artifacts from the run to easily access them later
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+                // archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
@@ -98,6 +73,9 @@ pipeline {
     post {
         always {
             // Send notification with the build result to the Slack user or channel
+            // If there is need to notify only single user on Slack, then user parameter should be used
+            // string(name: 'user', value: "GITHUB_USERNAME")
+            // Said user must be specified in the getTargetRoom() function in the notifications pipeline
             build job: '/Notifications/slack-notification-pipeline', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
