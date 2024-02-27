@@ -19,6 +19,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name:'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
     }
@@ -74,6 +75,7 @@ pipeline {
                                              --aida-db /var/src/Aida/mainnet-data/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                             --workers=${Workers} \
                                              --register-run ${RegisterRunPath} \
                                              --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
                                              --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
