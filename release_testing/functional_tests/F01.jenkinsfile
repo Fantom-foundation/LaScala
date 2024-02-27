@@ -67,7 +67,7 @@ pipeline {
                 sh "mkdir -p ${RegisterRunPath}"
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-			sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
+                    sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
                                          --db-tmp /var/data/Aida/statedb \
@@ -77,7 +77,7 @@ pipeline {
                                          --register-run ${RegisterRunPath} \
                                          --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
                                          ${BlockFrom} ${BlockTo}"""
-		}
+                }
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
@@ -103,6 +103,17 @@ pipeline {
             steps {
                 sh "make clean"
             }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification-pipeline', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}")
+            ]
         }
     }
 }
