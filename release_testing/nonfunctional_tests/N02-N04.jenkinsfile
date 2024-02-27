@@ -97,6 +97,11 @@ pipeline {
         }
 
         stage('Generate Report N02') {
+            when {
+                expression {
+                    return params.RunN02;
+                }
+            }
             steps {
                 sh 'echo "Running report generation post-test"'
 		    
@@ -139,6 +144,11 @@ pipeline {
         }
 
         stage('Generate Report N04') {
+            when {
+                expression {
+                    return params.RunN04;
+                }
+            }
             steps {
                 sh 'echo "Running report generation post-test"'
 		    
