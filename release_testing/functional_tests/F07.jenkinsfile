@@ -85,7 +85,8 @@ pipeline {
                     for(String file : FILES_LIST.split("\\r?\\n")){
                         if (BLACKLIST_ARRAY.contains(file)) continue
 
-                        sh """build/aida-vm-sdb ethereum-test --validate-state-hash --continue-on-failure \
+                        sh """build/aida-vm-sdb ethereum-tests --eth-test-type state \
+                                        --validate-state-hash --continue-on-failure \
                                         --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                         --db-tmp /var/data/Aida/statedb \
                                         --shadow-db --db-shadow-impl geth \
