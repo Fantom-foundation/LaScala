@@ -7,9 +7,9 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "", description: '', name: 'NodeLabel')
-        string(defaultValue: "transfer.txt", description: '', name: 'FileName')
-        string(defaultValue: "/var/src/Aida/rpc-recordings", description: '', name: 'DestinationPath')
+        string(defaultValue: "", description: 'A target node', name: 'NodeLabel')
+        string(defaultValue: "transfer.txt", description: 'A file to be downloaded', name: 'FileName')
+        string(defaultValue: "/var/src/Aida/some-path", description: 'The destination path must be under /var/src or /var/data', name: 'DestinationPath')
     }
     stages {
         stage('Download') {
