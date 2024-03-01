@@ -72,7 +72,7 @@ pipeline {
 
         stage('Import DB') {
             steps {
-                sh "cd carmen/go && go run ./state/mpt/tool import ${params.TmpDb}/genesis.dat ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/live"
+                sh "cd carmen/go && go run ./state/mpt/tool import-live-db ${params.TmpDb}/genesis.dat ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/live"
             }
         }
 
