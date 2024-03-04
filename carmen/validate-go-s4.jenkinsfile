@@ -1,0 +1,65 @@
+pipeline {
+    agent { label 'long' }
+    
+    options { timestamps () }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+                
+                checkout scmGit(
+                    branches: [[name: 'main']],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: 'main']],
+                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "go mod tidy"
+                sh "make -j aida-vm-sdb"
+                sh 'go test ./...'
+            }
+        }          
+        
+        stage('RunVM') {
+            steps {
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+                
+                sh "build/aida-vm-sdb  substate --validate-tx --db-impl carmen --db-variant go-file --carmen-schema 4 --cpu-profile profile.dat --cpu-profile-per-interval --vm-impl lfvm --db-tmp=/var/opera/Aida/dbtmpjenkins --aida-db=/var/opera/Aida/mainnet-data/aida-db --memory-breakdown --cpu-profile=${BUILD_NUMBER}.cpuprofile --memory-profile=${BUILD_NUMBER}.memprofile ${BlockFrom} ${BlockTo}"
+                
+                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+        }
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+            }
+        }
+    }
+    
+    post {
+        always {
+            build job: '/Notifications/slack-notification-pipeline', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "$currentBuild.absoluteUrl")
+            ]
+        }
+    }
+}
