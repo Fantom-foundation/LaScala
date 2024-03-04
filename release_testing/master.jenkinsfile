@@ -17,6 +17,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
     }
 
     stages {
@@ -189,7 +190,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('P01 Genesis Tests') {
+                stage('P01 Opera Genesis Tests') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
@@ -198,6 +199,13 @@ pipeline {
                             string(name: 'SecondBlockHeight', value: "6000000"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
+                        ]
+                    }
+                }
+                stage('P02 Sonic Genesis Tests') {
+                    steps {
+                        build job: '/ReleaseTesting/OperationalTests/P02', parameters: [
+                            string(name: 'GoOperaNormaVersion', value: "${GoOperaNormaVersion}")
                         ]
                     }
                 }
