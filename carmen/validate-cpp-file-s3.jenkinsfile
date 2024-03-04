@@ -18,10 +18,6 @@ pipeline {
                     ]]
                 )
                 sh "git submodule update --init --recursive"
-
-                withCredentials([usernamePassword(credentialsId: 'AidaCI_PAT', usernameVariable: 'PAT_USERNAME', passwordVariable: 'PAT_PASSWORD')]) {
-                    sh 'echo "machine github.com login $PAT_USERNAME password $PAT_PASSWORD" >~/.netrc'
-                }
                 
                 dir('carmen') {
                 	checkout scmGit(
