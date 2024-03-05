@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
