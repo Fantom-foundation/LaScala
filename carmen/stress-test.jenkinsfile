@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'short'}
+    agent {label 'long'}
     
     options { timestamps () }
     
