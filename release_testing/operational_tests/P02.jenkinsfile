@@ -80,6 +80,13 @@ pipeline {
             }
         }
 
+        stage('Verify live DB') {
+            // verify live db
+            steps {
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
         stage('Teardown') {
             // teardown
             steps {
