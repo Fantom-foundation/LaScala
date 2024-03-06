@@ -14,7 +14,7 @@ pipeline {
 
     parameters {
         string(defaultValue: "london", description: '', name: 'BlockFrom')
-        string(defaultValue: "london+500", description: '', name: 'BlockTo')
+        string(defaultValue: "london+1500", description: '', name: 'BlockTo')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
