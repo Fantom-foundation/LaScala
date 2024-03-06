@@ -43,7 +43,7 @@ pipeline {
         stage('Run unit tests') {
             steps {
                 dir('carmen/go') {
-                    sh "go test -tags=stress_test -count 1 -timeout 36000s -parallel 2"
+                    sh "go test ./... -tags=stress_test -count 1 -timeout 36000s -parallel 2"
                 }
             }
         }
