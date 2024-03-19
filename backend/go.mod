@@ -1,10 +1,11 @@
-module cmd
+package backend
 
 go 1.21.6
 
 require github.com/urfave/cli/v2 v2.27.1
 
 require (
+	github.com/Fantom-foundation/LaScala v0.0.0-20240319095657-fc0004f02293 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
