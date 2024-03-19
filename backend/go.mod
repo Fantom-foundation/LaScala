@@ -1,4 +1,4 @@
-package backend
+module backend
 
 go 1.21.6
 
