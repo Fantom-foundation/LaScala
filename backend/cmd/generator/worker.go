@@ -34,7 +34,7 @@ var (
 		Name: "topic",
 		Usage: "topic to send message to",
 		Aliases: []string{"t", "c"},
-		Value: "task-queue",
+		Value: "task-queue2",
 	}
 	WorkerTypFlag = cli.StringFlag {
 		Name: "type",
@@ -70,7 +70,7 @@ func workerPeek(addr string, port int, topic string) error {
 }
 
 func WorkerPush(ctx *cli.Context) error {
-	return workerPush(
+	return workerPush( 
 		ctx.String("address"),
 		ctx.Int("port"),
 		ctx.String("topic"),
@@ -84,9 +84,9 @@ func workerPush(addr string, port int, topic string, typ string, master string, 
 	worker := NewWorker(addr, port, topic)
 
 	worker.Push(context.TODO(), &Task{
-		typ: TaskType(typ),
-		master: master,
-		run: run,
+		Type: TaskType(typ),
+		MasterId: master,
+		RunId: run,
 	})
 
 	return nil 
@@ -102,7 +102,7 @@ func WorkerPop(ctx *cli.Context) error {
 
 func workerPop(addr string, port int, topic string) error {
 	worker := NewWorker(addr, port, topic)
-	worker.pop(context.TODO(), 1 * time.Second)
+	worker.PopLoop(context.TODO())
 	return nil 
 }
 
@@ -110,12 +110,7 @@ type Worker struct {
 	r *redis.Client
 	topic string
 
-	closeCh chan any
 	loop sync.WaitGroup
-	lenQueue int64
-	
-	workerCount int
-	secondsBetweenPolls int
 }
 
 func NewWorker(address string, port int, topic string) *Worker {
@@ -137,9 +132,11 @@ func (w *Worker) Push(ctx context.Context, task *Task) error {
 
 	var buffer bytes.Buffer
 	enc := gob.NewEncoder(&buffer)
+
 	err = enc.Encode(&task)
 	if err != nil {
-		return err
+		fmt.Println("no task", err)
+		return fmt.Errorf("unable to encode task: %w", err)
 	}
 
 	cmd := w.r.LPush(ctx, w.topic, buffer.Bytes())
@@ -168,20 +165,14 @@ func (w *Worker) Peek(ctx context.Context) error {
 }
 
 func (w *Worker) PopLoop(ctx context.Context) {
-	for id := 1; id <= w.workerCount; id++ {
-		w.loop.Add(1)
-		go w.popLoop(ctx, id, w.workerCount)
-	}
+	w.popLoop(ctx, 1, 1)
 }
 
 func (w *Worker) popLoop(ctx context.Context, i int, total int) {
-	defer w.loop.Done()
 	debug.SetPanicOnFault(true)
 
 	for {
 		select {
-		case <-w.closeCh:
-			return
 		case <-ctx.Done():
 			return
 		default:
@@ -215,7 +206,7 @@ func (w *Worker) handle(ctx context.Context, task *Task) {
 	}
 
 	var handler TaskHandler
-	if h, exists := TaskHandlers[task.typ]; exists {
+	if h, exists := TaskHandlers[task.Type]; exists {
 		handler = h
 	} else {
 		handler = TaskHandlers["default"]

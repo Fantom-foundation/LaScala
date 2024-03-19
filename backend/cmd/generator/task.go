@@ -18,12 +18,12 @@ func TaskUnrecognizedHandler(ctx context.Context, task *Task) {
 type TaskType string
 
 type Task struct {
-	typ TaskType
-	master string
-	run string
+	Type TaskType
+	MasterId string
+	RunId string
 }
 
 func (t Task) String() string {
-	return fmt.Sprintf("Task %s[M:%s, R:%s]", t.typ, t.master, t.run)
+	return fmt.Sprintf("Task %s[M:%s, R:%s]", t.Type, t.MasterId, t.RunId)
 }
 
