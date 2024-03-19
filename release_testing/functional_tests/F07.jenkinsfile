@@ -50,7 +50,7 @@ pipeline {
                     ]]
                 )
 
-                sh "git submodule update --init --recursive"
+                sh "git submodule update --init"
 
                 dir('carmen') {
                 	checkout scmGit(
@@ -65,6 +65,8 @@ pipeline {
                         userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
                 }
+
+                sh "git submodule update --recursive"
 
                 sh "go mod tidy"
                 sh "make all"
