@@ -1,4 +1,4 @@
-module backend
+module github.com/Fantom-foundation/LaScala/backend
 
 go 1.21.6
 
