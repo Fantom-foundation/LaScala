@@ -20,7 +20,8 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
-                sh "git submodule update --init --recursive"
+                sh "git submodule update --init"
+
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: "${CarmenVersion}"]],
@@ -29,7 +30,9 @@ pipeline {
                             url: 'https://github.com/Fantom-foundation/Carmen.git'
                         ]]
                 	)
-                }                
+                }
+
+                sh "git submodule update --recursive"
             }
         }
 
