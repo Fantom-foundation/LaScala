@@ -11,7 +11,8 @@ pipeline {
         ROOTPATH="pwd"
         DATAROOTPATH="/var/data/Aida/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
-        IMPORTPATH="${DATAROOTPATH}/sonic2"
+        EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
+        GENESISDBPATH="${DATAROOTPATH}/sonic_from_genesis"
         GENESIS="mainnet-5577-full-mpt.g"
         GENESISPATH="/var/src/Aida/genesis"
     }
@@ -55,35 +56,45 @@ pipeline {
            steps {
                // create db from a legacy genesis file
                 sh "./build/sonictool --datadir ${DATADIRPATH} genesis legacy ${GENESISPATH}/${GENESIS}"
-                // copy db for import
-                sh "cp -r ${DATADIRPATH} ${IMPORTPATH}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+                // copy db for import events
+                sh "cp -r ${DATADIRPATH} ${EVENTDBPATH}"
             }
         }
 
-        stage('Progress blockchain for 10 epoches') {
+        stage('Synchronize blockchain for 100 epoches') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch 5587"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch 5677"
             }
         }
 
-        stage('Export blockchain') {
-            // export blockchain
+        stage('Export & import events') {
             steps {
                 sh "./build/sonictool --datadir ${DATADIRPATH} export events ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonictool --datadir ${EVENTDBPATH} import events ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
             }
         }
 
-        stage('Import blockchain') {
-            // import blockchain
+        stage('Continue synchronize event-imported DB') {
             steps {
-                sh "./build/sonictool --datadir ${IMPORTPATH} import events ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonicd --datadir ${EVENTDBPATH} --exitwhensynced.epoch 5777"
+                sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
             }
         }
 
-        stage('Verify live DB') {
-            // verify live db
+        stage('Export & import genesis') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} export events ${DATAROOTPATH}/sonic.genesis"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis sonic ${DATAROOTPATH}/sonic.genesis"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
+            }
+        }
+
+        stage('Continue synchronize genesis-imported DB') {
+            steps {
+                sh "./build/sonicd --datadir ${GENESISDBPATH} --exitwhensynced.epoch 5777"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }
 
