@@ -50,7 +50,7 @@ pipeline {
                     ]]
                 )
 
-                sh "git submodule update --init"
+                sh "git submodule update --init --recursive"
 
                 dir('carmen') {
                 	checkout scmGit(
