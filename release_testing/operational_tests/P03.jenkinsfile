@@ -14,6 +14,7 @@ pipeline {
         DATAROOTPATH="/var/data/Aida/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESIS="mainnet-5577-full-mpt.g"
+        GENESISPATH="/var/src/Aida/genesis"
     }
 
     parameters {
