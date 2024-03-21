@@ -24,6 +24,10 @@ var Serve = cli.Command {
 	Flags: []cli.Flag {
 		&ServePortFlag,
 		&StaticDirFlag,
+		&ReportDbFlag,
+		&RedisAddressFlag,
+		&RedisPortFlag,
+		&RedisTopicFlag,
 	},
 }
 
