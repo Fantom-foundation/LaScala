@@ -55,7 +55,7 @@ pipeline {
         stage('Create DB from legacy genesis') {
            steps {
                // create db from a legacy genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis legacy ${GENESISPATH}/${GENESIS}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis ${GENESISPATH}/${GENESIS}"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
                 // copy db for import events
                 sh "cp -r ${DATADIRPATH} ${EVENTDBPATH}"
@@ -85,8 +85,8 @@ pipeline {
 
         stage('Export & import genesis') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} export events ${DATAROOTPATH}/sonic.genesis"
-                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis sonic ${DATAROOTPATH}/sonic.genesis"
+                sh "./build/sonictool --datadir ${DATADIRPATH} export events ${DATAROOTPATH}/sonic.g"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis ${DATAROOTPATH}/sonic.g"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }
