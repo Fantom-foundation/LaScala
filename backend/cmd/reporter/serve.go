@@ -183,12 +183,12 @@ func generateReport(worker *amn.Worker) func(http.ResponseWriter, *http.Request)
 			serve400(w, r)
 		}
 
-		fmt.Println("Here!", mid, rid)
 		worker.Push(r.Context(), &amn.Task{
 			Type: amn.TaskType("hello"),
 			MasterId: mid,
 			RunId: rid,
 		})
+
 	}
 }
 
