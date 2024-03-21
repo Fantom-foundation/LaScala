@@ -213,6 +213,8 @@ func (w *Worker) handle(ctx context.Context, task *Task) {
 	}
 
 	taskCtx, _ := context.WithCancel(ctx)
-	handler(taskCtx, task)	
+	handler(taskCtx, task)
+
+	time.Sleep(3 * time.Second)	
 }
 
