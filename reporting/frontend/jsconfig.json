@@ -5,5 +5,5 @@
     }
   },
   "exclude": [
-    "../../LaScala-reporting/node_modules", "dist"]
+    "../../../LaScala-reporting/node_modules", "dist"]
 }
