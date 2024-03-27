@@ -1,0 +1,191 @@
+pipeline {
+    agent { label 'xapi310-autogen-mainnet' }
+
+    options { timestamps () }
+
+    environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin"
+        tmpDir = "/var/opera/Aida/dbtmpjenkins/aida-db-testnet-tests"
+        dbTmp = "--db-tmp=${tmpDir}/tmp"
+        aidaDb = "--aida-db=${tmpDir}/aida-db"
+        db = "--db=${tmpDir}/autogen-testnet"
+        output = "--output=${tmpDir}/aida-patches"
+        genesis = "/var/opera/Aida/testnet-data/testnet-2458-full-mpt.g"
+        opera = "--opera-binary=go-opera-substate/build/opera"
+    }
+
+    stages {
+        stage('Build-aida') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+                
+                checkout scmGit(
+                    branches: [[name: 'origin/develop']],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+                sh "make all"
+            }
+        }
+        
+        stage('Build-go-opera-substate') {
+            steps {
+                dir('go-opera-substate') {
+                    checkout scmGit(
+                        branches: [[name: 'rr1.1.3-rc.5']],
+                        userRemoteConfigs: [[
+                            credentialsId:  'AidaCI_PR',
+                            url: 'https://github.com/Fantom-foundation/go-opera-substate.git'
+                        ]]
+                    )
+                    sh "make all"
+                }
+            }
+        }
+        
+        stage('mkdirs') {
+            steps {
+                sh "rm -rf ${tmpDir} ; mkdir ${tmpDir}"
+            }
+        }
+        
+        stage('wget-genesis') {
+            steps {
+                sh "wget https://download.fantom.network/testnet-2458-full-mpt.g -O ${genesis}"
+            }
+        }
+        
+         stage('util-db-autogen-2459') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db autogen ${aidaDb} ${db} ${dbTmp} ${output} --genesis=${genesis} --log debug --chainid 4002 --workers 20 ${opera} --epoch=2459"
+                }
+            }
+        }
+        
+        stage('check-expected-metadata-2459') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db metadata print ${aidaDb} | tee ${tmpDir}/metadata.out"
+                    checkMetadata('479327', '481383', '2458', '2459')
+                } 
+            }
+        }
+        
+        stage('util-db-autogen-2460') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db autogen ${aidaDb} ${db} ${dbTmp} ${output} --genesis=${genesis} --log debug --chainid 4002 --workers 20 ${opera} --epoch=2460"
+                }
+            }
+        }
+   
+        stage('check-expected-metadata-2460') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db metadata print ${aidaDb} | tee ${tmpDir}/metadata.out"
+                    checkMetadata('479327', '482301', '2458', '2460')
+                } 
+            }
+        }
+        
+        stage('util-db-autogen-2460-nothing-new') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db autogen ${aidaDb} ${db} ${dbTmp} ${output} --genesis=${genesis} --log debug --chainid 4002 --workers 20 ${opera} --epoch=2460"
+                }
+            }
+        }
+   
+        stage('check-expected-metadata-2460-nothing-new') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db metadata print ${aidaDb} | tee ${tmpDir}/metadata.out"
+                    checkMetadata('479327', '482301', '2458', '2460')
+                } 
+            }
+        }
+              
+        
+        stage('aida-vm-sdb validate-state-hash-479327-482301') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/aida-vm-sdb substate --update-buffer-size 2500 --vm-impl lfvm --db-impl geth ${aidaDb} ${dbTmp} --validate-state-hash --validate-tx --cpu-profile cpu-profile.dat --memory-profile mem-profile.dat --memory-breakdown 479327 482301"
+                }
+                sh "rm -rf *.dat"
+            }
+        }
+   
+        stage('tear-down') {
+            steps {
+                sh "make clean"
+                 dir('go-opera-substate') {
+                    sh "make clean"     
+                 }
+                sh "rm ${tmpDir}/metadata.out || true"
+                // sh "rm ${tmpDir}/aida-db.autogen.lock || true"
+                sh "rm -rf ${tmpDir}"
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                build job: '/Notifications/slack-notification-pipeline', parameters: [
+                    string(name: 'result', value: "${currentBuild.result}"),
+                    string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                    string(name: 'duration', value: "${currentBuild.duration}"),
+                    string(name: 'url', value: "$currentBuild.absoluteUrl"),
+                    string(name: 'user', value: "matej")
+                ]
+            }
+        }
+    }
+}
+        
+def checkMetadata(expectedFirstBlock, expectedLastBlock, expectedFirstEpoch, expectedLastEpoch) {
+    def firstBlock = sh(script: 'scripts/metadata_info_parser.sh ${tmpDir}/metadata.out fb', returnStdout: true).trim()
+    def lastBlock = sh(script: 'scripts/metadata_info_parser.sh ${tmpDir}/metadata.out lb', returnStdout: true).trim()
+    def firstEpoch = sh(script: 'scripts/metadata_info_parser.sh ${tmpDir}/metadata.out fe', returnStdout: true).trim()
+    def lastEpoch = sh(script: 'scripts/metadata_info_parser.sh ${tmpDir}/metadata.out le', returnStdout: true).trim()
+
+    def failed = false  // Initialize a flag to track failures
+
+    if (firstBlock != expectedFirstBlock) {
+        echo "firstBlock is not equal to ${expectedFirstBlock}, got: ${firstBlock}"
+        failed = true
+    } else {
+        echo "firstBlock is equal to ${expectedFirstBlock}"
+    }
+
+    if (lastBlock != expectedLastBlock) {
+        echo "lastBlock is not equal to ${expectedLastBlock}, got: ${lastBlock}"
+        failed = true
+    } else {
+        echo "lastBlock is equal to ${expectedLastBlock}"
+    }
+
+    if (firstEpoch != expectedFirstEpoch) {
+        echo "firstEpoch is not equal to ${expectedFirstEpoch}, got: ${firstEpoch}"
+        failed = true
+    } else {
+        echo "firstEpoch is equal to ${expectedFirstEpoch}"
+    }
+
+    if (lastEpoch != expectedLastEpoch) {
+        echo "lastEpoch is not equal to ${expectedLastEpoch}, got: ${lastEpoch}"
+        failed = true
+    } else {
+        echo "lastEpoch is equal to ${expectedLastEpoch}"
+    }
+
+    if (failed) {
+        error('One or more conditions failed')
+    }
+}
