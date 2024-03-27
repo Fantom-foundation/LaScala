@@ -87,5 +87,8 @@ def getTargetRoom(user) {
     if (user == "lukas" || user == "Mike-CZ") {
         return "@U034KQR7LRZ"
     }
+    if (user == "marek") {
+        return "@U043805CT61"
+    }
     return "aida-jenkins"
 }
