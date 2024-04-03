@@ -61,25 +61,25 @@ pipeline {
 
                         stage('Verify Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}/live"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}/live"
                             }
                         }
 
                         stage('Export Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool export ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}/live ${params.tmpDb}/l/genesis.dat"
+                                sh "cd carmen/go && go run ./database/mpt/tool export ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}/live ${params.tmpDb}/l/genesis.dat"
                             }
                         }
 
                         stage('Import Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool import-live-db ${params.tmpDb}/l/genesis.dat ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}-recov/live"
+                                sh "cd carmen/go && go run ./database/mpt/tool import-live-db ${params.tmpDb}/l/genesis.dat ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}-recov/live"
                             }
                         }
 
                         stage('Verify Recovered Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}-recov/live"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}-recov/live"
                             }
                         }
 
@@ -92,7 +92,7 @@ pipeline {
                         }    
                         stage('Re-verify Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.secondBlockHeight}/live"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.secondBlockHeight}/live"
                             }
                         }      
                     }
@@ -120,25 +120,25 @@ pipeline {
 
                         stage('Verify Archive DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
                             }
                         }
 
                         stage('Export Archive DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool export ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}/archive ${params.tmpDb}/a/genesis.dat"
+                                sh "cd carmen/go && go run ./database/mpt/tool export ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}/archive ${params.tmpDb}/a/genesis.dat"
                             }
                         }
 
                         stage('Import Archive DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool import-archive ${params.tmpDb}/a/genesis.dat ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
+                                sh "cd carmen/go && go run ./database/mpt/tool import-archive ${params.tmpDb}/a/genesis.dat ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
                             }
                         }
 
                         stage('Verify Recovered Archive DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
                             }
                         }
                     }
@@ -166,26 +166,26 @@ pipeline {
 
                         stage('Verify Archive DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
                             }
                         }
 
                         stage('Export Archive DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool export ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}/archive ${params.tmpDb}/al/genesis.dat"
+                                sh "cd carmen/go && go run ./database/mpt/tool export ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}/archive ${params.tmpDb}/al/genesis.dat"
                             }
                         }
 
                         stage('Import Archive and Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool import ${params.tmpDb}/al/genesis.dat ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov"
+                                sh "cd carmen/go && go run ./database/mpt/tool import ${params.tmpDb}/al/genesis.dat ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov"
                             }
                         }
 
                         stage('Verify Recovered Archive and Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov/live"
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov/live"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
                             }
                         }
                         stage('Continue Synchronise Archive and Live DB') {
@@ -197,8 +197,8 @@ pipeline {
                         }    
                         stage('Re-verify Archive and Live DB') {
                             steps {
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.secondBlockHeight}/live"
-                                sh "cd carmen/go && go run ./state/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.secondBlockHeight}/archive"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.secondBlockHeight}/live"
+                                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.secondBlockHeight}/archive"
                             }
                         }      
                     }
