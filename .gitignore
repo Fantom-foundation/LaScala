@@ -1,0 +1,4 @@
+reporting/frontend/node_modules
+reporting/frontend/dist
+reporting/frontend/.env
+.DS_Store
