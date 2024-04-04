@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "../../../LaScala-reporting/node_modules/.bin/vite",
-    "build": "../../../LaScala-reporting/node_modules/.bin/vite build --base './'",
-    "preview": "../../../LaScala-reporting/node_modules/.bin/vite preview",
-    "lint": "../../../LaScala-reporting/node_modules/.bin/eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "../../../LaScala-reporting/node_modules/.bin/prettier --write src/"
+    "dev": "vite",
+    "build": "vite build --base './'",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "axios": "^1.6.7",
