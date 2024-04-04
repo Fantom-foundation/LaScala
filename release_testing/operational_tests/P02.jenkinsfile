@@ -86,7 +86,7 @@ pipeline {
         stage('Export & import genesis') {
             steps {
                 sh "./build/sonictool --datadir ${DATADIRPATH} export genesis ${DATAROOTPATH}/sonic.g"
-                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis --experimental ${DATAROOTPATH}/sonic.g"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis legacy ${DATAROOTPATH}/sonic.g"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }
