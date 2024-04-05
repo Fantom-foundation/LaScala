@@ -1,0 +1,82 @@
+// P03 performs end-to-end test synchronizing from the first opera block to the current head
+
+pipeline {
+    agent { node "${NodeLabel}" }
+
+    options {
+        timestamps ()
+        //timeout(time: 24, unit: 'Days')
+    }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        ROOTPATH="pwd"
+        DATAROOTPATH="/var/data/Aida/tooltmp"
+        DATADIRPATH="${DATAROOTPATH}/sonic"
+        GENESIS="mainnet-5577-full-mpt.g"
+        GENESISPATH="/var/src/Aida/genesis"
+    }
+
+    parameters {
+        string(defaultValue: "functional", description: 'Agent or agent\'s label where the job will run', name: 'NodeLabel')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // checkout go-opera-norma develop branch
+                checkout scmGit(
+                    branches: [[name: "${GoOperaNormaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PAT',
+                        url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
+                    ]]
+                )
+            }
+        }
+
+        stage('Preparation and build') {
+            steps {
+                // setup
+                sh "rm -rf $ROOTPATH"
+                sh "mkdir -p $ROOTPATH"
+                sh "mkdir -p $GENESISPATH"
+                sh "make"
+
+                // download genesis
+                script {
+                    if (!fileExists("${GENESISPATH}/${GENESIS}")) {
+                        sh "curl -o ${GENESISPATH}/${GENESIS} https://download.fantom.network/${GENESIS}"
+                    }
+                }
+            }
+        }
+
+        stage('Create DB from legacy genesis') {
+           steps {
+               // create db from a legacy genesis file
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis ${GENESISPATH}/${GENESIS} --experimental"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
+        stage('Synchronization') {
+            steps {
+                sh "./build/sonicd --datadir ${DATADIRPATH}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
+    }
+    post {
+        always {
+            build job: '/Notifications/slack-notification-pipeline', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}")
+            ]
+        }
+    }
+}
