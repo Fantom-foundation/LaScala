@@ -13,12 +13,12 @@ pipeline {
         ROOTPATH="pwd"
         DATAROOTPATH="/var/data/Aida/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
-        GENESIS="mainnet-5577-full-mpt.g"
         GENESISPATH="/var/src/Aida/genesis"
     }
 
     parameters {
         string(defaultValue: "functional", description: 'Agent or agent\'s label where the job will run', name: 'NodeLabel')
+        string(defaultValue: "testnet-25100-rpc.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
     }
 
@@ -46,8 +46,8 @@ pipeline {
 
                 // download genesis
                 script {
-                    if (!fileExists("${GENESISPATH}/${GENESIS}")) {
-                        sh "curl -o ${GENESISPATH}/${GENESIS} https://download.fantom.network/${GENESIS}"
+                    if (!fileExists("${GENESISPATH}/${Genesis}")) {
+                        sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
                     }
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
         stage('Create DB from legacy genesis') {
            steps {
                // create db from a legacy genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis ${GENESISPATH}/${GENESIS} --experimental"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis ${GENESISPATH}/${Genesis} --experimental"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
