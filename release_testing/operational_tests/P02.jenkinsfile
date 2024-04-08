@@ -18,18 +18,17 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // checkout go-opera-norma develop branch
                 checkout scmGit(
-                    branches: [[name: "${GoOperaNormaVersion}"]],
+                    branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
+                        url: 'https://github.com/Fantom-foundation/sonic.git'
                     ]]
                 )
             }
@@ -55,7 +54,7 @@ pipeline {
         stage('Create DB from legacy genesis') {
            steps {
                // create db from a legacy genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis legacy ${GENESISPATH}/${GENESIS}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${GENESIS}"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
                 // copy db for import events
                 sh "cp -r ${DATADIRPATH} ${EVENTDBPATH}"
@@ -86,7 +85,7 @@ pipeline {
         stage('Export & import genesis') {
             steps {
                 sh "./build/sonictool --datadir ${DATADIRPATH} export genesis ${DATAROOTPATH}/sonic.g"
-                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis legacy ${DATAROOTPATH}/sonic.g"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis --experimental ${DATAROOTPATH}/sonic.g"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }

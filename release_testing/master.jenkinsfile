@@ -17,7 +17,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
     stages {
@@ -205,7 +205,7 @@ pipeline {
                 stage('P02 Sonic Genesis Tests') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P02', parameters: [
-                            string(name: 'GoOperaNormaVersion', value: "${GoOperaNormaVersion}")
+                            string(name: 'SonicVersion', value: "${SonicVersion}")
                         ]
                     }
                 }
