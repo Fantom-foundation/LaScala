@@ -1,0 +1,25 @@
+.v-snackbar__actions {
+  align-items: end !important;
+}
+
+.snackbar-btn-wrapper {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+}
+
+.checkbox {
+  position: absolute !important;
+  top: 35px !important;
+  right: 30px !important;
+  margin: 0 !important;
+}
+
+.checkbox .v-label {
+  padding-left: 0;
+}
+
+.comparison-job {
+  padding-right: 30px;
+  margin-bottom: 0;
+}

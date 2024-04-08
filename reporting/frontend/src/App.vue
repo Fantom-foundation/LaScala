@@ -21,14 +21,22 @@
 
     <v-main class="pa-6 pt-10 mt-16 bg-blue-lighten-5">
       <RouterView />
+      <template v-if="getSnackbarVisible">
+        <ComparisonSnackbar></ComparisonSnackbar>
+      </template>
     </v-main>
   </v-app>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import ComparisonSnackbar from './components/ComparisonSnackbar.vue'
 
 export default {
+  components: {
+    ComparisonSnackbar
+  },
+
   data() {
     return {
       drawer: false
@@ -36,7 +44,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["getAllRunGroups"]),
+    ...mapGetters(["getAllRunGroups", "getSnackbarVisible"]),
 
     runGroups() {
       if (!this.getAllRunGroups) {

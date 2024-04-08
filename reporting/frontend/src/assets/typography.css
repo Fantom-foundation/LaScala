@@ -1,21 +1,38 @@
 .h4 {
   font-size: 34px !important;
-  font-family: sans-serif !important;
+  font-family: Roboto, sans-serif !important;
   line-height: 1.6 !important;
 }
 
 .v-tab .v-btn__content {
   font-size: 14px !important;
-  font-family: sans-serif !important;
+  font-family: Roboto, sans-serif !important;
 }
 
 .v-toolbar-title .v-toolbar-title__placeholder {
   font-size: 20px !important;
-  font-family: sans-serif !important;
+  font-family: Roboto, sans-serif !important;
   line-height: 1.4;
 }
 
 .v-icon--size-default {
   font-size: 24px !important;
-  font-family: sans-serif !important;
+  font-family: Roboto, sans-serif !important;
+}
+
+.v-label.v-label--clickable {
+  font-size: 16px !important;
+  font-family: Roboto, sans-serif !important;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+span.v-btn__content {
+  font-size: 14px !important;
+  font-family: Roboto, sans-serif !important;
+}
+
+.comparison-job {
+  font-size: 16px !important;
+  font-family: Roboto, sans-serif !important;
 }
