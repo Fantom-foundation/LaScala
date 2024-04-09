@@ -39,6 +39,8 @@ pipeline {
         stage('Preparation and build') {
             steps {
                 // setup
+                sh "rm -f ${GENESISPATH}/${Genesis}.md5"
+                sh "rm -f ${GENESISPATH}/${Genesis}.md5.new"
                 sh "rm -rf $ROOTPATH"
                 sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
@@ -48,10 +50,11 @@ pipeline {
                 script {
                     if (!fileExists("${GENESISPATH}/${Genesis}")) {
                         sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
-                        sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}.md5"
                     }
 
+                    sh "curl -o ${GENESISPATH}/${Genesis}.md5 https://download.fantom.network/${Genesis}.md5"
                     sh "md5sum ${GENESISPATH}/${Genesis} >> ${GENESISPATH}/${Genesis}.md5.new"
+
                     def md5DiffResult = sh(script: "diff ${GENESISPATH}/${Genesis}.md5 ${GENESISPATH}/${Genesis}.md5.new", returnStdout: true);
 
                     sh 'echo "MD5 comparison result: ${md5DiffResult}"'
