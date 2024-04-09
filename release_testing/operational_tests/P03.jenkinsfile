@@ -19,7 +19,7 @@ pipeline {
     parameters {
         string(defaultValue: "functional", description: 'Agent or agent\'s label where the job will run', name: 'NodeLabel')
         string(defaultValue: "testnet-25100-rpc.g", description: 'Name of the genesis file to download', name: 'Genesis')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
     stages {
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 // checkout go-opera-norma develop branch
                 checkout scmGit(
-                    branches: [[name: "${GoOperaNormaVersion}"]],
+                    branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
                         url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
@@ -48,8 +48,15 @@ pipeline {
                 script {
                     if (!fileExists("${GENESISPATH}/${Genesis}")) {
                         sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
+                        sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}.md5"
                     }
+
+                    sh "md5sum ${GENESISPATH}/${Genesis} >> ${GENESISPATH}/${Genesis}.md5.new"
+                    def md5DiffResult = sh(script: "diff ${GENESISPATH}/${Genesis}.md5 ${GENESISPATH}/${Genesis}.md5.new", returnStdout: true);
+
+                    sh 'echo "MD5 comparison result: ${md5DiffResult}"'
                 }
+
             }
         }
 
