@@ -6,6 +6,8 @@ pipeline {
         string(name: 'aidaDb', defaultValue: '/var/opera/Aida/mainnet-data/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
     }
 
     stages {
@@ -13,16 +15,17 @@ pipeline {
             steps {
                 deleteDir()
                 checkout scmGit(
-                    branches: [[name: 'main']],
+                    branches: [[name: '${AidaVersion}']],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
                 sh "git submodule update --init --recursive"
+
                 dir('carmen') {
                 	checkout scmGit(
-                		branches: [[name: 'main']],
+                		branches: [[name: '${CarmenVersion}']],
                 		userRemoteConfigs: [[
                             credentialsId:  'AidaCI_PAT', 
                             url: 'https://github.com/Fantom-foundation/Carmen.git'
