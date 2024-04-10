@@ -11,32 +11,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scmGit(
-                    branches: [[name: "${AidaVersion}"]],
-                    userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
-                )
-                sh "git submodule update --init --recursive"
-
-                dir('carmen') {
-                	checkout scmGit(
-                		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[
-                            credentialsId:  'AidaCI_PAT', 
-                            url: 'https://github.com/Fantom-foundation/Carmen.git'
-                        ]]
-                	)
-                }
-
-                sh "git submodule update --recursive"
-            }
-        }
-
-        stage('Build') {
+        stage('Redirect to SyncToolchain') {
             steps {
                 build job: '/ReleaseTesting/Carmen/SyncToolchain', parameters: [
                     string(name: 'TmpDb', value: "/var/data/Aida/statedb"),

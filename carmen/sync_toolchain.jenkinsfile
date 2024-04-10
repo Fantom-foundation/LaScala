@@ -15,7 +15,7 @@ pipeline {
             steps {
                 deleteDir()
                 checkout scmGit(
-                    branches: [[name: '${AidaVersion}']],
+                    branches: [[name: "${AidaVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
@@ -25,7 +25,7 @@ pipeline {
 
                 dir('carmen') {
                 	checkout scmGit(
-                		branches: [[name: '${CarmenVersion}']],
+                		branches: [[name: "${CarmenVersion}"]],
                 		userRemoteConfigs: [[
                             credentialsId:  'AidaCI_PAT', 
                             url: 'https://github.com/Fantom-foundation/Carmen.git'
