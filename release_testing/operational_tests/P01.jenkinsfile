@@ -14,12 +14,13 @@ pipeline {
         stage('Redirect to SyncToolchain') {
             steps {
                 build job: '/ReleaseTesting/Carmen/SyncToolchain', parameters: [
-                    string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
-                    string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
-                    string(name: 'FirstBlockHeight', value: "5000000"),
-                    string(name: 'SecondBlockHeight', value: "6000000"),
-                    string(name: 'AidaVersion', value: "${AidaVersion}"),
-                    string(name: 'CarmenVersion', value: "${CarmenVersion}")
+                    string(name: 'nodeLabel', value: "release"),
+                    string(name: 'tmpDb', value: "/var/data/Aida/statedb"),
+                    string(name: 'aidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
+                    string(name: 'firstBlockHeight', value: "5000000"),
+                    string(name: 'secondBlockHeight', value: "6000000"),
+                    string(name: 'aidaVersion', value: "${AidaVersion}"),
+                    string(name: 'carmenVersion', value: "${CarmenVersion}")
                 ]
             }
         }
