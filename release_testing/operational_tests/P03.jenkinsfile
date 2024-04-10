@@ -52,12 +52,27 @@ pipeline {
                         sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
                     }
 
-                    sh "curl -o ${GENESISPATH}/${Genesis}.md5 https://download.fantom.network/${Genesis}.md5"
-                    sh "md5sum ${GENESISPATH}/${Genesis} >> ${GENESISPATH}/${Genesis}.md5.new"
+                    // download MD5
+                    md5url = "https://download.fantom.network/${Genesis}.md5"
+                    sh "echo ${md5url}"
 
-                    def md5DiffResult = sh(script: "diff ${GENESISPATH}/${Genesis}.md5 ${GENESISPATH}/${Genesis}.md5.new", returnStdout: true);
+                    def md5Expected = sh(script: "curl ${md5url}", returnStdout: true);
+                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
 
-                    sh 'echo "MD5 comparison result: ${md5DiffResult}"'
+                    // calculate MD5
+                    String genesisPath = "${GENESISPATH}/${Genesis}"
+                    def genesisMd5 = sh(script: "md5sum $genesisPath", returnStdout: true);
+                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    // compare MD5
+                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                        sh "echo removing corrupted file ${GENESISPATH}/${Genesis}"
+                        sh "rm ${GENESISPATH}/${Genesis}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                    } else {
+                        sh "echo hash ${md5CalculatedHash} confirmed"
+                    }
                 }
 
             }
