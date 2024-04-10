@@ -50,7 +50,7 @@ pipeline {
         stage('Test Genesis Toolchain') {
             parallel{
                 stage('Live DB Toolchain') {
-                    agent {label "${NodeLabel}"}
+                    agent {label "${nodeLabel}"}
                     stages {
                         stage('Build') {
                             steps {
@@ -109,7 +109,7 @@ pipeline {
                     }
                 }
                 stage('Archive DB Toolchain') {
-                    agent {label "${NodeLabel}"}
+                    agent {label "${nodeLabel}"}
                     stages {
                         stage('Build') {
                             steps {
@@ -155,7 +155,7 @@ pipeline {
                     }
                 }
                 stage('Archive And Live DB Toolchain') {
-                    agent {label "${NodeLabel}"}
+                    agent {label "${nodeLabel}"}
                     stages {
                         stage('Build') {
                             steps {
