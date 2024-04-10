@@ -43,8 +43,8 @@ pipeline {
                     string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
                     string(name: 'FirstBlockHeight', value: "5000000"),
                     string(name: 'SecondBlockHeight', value: "6000000"),
-                    string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                    string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
+                    string(name: 'AidaVersion', value: "${AidaVersion}"),
+                    string(name: 'CarmenVersion', value: "${CarmenVersion}")
                 ]
             }
         }
