@@ -31,7 +31,9 @@ pipeline {
                             url: 'https://github.com/Fantom-foundation/Carmen.git'
                         ]]
                 	)
-                }                
+                }
+
+                sh "git submodule update --recursive"
             }
         }
 
