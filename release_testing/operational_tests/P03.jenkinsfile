@@ -40,7 +40,6 @@ pipeline {
             steps {
                 // setup
                 sh "rm -f ${GENESISPATH}/${Genesis}.md5"
-                sh "rm -f ${GENESISPATH}/${Genesis}.md5.new"
                 sh "rm -rf $ROOTPATH"
                 sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
