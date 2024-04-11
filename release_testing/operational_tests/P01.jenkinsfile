@@ -11,109 +11,30 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Redirect to SyncToolchain') {
             steps {
-                checkout scmGit(
-                    branches: [[name: "${AidaVersion}"]],
-                    userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
-                )
-                sh "git submodule update --init --recursive"
-
-                dir('carmen') {
-                	checkout scmGit(
-                		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[
-                            credentialsId:  'AidaCI_PAT', 
-                            url: 'https://github.com/Fantom-foundation/Carmen.git'
-                        ]]
-                	)
-                }
-
-                sh "git submodule update --recursive"
+                build job: '/ReleaseTesting/Carmen/SyncToolchain', parameters: [
+                    string(name: 'nodeLabel', value: "release"),
+                    string(name: 'tmpDb', value: "/var/data/Aida/statedb"),
+                    string(name: 'aidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
+                    string(name: 'firstBlockHeight', value: "5000000"),
+                    string(name: 'secondBlockHeight', value: "6000000"),
+                    string(name: 'aidaVersion', value: "${AidaVersion}"),
+                    string(name: 'carmenVersion', value: "${CarmenVersion}")
+                ]
             }
         }
-
-        stage('Build') {
-            steps {
-                sh "go mod tidy"
-                sh "make -j aida-vm-sdb"
-            }
-        }
-
-        stage('Test') {
-           steps {
-               sh 'go test ./...'
-            }
-        }
-
-        stage('Synchronise Blocks') {
-            steps {
-                sh "build/aida-vm-sdb substate --aida-db  ${params.AidaDb} --db-tmp  ${params.TmpDb}  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db  --validate-state-hash 0 ${params.FirstBlockHeight} "
-            }
-        }
-
-        stage('Verify Live DB') {
-            steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}/live"
-            }
-        }
-
-        stage('Verify Archive DB') {
-            steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}/archive"
-            }
-        }        
-
-        stage('Export DB') {
-            steps {
-                sh "cd carmen/go && go run ./database/mpt/tool export ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}/live ${params.TmpDb}/genesis.dat"
-            }
-        }
-
-        stage('Import DB') {
-            steps {
-                sh "cd carmen/go && go run ./database/mpt/tool import-live-db ${params.TmpDb}/genesis.dat ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/live"
-            }
-        }
-
-        stage('Verify recovered Live DB') {
-            steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/live"
-            }
-        }
-
-        stage('Continue Synchronise Blocks') {
-            steps {
-                // continue with liveDB only as the Import/Export tool does not cover Archive
-                sh "cp ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}/statedb_info.json ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/"
-                sh "sed -i -r 's/\"archiveMode\": true,/\"archiveMode\": false,/' ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/statedb_info.json"
-                script {nextBlock=params.FirstBlockHeight.toInteger()+1}
-                sh "build/aida-vm-sdb substate --aida-db ${params.AidaDb} --db-tmp ${params.TmpDb} --db-src ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db --validate-state-hash ${nextBlock} ${params.SecondBlockHeight}"
-            }
-        }    
-
-        stage('Re-verify DB') {
-            steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.TmpDb}/state_db_carmen_go-file_${params.SecondBlockHeight}/live"
-            }
-        }               
     }
     post {
         always {
             sh "make clean"
-            sh "rm -rf ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}/"
-            sh "rm -rf ${params.TmpDb}/state_db_carmen_go-file_${params.FirstBlockHeight}-recov/"
-            sh "rm -rf ${params.TmpDb}/state_db_carmen_go-file_${params.SecondBlockHeight}/"
-            sh "rm -rf ${params.TmpDb}/genesis.dat"
 
             build job: '/Notifications/slack-notification-pipeline', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}")
+
             ]
         }
     }

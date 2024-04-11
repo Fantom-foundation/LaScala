@@ -2,10 +2,13 @@ pipeline {
     agent {label 'coordinator'}
 
     parameters {
+        string(name: 'nodeLabel', defaultValue: "short", description: 'Agent or agent\'s label where the job will run')
         string(name: 'tmpDb', defaultValue: '/var/opera/Aida/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
         string(name: 'aidaDb', defaultValue: '/var/opera/Aida/mainnet-data/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
+        string(name: 'aidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'carmenVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
     }
 
     stages {
@@ -13,22 +16,25 @@ pipeline {
             steps {
                 deleteDir()
                 checkout scmGit(
-                    branches: [[name: 'main']],
+                    branches: [[name: "${aidaVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
                 sh "git submodule update --init --recursive"
+
                 dir('carmen') {
                 	checkout scmGit(
-                		branches: [[name: 'main']],
+                		branches: [[name: "${carmenVersion}"]],
                 		userRemoteConfigs: [[
                             credentialsId:  'AidaCI_PAT', 
                             url: 'https://github.com/Fantom-foundation/Carmen.git'
                         ]]
                 	)
-                }                
+                }
+
+                sh "git submodule update --recursive"
             }
         }
 
@@ -44,7 +50,7 @@ pipeline {
         stage('Test Genesis Toolchain') {
             parallel{
                 stage('Live DB Toolchain') {
-                    agent {label 'short'}
+                    agent {label "${nodeLabel}"}
                     stages {
                         stage('Build') {
                             steps {
@@ -103,7 +109,7 @@ pipeline {
                     }
                 }
                 stage('Archive DB Toolchain') {
-                    agent {label 'short'}
+                    agent {label "${nodeLabel}"}
                     stages {
                         stage('Build') {
                             steps {
@@ -149,7 +155,7 @@ pipeline {
                     }
                 }
                 stage('Archive And Live DB Toolchain') {
-                    agent {label 'short'}
+                    agent {label "${nodeLabel}"}
                     stages {
                         stage('Build') {
                             steps {
