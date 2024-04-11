@@ -88,7 +88,7 @@ pipeline {
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH}"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.age 1s"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
