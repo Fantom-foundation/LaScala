@@ -27,8 +27,6 @@ pipeline {
     }
     post {
         always {
-            sh "make clean"
-
             build job: '/Notifications/slack-notification-pipeline', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
