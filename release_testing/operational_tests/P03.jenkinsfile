@@ -13,13 +13,13 @@ pipeline {
         ROOTPATH="pwd"
         DATAROOTPATH="/var/data/Aida/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
-        GENESIS="mainnet-5577-full-mpt.g"
         GENESISPATH="/var/src/Aida/genesis"
     }
 
     parameters {
         string(defaultValue: "functional", description: 'Agent or agent\'s label where the job will run', name: 'NodeLabel')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'GoOperaNormaVersion')
+        string(defaultValue: "testnet-25100-rpc.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
     stages {
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 // checkout go-opera-norma develop branch
                 checkout scmGit(
-                    branches: [[name: "${GoOperaNormaVersion}"]],
+                    branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
                         url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
@@ -39,6 +39,7 @@ pipeline {
         stage('Preparation and build') {
             steps {
                 // setup
+                sh "rm -f ${GENESISPATH}/${Genesis}.md5"
                 sh "rm -rf $ROOTPATH"
                 sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
@@ -46,24 +47,47 @@ pipeline {
 
                 // download genesis
                 script {
-                    if (!fileExists("${GENESISPATH}/${GENESIS}")) {
-                        sh "curl -o ${GENESISPATH}/${GENESIS} https://download.fantom.network/${GENESIS}"
+                    if (!fileExists("${GENESISPATH}/${Genesis}")) {
+                        sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
+                    }
+
+                    // download MD5
+                    md5url = "https://download.fantom.network/${Genesis}.md5"
+                    sh "echo ${md5url}"
+
+                    def md5Expected = sh(script: "curl ${md5url}", returnStdout: true);
+                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
+
+                    // calculate MD5
+                    String genesisPath = "${GENESISPATH}/${Genesis}"
+                    def genesisMd5 = sh(script: "md5sum $genesisPath", returnStdout: true);
+                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    // compare MD5
+                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                        sh "echo removing corrupted file ${GENESISPATH}/${Genesis}"
+                        sh "rm ${GENESISPATH}/${Genesis}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                    } else {
+                        sh "echo hash ${md5CalculatedHash} confirmed"
                     }
                 }
+
             }
         }
 
         stage('Create DB from legacy genesis') {
            steps {
                // create db from a legacy genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis ${GENESISPATH}/${GENESIS} --experimental"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis} "
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH}"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.age 1s"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
