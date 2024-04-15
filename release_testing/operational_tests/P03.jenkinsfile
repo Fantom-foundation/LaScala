@@ -30,7 +30,7 @@ pipeline {
                     branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
             }
@@ -92,6 +92,29 @@ pipeline {
             }
         }
 
+        stage('Start RPC client') {
+            steps {
+                sh """./build/sonicd \
+                        --datadir=/var/opera/mainnet \
+                        --config=/etc/opera/config.toml \
+                        --port=5050 \
+                        --cache=65536 \
+                        --maxpeers=251 \
+                        --verbosity=3 \
+                        --metrics --pprof \
+                        --ws \
+                        --ws.addr=0.0.0.0 \
+                        --ws.port=18546 \
+                        --ws.origins="*" \
+                        --ws.api=eth,web3,net,ftm,txpool,abft,dag \
+                        --http \
+                        --http.addr=0.0.0.0 \
+                        --http.port=80 \
+                        --http.corsdomain="*" \
+                        --http.vhosts="*" \
+                        --http.api=eth,web3,net,ftm,txpool,abft,dag"""
+            }
+        }
     }
     post {
         always {
