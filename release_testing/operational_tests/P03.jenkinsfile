@@ -30,7 +30,7 @@ pipeline {
                     branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
             }

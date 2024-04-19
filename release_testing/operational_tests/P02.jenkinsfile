@@ -28,7 +28,7 @@ pipeline {
                     branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
                         credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/sonic.git'
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
             }
