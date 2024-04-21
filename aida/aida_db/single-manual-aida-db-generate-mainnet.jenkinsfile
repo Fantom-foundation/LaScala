@@ -1,0 +1,96 @@
+pipeline {
+    // agent { label 'xapi241' }
+    agent { label 'xapi310' }
+
+    options { timestamps () }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        autogenDir = '/var/opera/Aida/mainnet-data/autogen'
+        dbTmp = "${autogenDir}/tmp"
+        aidaDb = "--aida-db=${autogenDir}/aida-db"
+        output = "--output=${autogenDir}/aida-patches"
+    }
+
+    stages {
+        stage('Build-aida') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: 'matej/optimalize-generate-deletion-memory']],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PAT',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+                sh "make all"
+            }
+        }
+
+        stage('Build-go-opera-substate') {
+            steps {
+                dir('go-opera-substate') {
+                    checkout scmGit(
+                        branches: [[name: 'rr1.1.3-rc.5']],
+                        userRemoteConfigs: [[
+                            credentialsId:  'AidaCI_PAT',
+                            url: 'https://github.com/Fantom-foundation/go-opera-substate.git'
+                        ]]
+                    )
+                    sh "make all"
+                }
+            }
+        }
+
+        stage('mkdirs') {
+            steps {
+                // uncomment to recover from locked database
+                // sh "rm ${autogenDir}/aida-db.autogen.lock || true"
+
+
+                sh "mkdir ${autogenDir} || true"
+                sh "mkdir /var/opera/Aida/mainnet-data/autogen/aida-db || true"
+            }
+        }
+
+        stage('merge-state-hashes') {
+            steps {
+                sh "build/util-db merge --aida-db=${autogenDir}/aida-db-69M --log debug --skip-metadata ${autogenDir}/state-hashes_0-68940000 ${autogenDir}/state-hashes_68940000-69673605 ${autogenDir}/aida-db"
+                sh "build/util-db info metadata --aida-db=${autogenDir}/aida-db-69M"
+            }
+        }
+
+         stage('util-db-generate') {
+            steps {
+                // catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db generate --aida-db=${autogenDir}/aida-db-69M ${output} --log debug --chainid 250 --workers 20 --skip-state-hash-scrapping --update-buffer-size=700 65436419 69673605 222503 243624"
+                // }
+            }
+        }
+
+        stage('tear-down') {
+            steps {
+                sh "make clean"
+                dir('go-opera-substate') {
+                    sh "make clean"
+                }
+                // sh "rm -rf ${dbTmp}"
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification-pipelin', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}")
+            ]
+        }
+    }
+}

@@ -1,0 +1,96 @@
+pipeline {
+    agent { label 'rpc' }
+
+    options { timestamps () }
+
+    environment {
+        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        PARAMS = '--rpc-recording=/var/opera/Aida/mainnet-data/api-recordings/api-recording-2023-05-19_11-36.gz --workers=40'
+    }
+
+    parameters {
+        string(defaultValue: "62663622", description: '', name: 'BlockFrom')
+        string(defaultValue: "63216776", description: '', name: 'BlockTo')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+                sh "make all"
+            }
+        }
+
+
+        stage('go-file+lfvm') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/aida-rpc --db-src=/var/opera/Aida/mainnet-data/archive_db-gofile63M --vm-impl=lfvm $PARAMS ${BlockFrom} ${BlockTo}"
+                }
+                // arcarchiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+        }
+
+        stage('go-file+geth') {
+            steps {
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/aida-rpc --db-src=/var/opera/Aida/mainnet-data/archive_db-gofile63M --vm-impl=geth $PARAMS ${BlockFrom} ${BlockTo}"
+                }
+                // archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+            }
+        }
+
+
+        // stage('cpp-file+lfvm') {
+        //     steps {
+        //         sh "rm -f *.cpuprofile *.memprofile *.log"
+        //         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+        //             sh "build/aida-rpc-adb --db-src=/var/aida/state-dbs/state_db_carmen_cpp-file_59914056 --vm-impl=lfvm $PARAMS ${BlockFrom} ${BlockTo}"
+        //         }
+        //         archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+        //     }
+        // }
+
+
+
+        // stage('cpp-file+geth') {
+        //     steps {
+        //         sh "rm -f *.cpuprofile *.memprofile *.log"
+        //         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+        //             sh "build/aida-rpc-adb --db-src=/var/aida/state-dbs/state_db_carmen_cpp-file_59914056 --vm-impl=geth $PARAMS ${BlockFrom} ${BlockTo}"
+        //         }
+        //         archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+        //     }
+        // }
+        stage('tear down') {
+            steps {
+                sh "make clean"
+            }
+        }
+
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification-pipeline', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}")
+            ]
+        }
+    }
+}

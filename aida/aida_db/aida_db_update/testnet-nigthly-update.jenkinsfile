@@ -1,0 +1,24 @@
+. /etc/profile.d/golang.sh
+
+DIR="aida-update"
+BRANCH="develop"
+
+if [ -d "$DIR" ]; then
+  rm -rf "$DIR"
+fi
+
+# Clone the repository and build Aida
+git clone https://github.com/Fantom-foundation/Aida "$DIR"
+cd "$DIR"
+git checkout $BRANCH
+git submodule update --init --recursive
+make clean
+make
+
+# Update AidaDB
+./build/util-db update --update-type=nightly --aida-db=/var/opera/Aida/testnet-data/aida-db-nightly --chainid 4002 --db-tmp=/var/opera/Aida/dbtmpjenkins --log debug --compact
+
+# Cleanup
+make clean
+cd ../..
+# rm -rf "$DIR"
