@@ -4,7 +4,7 @@ pipeline {
     agent { label 'coordinator' }
 
     environment {
-        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        GOROOT = '/usr/lib/go-1.21/'
         AIDA_VERSION = ''
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
@@ -42,7 +42,7 @@ pipeline {
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
 
                     script {
@@ -57,7 +57,7 @@ pipeline {
                 dir('tosca') {
                     checkout scmGit(
                         branches: [[name: "${ToscaVersion}"]],
-                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
 
                     script {
@@ -109,8 +109,8 @@ pipeline {
                 stage('Run genesis test job') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
-                            string(name: 'TmpDb', value: "/var/data/Aida/statedb"),
-                            string(name: 'AidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
+                            string(name: 'TmpDb', value: "/mnt/aida-statedb-disk/statedb"),
+                            string(name: 'AidaDb', value: "/mnt/aida-db-central/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),
                             string(name: 'SecondBlockHeight', value: "6000000"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),

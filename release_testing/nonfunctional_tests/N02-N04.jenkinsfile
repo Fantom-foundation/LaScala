@@ -1,7 +1,7 @@
 // Measure transaction processing time
 
 pipeline {
-    agent { label "${NodeLabel}" }
+    agent { label "aida-rpc" }
 
     options {
         timestamps ()
@@ -9,7 +9,7 @@ pipeline {
     }
 
     environment {
-        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        GOROOT = '/usr/lib/go-1.21/'
     }
 
     parameters {
@@ -20,7 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "40", description: '', name: 'Workers')
-        string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
+        string(defaultValue: "/mnt/aida-statedb-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
         booleanParam(defaultValue: true, description: 'If checked, N02 stage will be executed', name: 'RunN02')
         booleanParam(defaultValue: true, description: 'If checked, N04 stage will be executed', name: 'RunN04')
@@ -36,7 +36,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${AidaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
@@ -45,14 +44,14 @@ pipeline {
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
 
                 dir('tosca') {
                     checkout scmGit(
                         branches: [[name: "${ToscaVersion}"]],
-                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
                 }
 
@@ -76,7 +75,7 @@ pipeline {
 
                 sh 'echo "Removing old state db with archive"'
 
-                sh "rm -rf /var/data/Aida/statedb/state_db_N02"
+                sh "rm -rf /mnt/aida-statedb-disk/statedb/state_db_N02"
 
                 sh "mkdir -p ${RegisterRunPath}"
 
@@ -84,8 +83,8 @@ pipeline {
                     sh """build/aida-vm-sdb  substate \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl geth \
-                                             --db-tmp /var/data/Aida/statedb --keep-db --custom-db-name="state_db_N02"\
-                                             --aida-db /var/src/Aida/mainnet-data/aida-db \
+                                             --db-tmp /mnt/aida-statedb-disk/statedb --keep-db --custom-db-name="state_db_N02"\
+                                             --aida-db /mnt/aida-db-central/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --archive --archive-variant s5 \
                                              --register-run ${RegisterRunPath} \
@@ -131,7 +130,7 @@ pipeline {
                 sh "rm -f *_N04.cpuprofile *_N04.memprofile *_N04.log"
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh """build/aida-rpc --db-src=/var/data/Aida/statedb/state_db_N02/ \
+                    sh """build/aida-rpc --db-src=/mnt/aida-statedb-disk/statedb/state_db_N02/ \
                                          --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                          --vm-impl=geth \
                                          --workers=${Workers} \
@@ -176,6 +175,7 @@ pipeline {
         }
     }
 
+    /*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -186,4 +186,5 @@ pipeline {
             ]
         }
     }
+    */
 }

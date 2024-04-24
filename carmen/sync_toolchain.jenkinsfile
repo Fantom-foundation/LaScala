@@ -1,10 +1,10 @@
 pipeline {
-    agent {label 'coordinator'}
+    agent {label "worker"}
 
     parameters {
-        string(name: 'nodeLabel', defaultValue: "short", description: 'Agent or agent\'s label where the job will run')
-        string(name: 'tmpDb', defaultValue: '/var/opera/Aida/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
-        string(name: 'aidaDb', defaultValue: '/var/opera/Aida/mainnet-data/aida-db', description: 'Temporary directory to read Aida DB from.')
+        string(name: 'nodeLabel', defaultValue: "worker", description: 'Agent or agent\'s label where the job will run')
+        string(name: 'tmpDb', defaultValue: '/mnt/aida-statedb-disk/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
+        string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
         string(name: 'aidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
@@ -18,7 +18,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${aidaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PAT',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
@@ -28,7 +27,6 @@ pipeline {
                 	checkout scmGit(
                 		branches: [[name: "${carmenVersion}"]],
                 		userRemoteConfigs: [[
-                            credentialsId:  'AidaCI_PAT', 
                             url: 'https://github.com/Fantom-foundation/Carmen.git'
                         ]]
                 	)

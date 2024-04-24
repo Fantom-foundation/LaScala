@@ -1,6 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent { node 'rel-norma' }
+    agent { node 'worker' }
 
     options {
         timestamps ()
@@ -9,7 +9,7 @@ pipeline {
     }
 
     environment {
-        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        GOROOT = '/usr/lib/go-1.21/'
     }
 
     parameters {
@@ -26,7 +26,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${NormaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Norma.git'
                     ]]
                 )
@@ -62,6 +61,7 @@ pipeline {
         }
     }
 
+    /*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -72,6 +72,7 @@ pipeline {
             ]
         }
     }
+    */
 }
 
 def runScenario(scenario) {

@@ -13,7 +13,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: 'main']],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
@@ -22,7 +21,7 @@ pipeline {
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: 'main']],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
             }

@@ -1,7 +1,7 @@
 // Test functional correctness of live-db using testnet
 
 pipeline {
-    agent { label 'functional' }
+    agent { label 'aida-statedb' }
 
     options {
         timestamps ()
@@ -10,7 +10,7 @@ pipeline {
     }
 
     environment {
-        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
+        GOROOT = '/usr/lib/go-1.21/'
     }
 
     parameters {
@@ -19,7 +19,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "/var/data/Aida/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
+        string(defaultValue: "/mnt/aida-statedb-disk/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
     }
 
@@ -33,7 +33,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${AidaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
@@ -42,14 +41,14 @@ pipeline {
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
 
                 dir('tosca') {
                     checkout scmGit(
                         branches: [[name: "${ToscaVersion}"]],
-                        userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
                 }
 
@@ -72,7 +71,7 @@ pipeline {
                     sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
-                                         --db-tmp /var/data/Aida/statedb \
+                                         --db-tmp /mnt/aida-statedb-disk/statedb \
                                          --aida-db /var/src/Aida/testnet-data/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
@@ -108,6 +107,7 @@ pipeline {
         }
     }
 
+    /*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -118,4 +118,5 @@ pipeline {
             ]
         }
     }
+    */
 }
