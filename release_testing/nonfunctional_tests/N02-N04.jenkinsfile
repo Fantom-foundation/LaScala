@@ -13,7 +13,6 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "non-functional", description: '', name: 'NodeLabel')
         string(defaultValue: "first", description: '', name: 'BlockFrom')
         string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
@@ -131,7 +130,7 @@ pipeline {
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-rpc --db-src=/mnt/aida-statedb-disk/statedb/state_db_N02/ \
-                                         --rpc-recording=/var/src/Aida/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --rpc-recording=/mnt/aida-rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                          --vm-impl=geth \
                                          --workers=${Workers} \
                                          --register-run ${RegisterRunPath} \
