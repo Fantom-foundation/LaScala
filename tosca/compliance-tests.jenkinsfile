@@ -26,7 +26,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${ToscaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Tosca.git'
                     ]]
                 )

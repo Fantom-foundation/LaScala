@@ -3,7 +3,7 @@
 pipeline {
     agent { label 'worker' }
 
-    options {
+j    options {
         timestamps ()
         timeout(time: 11, unit: 'Hours')
         // expected ~10h
@@ -30,7 +30,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${AidaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
@@ -39,7 +38,7 @@ pipeline {
                 dir('tosca') {
                 	checkout scmGit(
                 		branches: [[name: "${ToscaVersion}"]],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                 	)
                 }
 
