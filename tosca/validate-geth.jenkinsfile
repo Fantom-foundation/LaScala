@@ -1,7 +1,7 @@
 // Validate Substate using Ethereum's reference VM implementation
 
 pipeline {
-    agent { label 'worker' }
+    agent { label 'no-db' }
 
     options {
         timestamps ()

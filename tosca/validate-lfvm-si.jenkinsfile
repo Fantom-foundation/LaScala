@@ -1,7 +1,7 @@
 // Validate Substate using the Tosca LFVM implementation
 
 pipeline {
-    agent { label 'worker' }
+    agent { label 'no-db' }
 
 j    options {
         timestamps ()

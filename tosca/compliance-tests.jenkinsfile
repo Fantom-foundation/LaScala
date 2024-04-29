@@ -1,6 +1,6 @@
 // Runs Tosca Unit and Compliance Tests
 pipeline {
-    agent { label 'worker' }
+    agent { label 'no-db' }
 
     options {
         timestamps ()
