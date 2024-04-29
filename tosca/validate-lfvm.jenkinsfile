@@ -5,7 +5,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 11, unit: 'Hours')
+        timeout(time: 11, unit: 'HOURS')
         // expected ~10h
     }
 
