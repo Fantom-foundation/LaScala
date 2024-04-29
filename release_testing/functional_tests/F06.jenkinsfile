@@ -68,7 +68,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
                     sh """build/aida-vm-sdb tx-generator \
                                             --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                            --db-tmp /mnt/aida-statedb-disk/statedb \
+                                            --db-tmp /mnt/aida-statedb-disk \
                                             --shadow-db --db-shadow-impl geth \
                                             --vm-impl geth \
                                             --tx-type all --block-length ${BlockLength} \

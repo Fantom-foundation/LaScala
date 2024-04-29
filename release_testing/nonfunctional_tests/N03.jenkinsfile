@@ -71,7 +71,7 @@ pipeline {
                     sh """build/aida-vm-sdb  substate \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl geth \
-                                             --db-tmp /mnt/aida-statedb-disk/statedb \
+                                             --db-tmp /mnt/aida-statedb-disk \
                                              --aida-db /mnt/aida-db-central/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
