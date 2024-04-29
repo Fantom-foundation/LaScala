@@ -1,7 +1,7 @@
 // Validate Substate using the Tosca evmzero implementation
 
 pipeline {
-    agent { label 'no-db' }
+    agent { label 'db-small-ssd' }
 
     options {
         timestamps ()
