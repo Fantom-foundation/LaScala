@@ -3,13 +3,14 @@ pipeline {
 
     options {
         timestamps ()
-        timeout (time: 14, unit: 'DAYS')
+        timeout (time: 6, unit: 'DAYS')
+        // expected ~5d
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
         AIDADB = '/mnt/aida-db-central/aida-db'
-	TMPDB = '/mnt/tmp-disk'
+	    TMPDB = '/mnt/tmp-disk'
     }
 
     stages {
@@ -42,7 +43,7 @@ pipeline {
             }
         }
 
-        stage('RunVM') {
+        stage('Validate-Go-S5-Archive') {
             steps {
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
