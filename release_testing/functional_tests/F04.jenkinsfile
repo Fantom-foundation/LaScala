@@ -20,7 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "40", description: '', name: 'Workers')
-        string(defaultValue: "/mnt/aida-statedb-disk/register-run-db", description: 'Path to register run db', name:'RegisterRunPath')
+        string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name:'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
     }
 
@@ -72,7 +72,7 @@ pipeline {
                     sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl geth \
-                                             --db-tmp /mnt/aida-statedb-disk \
+                                             --db-tmp /mnt/tmp-disk \
                                              --aida-db /mnt/aida-db-central/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \

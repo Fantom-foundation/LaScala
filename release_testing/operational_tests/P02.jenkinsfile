@@ -9,12 +9,12 @@ pipeline {
     environment {
         GOROOT = '/usr/lib/go-1.21/'
         ROOTPATH="pwd"
-        DATAROOTPATH="/mnt/aida-statedb-disk/tooltmp"
+        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
         GENESISDBPATH="${DATAROOTPATH}/sonic_from_genesis"
         GENESIS="mainnet-5577-full-mpt.g"
-        GENESISPATH="/mnt/aida-statedb-disk/genesis"
+        GENESISPATH="/mnt/tmp-disk/genesis"
     }
 
     parameters {

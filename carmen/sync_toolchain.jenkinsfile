@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         string(name: 'nodeLabel', defaultValue: "worker", description: 'Agent or agent\'s label where the job will run')
-        string(name: 'tmpDb', defaultValue: '/mnt/aida-statedb-disk/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
+        string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
         string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')

@@ -2,7 +2,7 @@ pipeline {
     agent {label 'quick'}
 
     parameters {
-        string(name: 'TmpDb', defaultValue: '/mnt/aida-statedb-disk', description: 'Temporary directory to store the state DB.')
+        string(name: 'TmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
         string(name: 'AidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'FirstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'SecondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')

@@ -189,7 +189,7 @@ pipeline {
                 stage('P01 Opera Genesis Tests') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
-                            string(name: 'TmpDb', value: "/mnt/aida-statedb-disk"),
+                            string(name: 'TmpDb', value: "/mnt/tmp-disk"),
                             string(name: 'AidaDb', value: "/mnt/aida-db-central/aida-db"),
                             string(name: 'FirstBlockHeight', value: "5000000"),
                             string(name: 'SecondBlockHeight', value: "6000000"),
