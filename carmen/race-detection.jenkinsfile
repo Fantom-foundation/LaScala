@@ -1,10 +1,16 @@
 pipeline {
-    agent {label 'short'}
-    
-    options { timestamps () }
-    
-    environment { 
-        GORACE = "halt_on_error=1"
+    agent {label 'db-small-ssd'}
+
+    options {
+        timestamps ()
+        timeout (time: 6, unit: 'HOURS')
+    }
+
+    env%s/\s\+$//eironment {
+        GORACE = 'halt_on_error=1'
+        GOROOT = '/usr/lib/go-1.21/'
+        AIDADB = '/mnt/aida-db-central/aida-db'
+	TMPDB = '/mnt/tmp-disk'
     }
 
     stages {
@@ -13,20 +19,19 @@ pipeline {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
-                
+
                 checkout scmGit(
                     branches: [[name: 'main']],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
                 sh "git submodule update --init --recursive"
-                
+
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: 'main']],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
             }
@@ -38,8 +43,8 @@ pipeline {
                 sh "make -j aida-vm-sdb"
                 sh 'go test ./...'
             }
-        }        
-        
+        }
+
         stage('Run unit tests') {
             steps {
                 dir('carmen/go') {
@@ -47,20 +52,16 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Run integration test') {
             steps {
-                sh "go run -race ./cmd/aida-vm-sdb  substate --validate-state-hash --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --archive-query-rate 150 --vm-impl lfvm --track-progress --db-tmp=/var/opera/Aida/dbtmpjenkins --aida-db=/var/opera/Aida/mainnet-data/aida-db 0 1000000"
-            }
-        }
-        
-        stage('Teardown') {
-            steps {
-                sh "make clean"
+                sh "go run -race ./cmd/aida-vm-sdb  substate --validate-state-hash --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --archive-query-rate 150 --vm-impl lfvm --track-progress --db-tmp=${TMPDB} --aida-db=${AIDADB} 0 1000000"
             }
         }
     }
-    
+
+//todo
+/*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -71,4 +72,5 @@ pipeline {
             ]
         }
     }
+*/
 }
