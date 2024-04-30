@@ -1,7 +1,7 @@
 // Measure transaction processing time
 
 pipeline {
-    agent { label "aida-rpc" }
+    agent { label "db-large-nvme" }
 
     options {
         timestamps ()

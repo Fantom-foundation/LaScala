@@ -1,7 +1,7 @@
 // Test ethereum compliant data sets
 
 pipeline {
-    agent { label 'aida-statedb' }
+    agent { label 'db-small-ssd' }
 
     options {
         timestamps ()

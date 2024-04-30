@@ -1,7 +1,7 @@
 // P03 performs end-to-end test synchronizing from the first opera block to the current head
 
 pipeline {
-    agent { node "aida-statedb" }
+    agent { node "db-small-ssd" }
 
     options {
         timestamps ()

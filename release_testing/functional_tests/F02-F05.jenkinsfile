@@ -1,7 +1,7 @@
 // Test functional correctness of live-db using mainnet and aida-rpc tool
 
 pipeline {
-    agent { label "aida-rpc" }
+    agent { label "db-large-nvme" }
 
     options {
         timestamps ()

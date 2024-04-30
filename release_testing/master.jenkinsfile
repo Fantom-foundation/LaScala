@@ -1,7 +1,7 @@
 // Master job for running release candidate tests in parallel
 
 pipeline {
-    agent { label 'worker' }
+    agent { label 'coordinator' }
 
     environment {
         AIDA_VERSION = ''
