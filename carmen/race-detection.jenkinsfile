@@ -6,11 +6,11 @@ pipeline {
         timeout (time: 6, unit: 'HOURS')
     }
 
-    env%s/\s\+$//eironment {
+    environment {
         GORACE = 'halt_on_error=1'
         GOROOT = '/usr/lib/go-1.21/'
         AIDADB = '/mnt/aida-db-central/aida-db'
-	TMPDB = '/mnt/tmp-disk'
+	    TMPDB = '/mnt/aida-db-central/aida-db'
     }
 
     stages {
