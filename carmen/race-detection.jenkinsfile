@@ -10,7 +10,7 @@ pipeline {
         GORACE = 'halt_on_error=1'
         GOROOT = '/usr/lib/go-1.21/'
         AIDADB = '/mnt/aida-db-central/aida-db'
-	    TMPDB = '/mnt/aida-db-central/aida-db'
+	    TMPDB = '/mnt/tmp-disk'
     }
 
     stages {
