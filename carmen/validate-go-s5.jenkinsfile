@@ -47,7 +47,7 @@ pipeline {
             steps {
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
-                sh "build/aida-vm-sdb  substate --validate-tx --db-impl carmen --db-variant go-file --carmen-schema 5 --vm-impl lfvm --validate-state-hash --track-progress --cpu-profile profile.dat --cpu-profile-per-interval --db-tmp ${TMPDB} --aida-db ${AIDADB} --memory-breakdown --cpu-profile=${BUILD_NUMBER}.cpuprofile --memory-profile=${BUILD_NUMBER}.memprofile ${BlockFrom} ${BlockTo}"
+                sh "build/aida-vm-sdb  substate --validate-tx --db-impl carmen --db-variant go-file --carmen-schema 5 --vm-impl lfvm --validate-state-hash --track-progress --cpu-profile profile.dat --cpu-profile-per-interval --db-tmp ${TMPDB} --aida-db ${AIDADB} --memory-breakdown --cpu-profile=${BUILD_NUMBER}.cpuprofile --memory-profile=${BUILD_NUMBER}.memprofile first last"
 
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
