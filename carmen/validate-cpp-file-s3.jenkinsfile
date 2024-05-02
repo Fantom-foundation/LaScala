@@ -1,7 +1,17 @@
 pipeline {
-    agent { label 'long' }
-    
-    options { timestamps () }
+    agent { label 'db-small-nvme' }
+
+    options {
+        timestamps ()
+        timeout (time: 7, unit: 'DAYS')
+        // expected ~5-6d
+    }
+
+    environment {
+        GOROOT = '/usr/lib/go-1.21/'
+        AIDADB = '/mnt/aida-db-central/aida-db'
+	    TMPDB = '/mnt/tmp-disk'
+    }
 
     stages {
         stage('Checkout') {
@@ -9,20 +19,17 @@ pipeline {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
-                
+
                 checkout scmGit(
                     branches: [[name: 'main']],
-                    userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
                 )
                 sh "git submodule update --init --recursive"
-                
+
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: 'main']],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PAT', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
             }
@@ -35,24 +42,18 @@ pipeline {
                 sh 'go test ./...'
             }
         }
-        
-        stage('RunVM') {
+
+        stage('Validate-Cpp-S3-Archive') {
             steps {
                 sh "rm -f *.cpuprofile *.memprofile *.log"
-                
-                sh "build/aida-vm-sdb substate --validate-tx --db-impl carmen --db-variant cpp-file --carmen-schema 3 --vm-impl lfvm --archive --archive-variant ldb --db-tmp=/var/opera/Aida/dbtmpjenkins --aida-db=/var/opera/Aida/mainnet-data/aida-db --memory-breakdown --cpu-profile=${BUILD_NUMBER}.cpuprofile --memory-profile=${BUILD_NUMBER}.memprofile ${BlockFrom} ${BlockTo}"
-                
+
+                sh "build/aida-vm-sdb substate --validate-tx --db-impl carmen --db-variant cpp-file --carmen-schema 3 --vm-impl lfvm --archive --archive-variant ldb --db-tmp ${TMPDB} --aida-db ${AIDADB} --memory-breakdown --cpu-profile=${BUILD_NUMBER}.cpuprofile --memory-profile=${BUILD_NUMBER}.memprofile first last"
+
                 archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
-        
-        stage('Teardown') {
-            steps {
-                sh "make clean"
-            }
-        }
     }
-    
+/*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -63,4 +64,5 @@ pipeline {
             ]
         }
     }
+*/
 }

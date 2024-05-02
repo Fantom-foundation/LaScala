@@ -1,10 +1,14 @@
 pipeline {
-    agent {label 'long'}
-    
-    options { timestamps () }
-    
-    environment { 
-        GORACE = "halt_on_error=1"
+    agent {label 'db-small-nvme'}
+
+    options {
+        timestamps ()
+        timeout (time: 6, unit: 'HOURS')
+    }
+
+    environment {
+        GORACE = 'halt_on_error=1'
+        GOROOT = '/usr/lib/go-1.21/'
     }
 
     stages {
@@ -13,20 +17,17 @@ pipeline {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
-                
+
                 checkout scmGit(
                     branches: [[name: 'main']],
-                    userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
                 )
                 sh "git submodule update --init --recursive"
-                
+
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: 'main']],
-                		userRemoteConfigs: [[credentialsId:  'AidaCI_PR', url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
             }
@@ -38,8 +39,8 @@ pipeline {
                 sh "make -j aida-vm-sdb"
                 sh 'go test ./...'
             }
-        }        
-        
+        }
+
         stage('Run unit tests') {
             steps {
                 dir('carmen/go') {
@@ -47,14 +48,8 @@ pipeline {
                 }
             }
         }
-        
-        stage('Teardown') {
-            steps {
-                sh "make clean"
-            }
-        }
     }
-    
+/*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -65,4 +60,5 @@ pipeline {
             ]
         }
     }
+*/
 }
