@@ -5,6 +5,8 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        AIDADB = '/mnt/aida-db-central/aida-db'
+        TMPDB = '/mnt/tmp-disk'
         AIDA_VERSION = ''
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
@@ -24,7 +26,6 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${AidaVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PR',
                         url: "https://github.com/Fantom-foundation/Aida.git"
                     ]]
                 )
@@ -109,8 +110,8 @@ pipeline {
                 stage('Run genesis test job') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
-                            string(name: 'TmpDb', value: "/mnt/tmp-disk"),
-                            string(name: 'AidaDb', value: "/mnt/aida-db-central/aida-db"),
+                            string(name: 'TmpDb', value: ${TMPDB}),
+                            string(name: 'AidaDb', value: ${AIDADB}),
                             string(name: 'FirstBlockHeight', value: "5000000"),
                             string(name: 'SecondBlockHeight', value: "6000000"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -121,7 +122,7 @@ pipeline {
             }
         }
     }
-
+/*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -132,4 +133,5 @@ pipeline {
             ]
         }
     }
+*/
 }

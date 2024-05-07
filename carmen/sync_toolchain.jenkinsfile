@@ -1,9 +1,14 @@
 pipeline {
     agent {label "worker"}
 
+    environment {
+        GORACE = 'halt_on_error=1'
+        GOROOT = '/usr/lib/go-1.21/'
+    }
+
     parameters {
-        string(name: 'nodeLabel', defaultValue: "worker", description: 'Agent or agent\'s label where the job will run')
-        string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk/dbtmpjenkins', description: 'Temporary directory to store the state DB.')
+        string(name: 'nodeLabel', defaultValue: "db-small-nvme", description: 'Agent or agent\'s label where the job will run')
+        string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
         string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
@@ -17,18 +22,14 @@ pipeline {
                 deleteDir()
                 checkout scmGit(
                     branches: [[name: "${aidaVersion}"]],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
                 )
                 sh "git submodule update --init --recursive"
 
                 dir('carmen') {
                 	checkout scmGit(
                 		branches: [[name: "${carmenVersion}"]],
-                		userRemoteConfigs: [[
-                            url: 'https://github.com/Fantom-foundation/Carmen.git'
-                        ]]
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
                 }
 
@@ -56,7 +57,7 @@ pipeline {
                                 unstash 'aida-carmen'
                                 sh "mkdir -p ${params.tmpDb}/l"
                             }
-                        } 
+                        }
                         stage('Synchronise Live DB') {
                             steps {
                                 sh "build/aida-vm-sdb substate --aida-db  ${params.aidaDb} --db-tmp  ${params.tmpDb}/l  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db  --validate-state-hash 0 ${params.firstBlockHeight} "
@@ -93,12 +94,12 @@ pipeline {
                                 script {nextBlock=params.firstBlockHeight.toInteger()+1}
                                 sh "build/aida-vm-sdb substate --aida-db ${params.aidaDb} --db-tmp ${params.tmpDb}/l --db-src ${params.tmpDb}/l/state_db_carmen_go-file_${params.firstBlockHeight}-recov/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db --validate-state-hash ${nextBlock} ${params.secondBlockHeight}"
                             }
-                        }    
+                        }
                         stage('Re-verify Live DB') {
                             steps {
                                 sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/l/state_db_carmen_go-file_${params.secondBlockHeight}/live"
                             }
-                        }      
+                        }
                     }
                     post {
                         always {
@@ -115,7 +116,7 @@ pipeline {
                                 unstash 'aida-carmen'
                                 sh "mkdir -p ${params.tmpDb}/a"
                             }
-                        } 
+                        }
                         stage('Synchronise Archive DB') {
                             steps {
                                 sh "build/aida-vm-sdb substate --aida-db  ${params.aidaDb} --db-tmp  ${params.tmpDb}/a  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db  --validate-state-hash 0 ${params.firstBlockHeight} "
@@ -161,7 +162,7 @@ pipeline {
                                 unstash 'aida-carmen'
                                 sh "mkdir -p ${params.tmpDb}/al"
                             }
-                        } 
+                        }
                         stage('Synchronise Archive DB') {
                             steps {
                                 sh "build/aida-vm-sdb substate --aida-db  ${params.aidaDb} --db-tmp  ${params.tmpDb}/al  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db  --validate-state-hash 0 ${params.firstBlockHeight} "
@@ -198,21 +199,21 @@ pipeline {
                                 script {nextBlock=params.firstBlockHeight.toInteger()+1}
                                 sh "build/aida-vm-sdb substate --aida-db ${params.aidaDb} --db-tmp ${params.tmpDb}/al --db-src ${params.tmpDb}/al/state_db_carmen_go-file_${params.firstBlockHeight}-recov/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db --validate-state-hash ${nextBlock} ${params.secondBlockHeight}"
                             }
-                        }    
+                        }
                         stage('Re-verify Archive and Live DB') {
                             steps {
                                 sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.secondBlockHeight}/live"
                                 sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/al/state_db_carmen_go-file_${params.secondBlockHeight}/archive"
                             }
-                        }      
+                        }
                     }
                     post {
                         always {
                             sh "rm -rf ${params.tmpDb}/al"
                         }
                     }
-                }                   
+                }
             }
-        }         
+        }
     }
 }
