@@ -8,7 +8,6 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
-        ROOTPATH="pwd"
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
@@ -36,8 +35,6 @@ pipeline {
         stage('Preparation and build') {
             steps {
                 // setup
-                sh "rm -rf $ROOTPATH"
-                sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
                 sh "make"
 

@@ -10,7 +10,7 @@ pipeline {
     environment {
         GOROOT = '/usr/lib/go-1.21/'
         AIDADB = '/mnt/aida-db-central/aida-db'
-	      TMPDB = '/mnt/tmp-disk'
+        TMPDB = '/mnt/tmp-disk'
     }
 
 

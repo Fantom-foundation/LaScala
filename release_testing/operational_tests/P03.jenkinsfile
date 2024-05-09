@@ -10,7 +10,6 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
-        ROOTPATH="pwd"
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
@@ -37,8 +36,6 @@ pipeline {
             steps {
                 // setup
                 sh "rm -f ${GENESISPATH}/${Genesis}.md5"
-                sh "rm -rf $ROOTPATH"
-                sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
                 sh "make"
 
