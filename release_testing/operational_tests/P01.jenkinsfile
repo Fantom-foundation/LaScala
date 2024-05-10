@@ -1,9 +1,9 @@
 pipeline {
-    agent {label 'release'}
+    agent {label 'quick'}
 
     parameters {
-        string(name: 'TmpDb', defaultValue: '/var/data/Aida/statedb', description: 'Temporary directory to store the state DB.')
-        string(name: 'AidaDb', defaultValue: '/var/src/Aida/mainnet-data/aida-db', description: 'Temporary directory to read Aida DB from.')
+        string(name: 'TmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
+        string(name: 'AidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'FirstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'SecondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
@@ -14,9 +14,9 @@ pipeline {
         stage('Redirect to SyncToolchain') {
             steps {
                 build job: '/ReleaseTesting/Carmen/SyncToolchain', parameters: [
-                    string(name: 'nodeLabel', value: "release"),
-                    string(name: 'tmpDb', value: "/var/data/Aida/statedb"),
-                    string(name: 'aidaDb', value: "/var/src/Aida/mainnet-data/aida-db"),
+                    string(name: 'nodeLabel', value: "aida-statedb"),
+                    string(name: 'tmpDb', value: "${TmpDb}"),
+                    string(name: 'aidaDb', value: "${AidaDb}"),
                     string(name: 'firstBlockHeight', value: "5000000"),
                     string(name: 'secondBlockHeight', value: "6000000"),
                     string(name: 'aidaVersion', value: "${AidaVersion}"),
@@ -25,10 +25,10 @@ pipeline {
             }
         }
     }
+
+    /*
     post {
         always {
-            sh "make clean"
-
             build job: '/Notifications/slack-notification-pipeline', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
@@ -38,4 +38,5 @@ pipeline {
             ]
         }
     }
+    */
 }

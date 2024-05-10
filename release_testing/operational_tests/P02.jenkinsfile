@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'release'}
+    agent {label 'db-small-ssd'}
 
     options {
         timestamps ()
@@ -7,14 +7,13 @@ pipeline {
     }
 
     environment {
-        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
-        ROOTPATH="pwd"
-        DATAROOTPATH="/var/data/Aida/tooltmp"
+        GOROOT = '/usr/lib/go-1.21/'
+        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
         GENESISDBPATH="${DATAROOTPATH}/sonic_from_genesis"
         GENESIS="mainnet-5577-full-mpt.g"
-        GENESISPATH="/var/src/Aida/genesis"
+        GENESISPATH="/mnt/tmp-disk/genesis"
     }
 
     parameters {
@@ -27,8 +26,7 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/sonic.git'
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
             }
@@ -37,8 +35,6 @@ pipeline {
         stage('Preparation and build') {
             steps {
                 // setup
-                sh "rm -rf $ROOTPATH"
-                sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
                 sh "make"
 
@@ -105,6 +101,7 @@ pipeline {
             }
         }
     }
+    /*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -115,4 +112,5 @@ pipeline {
             ]
         }
     }
+    */
 }

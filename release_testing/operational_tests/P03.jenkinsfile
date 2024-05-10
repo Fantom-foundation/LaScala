@@ -1,7 +1,7 @@
 // P03 performs end-to-end test synchronizing from the first opera block to the current head
 
 pipeline {
-    agent { node "${NodeLabel}" }
+    agent { node "db-small-ssd" }
 
     options {
         timestamps ()
@@ -9,15 +9,13 @@ pipeline {
     }
 
     environment {
-        PATH = '/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin'
-        ROOTPATH="pwd"
-        DATAROOTPATH="/var/data/Aida/tooltmp"
+        GOROOT = '/usr/lib/go-1.21/'
+        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
-        GENESISPATH="/var/src/Aida/genesis"
+        GENESISPATH="/mnt/tmp-disk/genesis"
     }
 
     parameters {
-        string(defaultValue: "functional", description: 'Agent or agent\'s label where the job will run', name: 'NodeLabel')
         string(defaultValue: "testnet-25100-rpc.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
@@ -25,12 +23,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // checkout go-opera-norma develop branch
                 checkout scmGit(
                     branches: [[name: "${SonicVersion}"]],
                     userRemoteConfigs: [[
-                        credentialsId:  'AidaCI_PAT',
-                        url: 'https://github.com/Fantom-foundation/go-opera-norma.git'
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
             }
@@ -40,8 +36,6 @@ pipeline {
             steps {
                 // setup
                 sh "rm -f ${GENESISPATH}/${Genesis}.md5"
-                sh "rm -rf $ROOTPATH"
-                sh "mkdir -p $ROOTPATH"
                 sh "mkdir -p $GENESISPATH"
                 sh "make"
 
@@ -91,8 +85,9 @@ pipeline {
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
-
     }
+
+    /*
     post {
         always {
             build job: '/Notifications/slack-notification-pipeline', parameters: [
@@ -103,4 +98,5 @@ pipeline {
             ]
         }
     }
+    */
 }

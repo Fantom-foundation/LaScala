@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'coordinator'}
+    agent {label "coordinator"}
 
     environment {
         GORACE = 'halt_on_error=1'

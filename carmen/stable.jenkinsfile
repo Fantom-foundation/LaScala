@@ -41,10 +41,10 @@ pipeline {
                 sh "git submodule update --init --recursive"
 
                 dir('carmen') {
-                        checkout scmGit(
-                                branches: [[name: "${CarmenVersion}"]],
-                                userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
-                        )
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
 
                     script {
                        CARMEN_VERSION = sh (
