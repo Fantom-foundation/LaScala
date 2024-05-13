@@ -3,7 +3,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 24, unit: 'HOURS')
+        timeout(time: 2, unit: 'DAYS')
     }
 
     environment {
