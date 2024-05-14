@@ -6,6 +6,7 @@ pipeline {
     options {
         timestamps ()
         timeout(time: 14, unit: 'DAYS')
+        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {

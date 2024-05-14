@@ -5,6 +5,7 @@ pipeline {
     options {
         timestamps ()
         timeout(time: 12, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
         // estimated 20-30 minutes
     }
 
