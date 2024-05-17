@@ -3,12 +3,15 @@ pipeline {
 
     options {
         timestamps ()
-        timeout (time: 6, unit: 'HOURS')
+        timeout (time: 24, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GORACE = 'halt_on_error=1'
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
     }
 
     stages {

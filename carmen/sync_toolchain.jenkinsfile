@@ -1,9 +1,16 @@
 pipeline {
     agent {label "coordinator"}
 
+    options {
+        timestamps()
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
     environment {
         GORACE = 'halt_on_error=1'
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '6GiB'
     }
 
     parameters {

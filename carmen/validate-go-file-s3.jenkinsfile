@@ -3,16 +3,17 @@ pipeline {
 
     options {
         timestamps ()
-        timeout (time: 7, unit: 'DAYS')
-        // expected ~5-6d
+        timeout (time: 14, unit: 'DAYS') // expected ~5-6d
+        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
         AIDADB = '/mnt/aida-db-central/aida-db'
         TMPDB = '/mnt/tmp-disk'
     }
-
 
     stages {
         stage('Checkout') {

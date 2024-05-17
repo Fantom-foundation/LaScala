@@ -11,6 +11,8 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '60GiB'
         BLACKLIST = '''/mnt/tmp-disk/eth-tests/GeneralStateTests/stCodeCopyTest/ExtCodeCopyTests.json,\
             /mnt/tmp-disk/eth-tests/GeneralStateTests/stCreate2/CreateMessageRevertedOOGInInit.json,\
             /mnt/tmp-disk/eth-tests/GeneralStateTests/stEIP158Specific/EXTCODESIZE_toEpmty.json,\
