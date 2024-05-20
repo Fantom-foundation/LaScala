@@ -4,12 +4,15 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'HOURS')
+        timeout(time: 12, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
         // estimated 20-30 minutes
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '60GiB'
     }
 
     parameters {

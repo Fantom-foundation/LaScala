@@ -5,11 +5,14 @@ pipeline {
 
     options {
         timestamps ()
-        //timeout(time: 24, unit: 'Days')
+        timeout(time: 2, unit: 'DAYS')
+        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '60GiB'
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
