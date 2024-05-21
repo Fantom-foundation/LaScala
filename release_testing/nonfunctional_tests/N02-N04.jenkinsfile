@@ -5,11 +5,14 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 10, unit: 'DAYS')
+        timeout(time: 12, unit: 'DAYS') // expected: 10 days
+        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
     }
 
     parameters {
