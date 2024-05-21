@@ -1,12 +1,19 @@
 pipeline {
     agent {label 'db-small-nvme'}
+    
+    options {
+        timestamps ()
+        timeout(time: 10, unit: 'HOURS') // expected: 6-7h
+        disableConcurrentBuilds(abortPrevious: false)
+    }
     environment {
         GORACE = 'halt_on_error=1'
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
     }
 
     parameters {
-        string(name: 'nodeLabel', defaultValue: "db-small-nvme", description: 'Agent or agent\'s label where the job will run')
         string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
         string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
