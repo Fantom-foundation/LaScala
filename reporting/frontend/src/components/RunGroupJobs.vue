@@ -6,12 +6,19 @@
   </v-tabs>
   <v-window v-model="tab">
     <template v-if="jobs">
-      <v-window-item v-for="(index) in jobs.length" :key="`tab-window_${index}`" :value="index + 1">
+      <v-window-item v-for="(job, index) in jobs" :key="`tab-window_${index}`" :value="index + 1">
         <v-container fluid>
-          <v-row>
+          <v-row v-if="!!report">
             <v-col cols="12">
-              <div v-if="!!report" v-html="report"></div>
-              <div v-else class="centered">
+              <v-checkbox class="checkbox" label="Pick for comparison" :value="`${runGroupName}/${job}`"
+                color="indigo-accent-4" v-model="comparison">
+              </v-checkbox>
+              <div v-html="report"></div>
+            </v-col>
+          </v-row>
+          <v-row v-else>
+            <v-col cols="12">
+              <div class="centered">
                 <v-progress-circular :size="70" :width="7" color="indigo-accent-4" indeterminate>
                 </v-progress-circular>
               </div>
@@ -33,12 +40,13 @@ export default {
 
   data() {
     return {
-      tab: 1
+      tab: 1,
+      comparison: []
     }
   },
 
   computed: {
-    ...mapGetters(["getRunGroupJobs", "getJobReport"]),
+    ...mapGetters(["getRunGroupJobs", "getJobReport", "getComparisonJobs"]),
 
     report() {
       return this.getJobReport;
@@ -46,17 +54,25 @@ export default {
 
     jobs() {
       return this.getRunGroupJobs(this.runGroupName)
-    }
+    },
   },
 
   watch: {
     runGroupName() {
       this.handleFetchAllRunGroupJobs()
+    },
+
+    comparison(val) {
+      this.updateComparisonJobs(val)
+    },
+
+    getComparisonJobs(val) {
+      this.comparison = val;
     }
   },
 
   methods: {
-    ...mapActions(["fetchAllRunGroupJobs", "fetchReport"]),
+    ...mapActions(["fetchAllRunGroupJobs", "fetchReport", "updateComparisonJobs"]),
 
     async handleFetchAllRunGroupJobs() {
       await this.fetchAllRunGroupJobs(this.runGroupName);

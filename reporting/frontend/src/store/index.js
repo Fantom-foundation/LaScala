@@ -6,12 +6,15 @@ const store = createStore({
   state: {
     runGroups: null,
     runGroupJobs: {},
-    jobReport: ""
+    jobReport: "",
+    comparisonJobs: [],
   },
   getters: {
     getAllRunGroups: state => state.runGroups,
     getRunGroupJobs: state => runGroup => state.runGroupJobs[runGroup],
     getJobReport: state => state.jobReport,
+    getSnackbarVisible: state => !!state.comparisonJobs.length,
+    getComparisonJobs: state => state.comparisonJobs
   },
   mutations: {
     addRunGroups(state, runs) {
@@ -23,6 +26,9 @@ const store = createStore({
     },
     updateJobReport(state, report) {
       state.jobReport = report
+    },
+    updateComparisonJobs(state, jobs) {
+      state.comparisonJobs = jobs
     }
   },
   actions: {
@@ -84,6 +90,22 @@ const store = createStore({
       } catch (error) {
         console.log(error);
       }
+    },
+
+    sendComparisonJobs(context) {
+      context.commit('updateComparisonJobs', [])
+    },
+
+    clearComparisonJobs(context) {
+      context.commit('updateComparisonJobs', [])
+    },
+
+    updateComparisonJobs(context, jobs) {
+      context.commit('updateComparisonJobs', jobs)
+    },
+
+    removeComparisonJob(context, job) {
+      context.commit('updateComparisonJobs', context.getters.getComparisonJobs.filter(val => val != job))
     }
   }
 })
