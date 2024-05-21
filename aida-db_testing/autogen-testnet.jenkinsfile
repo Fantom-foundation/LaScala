@@ -1,0 +1,105 @@
+pipeline {
+    agent { label 'xapi241-autogen-testnet' }
+
+    options { timestamps () }
+
+    environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin"
+        autogenDir = "/var/opera/Aida/testnet-data/autogen"
+        dbTmp = "${autogenDir}/tmp"
+        aidaDb = "--aida-db=${autogenDir}/aida-db"
+        db = "${autogenDir}/autogen-testnet"
+        output = "--output=${autogenDir}/aida-patches"
+        genesis = "/var/opera/Aida/testnet-data/genesis/testnet-2458-full-mpt.g"
+        opera = "go-opera-substate/build/opera"
+    }
+
+    stages {
+        stage('Build-aida') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+                
+                checkout scmGit(
+                    branches: [[name: 'develop']],
+                    userRemoteConfigs: [[
+                        credentialsId:  'AidaCI_PR',
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+                sh "make all"
+            }
+        }
+        
+        stage('Build-go-opera-substate') {
+            steps {
+                dir('go-opera-substate') {
+                    checkout scmGit(
+                        branches: [[name: 'rr1.1.3-rc.5']],
+                        userRemoteConfigs: [[
+                            credentialsId:  'AidaCI_PR',
+                            url: 'https://github.com/Fantom-foundation/go-opera-substate.git'
+                        ]]
+                    )
+                    sh "make all"
+                }
+            }
+        }
+        
+        stage('mkdirs') {
+            steps {
+                // uncomment to recover from locked database
+                // sh "rm ${autogenDir}/aida-db.autogen.lock || true"
+                
+                sh "mkdir ${autogenDir} || true"
+                sh "mkdir /var/opera/Aida/testnet-data/autogen/aida-db || true"
+            }
+        }
+        
+        stage('get-genesis') {
+            steps {
+                sh "wget https://download.fantom.network/testnet-2458-full-mpt.g -O ${genesis}"
+            }
+        }
+        
+         stage('util-db-autogen') {
+            steps {
+                // catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh "build/util-db autogen ${aidaDb} --db=${db} --db-tmp=${dbTmp} ${output} --genesis=${genesis} --log info --chainid 4002 --workers 20 --opera-binary=${opera} --update-buffer-size=700 --target-epoch=24620"
+                // }
+            }
+        }
+
+        stage('opera-prune-state') {
+            steps {
+                sh "du -sh ${db}"
+                sh "${opera} --datadir=${db} snapshot prune-state"
+                sh "du -sh ${db}"
+            }
+        }
+
+        
+        stage('tear-down') {
+            steps {
+                sh "make clean"
+                dir('go-opera-substate') {
+                    sh "make clean"     
+                }
+                sh "rm -rf ${dbTmp}"
+            }
+        }
+    }
+    
+    post {
+        always {
+            build job: '/Notifications/slack-notification-pipeline', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "$currentBuild.absoluteUrl")
+            ]
+        }
+    }
+}
