@@ -13,8 +13,8 @@ pipeline {
     stages {
         stage('Redirect to SyncToolchain') {
             steps {
-                build job: '/ReleaseTesting/Carmen/SyncToolchain', parameters: [
-                    string(name: 'nodeLabel', value: "aida-statedb"),
+                build job: '/Carmen/Validate-State-Toolchain-Archive+Live', parameters: [
+                    string(name: 'nodeLabel', value: "db-small-nvme"),
                     string(name: 'tmpDb', value: "${TmpDb}"),
                     string(name: 'aidaDb', value: "${AidaDb}"),
                     string(name: 'firstBlockHeight', value: "5000000"),
