@@ -50,7 +50,7 @@ pipeline {
             }
         }
 
-        stage('Create DB from legacy genesis') {
+        stage('Create DB from genesis') {
            steps {
                // create db from a legacy genesis file
                 sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${GENESIS}"
