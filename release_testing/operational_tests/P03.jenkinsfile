@@ -1,7 +1,7 @@
 // P03 performs end-to-end test synchronizing from the first opera block to the current head
 
 pipeline {
-    agent { node "db-small-ssd" }
+    agent { node "db-small-nvme" }
 
     options {
         timestamps ()
@@ -12,7 +12,7 @@ pipeline {
     environment {
         GOROOT = '/usr/lib/go-1.21/'
         GOGC = '50'
-        GOMEMLIMIT = '60GiB'
+        GOMEMLIMIT = '120GiB'
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
@@ -74,9 +74,9 @@ pipeline {
             }
         }
 
-        stage('Create DB from legacy genesis') {
+        stage('Create DB from genesis') {
            steps {
-               // create db from a legacy genesis file
+               // create db from a genesis file
                 sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis} "
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
