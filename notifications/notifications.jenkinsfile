@@ -46,7 +46,7 @@ def sendSlackNotification(room, color, emoji) {
               channel: "${room}",
               color: color,
               message: "${emoji} ${params.name} ${params.result.toLowerCase().capitalize()} after ${params.duration} ms ${params.url}",
-              tokenCredentialId: '7c7975fc-a95e-43ff-b7a9-5836e414d83b'
+              tokenCredentialId: 'slack-token'
 }
 
 def getTargetRoom(user) {
@@ -69,7 +69,7 @@ def getTargetRoom(user) {
     if (user == "b-scholz") {
         return "@U03D8TM2XN3"
     }
-    if (user == "HerbertJordan" || user == "herbert") {
+    if (user == "HerbertJordan") {
         return "@U03SL4URJSF"
     }
     if (user == "hkalina") {
@@ -89,24 +89,6 @@ def getTargetRoom(user) {
     }
     if (user == "marek") {
         return "@U043805CT61"
-    }
-    if (user == "simon") {
-        return "@U06KY3VUG10"
-    }
-    if (user == "luis") {
-        return "@U074LLQ73EJ"
-    }
-    if (user == "facundo") {
-        return "@U06D59MAKTP"
-    }
-    if (user == "tosca") {
-        return "tosca-jenkins"
-    }
-    if (user == "carmen") {
-        return "jenkins-carmen"
-    }
-    if (user == "aida") {
-        return "aida-jenkins"
     }
     return "aida-jenkins"
 }
