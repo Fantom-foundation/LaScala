@@ -74,6 +74,7 @@ pipeline {
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                          --vm-impl geth \
                                          --db-tmp /mnt/tmp-disk \
+                                         --chainid 4002 \
                                          --aida-db /mnt/aida-db-testnet/aida-db \
                                          --track-progress --no-heartbeat-logging \
                                          --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
