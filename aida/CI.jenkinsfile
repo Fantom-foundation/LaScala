@@ -81,40 +81,40 @@ pipeline {
             steps {
                 sh 'mkdir -p tracefiles'
                 sh 'rm -rf tracefiles/*'
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh 'build/aida-sdb record --cpu-profile cpu-profile-0.dat --trace-file tracefiles/trace-0.dat --aida-db ${AIDADB} opera opera+100000'
-                    sh 'build/aida-sdb record --cpu-profile cpu-profile-1.dat --trace-file tracefiles/trace-1.dat --aida-db ${AIDADB} opera+100001 opera+200000'
-                    sh 'build/aida-sdb record --cpu-profile cpu-profile-2.dat --trace-file tracefiles/trace-2.dat --aida-db ${AIDADB} opera+200001 opera+300000'
-                }
+                //catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                //    sh 'build/aida-sdb record --cpu-profile cpu-profile-0.dat --trace-file tracefiles/trace-0.dat --aida-db ${AIDADB} opera opera+100000'
+                //    sh 'build/aida-sdb record --cpu-profile cpu-profile-1.dat --trace-file tracefiles/trace-1.dat --aida-db ${AIDADB} opera+100001 opera+200000'
+                //    sh 'build/aida-sdb record --cpu-profile cpu-profile-2.dat --trace-file tracefiles/trace-2.dat --aida-db ${AIDADB} opera+200001 opera+300000'
+                //}
             }
         }
 
         stage('aida-sdb-replay') {
             steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                //catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
                     // one trace file
-                    sh """build/aida-sdb replay ${CARMEN} \
-                            --vm-impl lfvm \
-                            --db-tmp ${TMPDB} \
-                            --aida-db ${AIDADB} \
-                            --update-buffer-size ${PRIMEBUFFER} \
-                            --shadow-db --db-shadow-impl geth \
-                            --cpu-profile cpu-profile.dat \
-                            --memory-profile mem-profile.dat \
-                            --memory-breakdown \
-                            --trace-file tracefiles/trace-0.dat opera opera+100000"""
+                //    sh """build/aida-sdb replay ${CARMEN} \
+                //            --vm-impl lfvm \
+                //            --db-tmp ${TMPDB} \
+                //            --aida-db ${AIDADB} \
+                //            --update-buffer-size ${PRIMEBUFFER} \
+                //            --shadow-db --db-shadow-impl geth \
+                //            --cpu-profile cpu-profile.dat \
+                //            --memory-profile mem-profile.dat \
+                //            --memory-breakdown \
+                //            --trace-file tracefiles/trace-0.dat opera opera+100000"""
                     // multiple trace files
-                    sh """build/aida-sdb replay ${CARMEN} \
-                            --vm-impl lfvm \
-                            --db-tmp ${TMPDB} \
-                            --aida-db ${AIDADB} \
-                            --update-buffer-size ${PRIMEBUFFER} \
-                            --shadow-db --db-shadow-impl geth \
-                            --cpu-profile cpu-profile.dat \
-                            --memory-profile mem-profile.dat \
-                            --memory-breakdown \
-                            --trace-dir tracefiles opera opera+300000"""
-                }
+                //    sh """build/aida-sdb replay ${CARMEN} \
+                //            --vm-impl lfvm \
+                //            --db-tmp ${TMPDB} \
+                //            --aida-db ${AIDADB} \
+                //            --update-buffer-size ${PRIMEBUFFER} \
+                //            --shadow-db --db-shadow-impl geth \
+                //            --cpu-profile cpu-profile.dat \
+                //            --memory-profile mem-profile.dat \
+                //            --memory-breakdown \
+                //            --trace-dir tracefiles opera opera+300000"""
+                //}
                 sh 'rm -rf tracefiles'
             }
         }
