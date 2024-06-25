@@ -84,9 +84,9 @@ pipeline {
             }
         }
 
-        stage('Create DB from legacy genesis') {
+        stage('Create DB from genesis') {
            steps {
-               // create db from a legacy genesis file
+               // create db from a genesis file
                 sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis} "
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
@@ -145,6 +145,17 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
         }
     }
 }

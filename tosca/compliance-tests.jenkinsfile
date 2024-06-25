@@ -10,6 +10,8 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '30GiB'
     }
 
     parameters {
@@ -86,15 +88,15 @@ pipeline {
         }
     }
 
-    // todo uncomment when enabled
-    // post {
-    //     always {
-    //         build job: '/Notifications/slack-notification-pipeline', parameters: [
-    //             string(name: 'result', value: "${currentBuild.result}"),
-    //             string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-    //             string(name: 'duration', value: "${currentBuild.duration}"),
-    //             string(name: 'url', value: "${currentBuild.absoluteUrl}")
-    //         ]
-    //     }
-    // }
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "tosca")
+            ]
+        }
+    }
 }
