@@ -17,6 +17,8 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
+        string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
     }
 
     stages {
@@ -201,7 +203,17 @@ pipeline {
                 stage('P02 Sonic Genesis Tests') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P02', parameters: [
+                            string(name: 'Genesis', value: "${Genesis}")
                             string(name: 'SonicVersion', value: "${SonicVersion}")
+                        ]
+                    }
+                }
+                stage('P03 Sonic RPC Test') {
+                    steps {
+                        build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
+                            string(name: 'Genesis', value: "${Genesis}")
+                            string(name: 'SonicVersion', value: "${SonicVersion}")
+                            string(name: 'LaScalaVersion', value: "${LaScalaVersion}")
                         ]
                     }
                 }

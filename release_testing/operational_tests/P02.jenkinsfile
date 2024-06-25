@@ -15,11 +15,11 @@ pipeline {
         DATADIRPATH="${DATAROOTPATH}/sonic"
         EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
         GENESISDBPATH="${DATAROOTPATH}/sonic_from_genesis"
-        GENESIS="mainnet-5577-full-mpt.g"
         GENESISPATH="/mnt/tmp-disk/genesis"
     }
 
     parameters {
+        string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
@@ -43,8 +43,8 @@ pipeline {
 
                 // download genesis
                 script {
-                    if (!fileExists("${GENESISPATH}/${GENESIS}")) {
-                        sh "curl -o ${GENESISPATH}/${GENESIS} https://download.fantom.network/${GENESIS}"
+                    if (!fileExists("${GENESISPATH}/${Genesis}")) {
+                        sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
                     }
                 }
             }
@@ -53,7 +53,7 @@ pipeline {
         stage('Create DB from legacy genesis') {
            steps {
                // create db from a legacy genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${GENESIS}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis}"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
                 // copy db for import events
                 sh "cp -r ${DATADIRPATH} ${EVENTDBPATH}"
