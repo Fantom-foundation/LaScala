@@ -24,7 +24,7 @@ pipeline {
         stage('Validate Github user') {
             steps {
                 build job: '/ReleaseTesting/utils/Github-user-check', parameters: [
-                    string(name: 'GithubUserEmail', value: "${GIT_EMAIL}")
+                    string(name: 'GithubUserEmail', value: "${env.GIT_EMAIL}")
                 ]
             }
         }
