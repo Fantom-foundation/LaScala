@@ -20,5 +20,13 @@ pipeline {
                 sh "echo $env.GIT_AUTHOR"
             }
         }
+        stage('Get git env variable') {
+            steps {
+                sh "echo $GIT_AUTHOR_NAME"
+                sh "echo GIT_AUTHOR_EMAIL"
+                sh "echo GIT_COMMITTER_NAME"
+                sh "echo GIT_COMMITTER_EMAIL"
+            }
+        }
     }
 }
