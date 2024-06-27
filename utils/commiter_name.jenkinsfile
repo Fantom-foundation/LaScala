@@ -7,16 +7,16 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
-        GIT_AUTHOR = ''
+        GIT_EMAIL = ''
     }
 
     stages {
         stage('Get committer email') {
             steps {
                 script {
-                    def GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
+                    env.GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
 
-                    echo $GIT_EMAIL
+                    echo env.GIT_EMAIL
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Validate Github user') {
             steps {
                 build job: '/ReleaseTesting/utils/Github-user-check', parameters: [
-                    string(name: 'GithubUserEmail', value: "${GIT_EMAIL}")
+                    string(name: 'GithubUserEmail', value: "${env.GIT_EMAIL}")
                 ]
             }
         }
