@@ -13,7 +13,9 @@ pipeline {
     stages {
         stage('Get committer name') {
             steps {
-                env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()
+                script {
+                    env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()
+                }
 
                 sh "echo $env.GIT_AUTHOR"
             }
