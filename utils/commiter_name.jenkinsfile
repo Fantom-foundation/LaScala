@@ -23,11 +23,11 @@ pipeline {
         stage('Get git env variable') {
             steps {
                 script {
-                    GIT_NAME =  sh (script: "git --no-pager show -s --format='%an' $GIT_COMMIT", returnStdout: true).trim()
-                    GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
+                    def GIT_NAME =  sh (script: "git --no-pager show -s --format='%an' $GIT_COMMIT", returnStdout: true).trim()
+                    def GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
 
-                    sh "echo GIT_NAME"
-                    sh "echo GIT_EMAIL"
+                    sh "echo $GIT_NAME"
+                    sh "echo $GIT_EMAIL"
                 }
             }
         }
