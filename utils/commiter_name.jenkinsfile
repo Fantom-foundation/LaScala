@@ -14,9 +14,9 @@ pipeline {
         stage('Get committer email') {
             steps {
                 script {
-                    env.GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
+                    GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
 
-                    echo env.GIT_EMAIL
+                    echo $GIT_EMAIL
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Validate Github user') {
             steps {
                 build job: '/ReleaseTesting/utils/Github-user-check', parameters: [
-                    string(name: 'GithubUserEmail', value: "${env.GIT_EMAIL}")
+                    string(name: 'GithubUserEmail', value: "${GIT_EMAIL}")
                 ]
             }
         }
