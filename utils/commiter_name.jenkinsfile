@@ -11,15 +11,21 @@ pipeline {
     }
 
     stages {
-        stage('Get committer name and email') {
+        stage('Get committer email') {
             steps {
                 script {
-                    def GIT_NAME =  sh (script: "git --no-pager show -s --format='%an' 4a79d0d13aaf0d122db817deb9dc0f35a8a4fd44", returnStdout: true).trim()
-                    def GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' 4a79d0d13aaf0d122db817deb9dc0f35a8a4fd44", returnStdout: true).trim()
+                    def GIT_EMAIL = sh (script: "git --no-pager show -s --format='%ae' $GIT_COMMIT", returnStdout: true).trim()
 
-                    sh "echo $GIT_NAME"
-                    sh "echo $GIT_EMAIL"
+                    echo $GIT_EMAIL
                 }
+            }
+        }
+
+        stage('Validate Github user') {
+            steps {
+                build job: '/ReleaseTesting/utils/Github-user-check', parameters: [
+                    string(name: 'GithubUserEmail', value: "${GIT_EMAIL}")
+                ]
             }
         }
     }
