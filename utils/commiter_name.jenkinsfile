@@ -1,0 +1,22 @@
+pipeline {
+    agent { label 'coordinator' }
+
+    options {
+        timestamps ()
+    }
+
+    environment {
+        GOROOT = '/usr/lib/go-1.21/'
+        GIT_AUTHOR = ''
+    }
+
+    stages {
+        stage('Get committer name') {
+            steps {
+                env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()
+
+                sh "echo $env.GIT_AUTHOR"
+            }
+        }
+    }
+}
