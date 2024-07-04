@@ -12,6 +12,7 @@ pipeline {
         GOROOT = '/usr/lib/go-1.21/'
         GOGC = '50'
         GOMEMLIMIT = '30GiB'
+        GORACE = 'halt_on_error=1'
     }
 
     parameters {
