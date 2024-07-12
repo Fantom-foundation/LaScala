@@ -7,6 +7,7 @@ pipeline {
         AIDA_VERSION = ''
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
+        SONIC_VERSION = ''
     }
 
     parameters {
@@ -66,6 +67,21 @@ pipeline {
                             returnStdout: true
                         ).trim()
                         echo "Tosca branch last commit id: ${TOSCA_VERSION}"
+                    }
+                }
+
+                dir('sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${SonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                    )
+
+                    script {
+                       SONIC_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "Sonic branch last commit id: ${SONIC_VERSION}"
                     }
                 }
             }
@@ -203,16 +219,16 @@ pipeline {
                 stage('P02 Sonic Genesis Tests') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P02', parameters: [
-                            string(name: 'Genesis', value: "${Genesis}")
-                            string(name: 'SonicVersion', value: "${SonicVersion}")
+                            string(name: 'Genesis', value: "${Genesis}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
                 stage('P03 Sonic RPC Test') {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
-                            string(name: 'Genesis', value: "${Genesis}")
-                            string(name: 'SonicVersion', value: "${SonicVersion}")
+                            string(name: 'Genesis', value: "${Genesis}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
                             string(name: 'LaScalaVersion', value: "${LaScalaVersion}")
                         ]
                     }
