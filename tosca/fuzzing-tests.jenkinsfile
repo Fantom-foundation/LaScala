@@ -25,7 +25,7 @@ pipeline {
     }
 
     stages {
-        stage('ceuild') {
+        stage('checkout') {
             steps {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
@@ -43,9 +43,9 @@ pipeline {
 
         stage('build-and-test') {
             steps {
-                // compile go & c++ code
-                sh 'make'
-                // Unit tests are run to ensure that the code is working as expected
+                // Unit tests are run to ensure that the code is working as expected.
+                // make test will build first, this makefile will call make with parallel
+                // jobs inside.
                 sh 'make test'
             }
         }
