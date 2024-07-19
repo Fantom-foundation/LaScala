@@ -3,17 +3,20 @@ pipeline {
     agent { label 'quick' }
 
     options {
-        timestamps ()
+        timestamps()
         timeout(time: 24, unit: 'HOURS') // expected ~30 minutes
         disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '30GiB'
+        GORACE = 'halt_on_error=1'
     }
 
     parameters {
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: 'main', description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
     }
 
     stages {
@@ -29,72 +32,68 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Tosca.git'
                     ]]
                 )
-                sh "git submodule update --init --recursive"
+                sh 'git submodule update --init --recursive'
 
-                sh "make -j"
+                sh 'make -j'
             }
         }
 
         stage('unit-tests') {
-	    parallel {
-	        stage('go-tests') {
-                    steps {
-                        sh "go test ./... -count 1"
-                    }
+            stage('go-tests') {
+                steps {
+                    sh 'go test ./... -count 1'
                 }
-                stage('go-tests-with-race-dedection') {
-                    steps {
-                        sh "go test -race ./... -count 1 -timeout 10000s"
-                    }
+            }
+            stage('go-tests-with-race-dedection') {
+                steps {
+                    sh 'go test -race ./... -count 1 -timeout 10000s'
                 }
-                stage('cpp-tests') {
-                    steps {
-                        sh "make test"
-                    }
+            }
+            stage('cpp-tests') {
+                steps {
+                    sh 'make test'
                 }
             }
         }
 
         stage('compliance-tests') {
-            parallel {
-                stage('geth') {
-                    steps {
-                        sh "go run ./go/ct/driver run geth"
-                    }
+            stage('geth') {
+                steps {
+                    sh 'go run ./go/ct/driver run geth'
                 }
-                stage('lfvm') {
-                    steps {
-                        sh "go run ./go/ct/driver run lfvm"
-                    }
+            }
+            stage('lfvm') {
+                steps {
+                    sh 'go run ./go/ct/driver run lfvm'
                 }
-                stage('evmzero') {
-                    steps {
-                        sh "go run ./go/ct/driver run evmzero"
-                    }
+            }
+            stage('evmzero') {
+                steps {
+                    sh 'go run ./go/ct/driver run evmzero'
                 }
-                stage('geth-with-race-detection') {
-                    steps {
-                        sh "go run -race ./go/ct/driver run geth"
-                    }
+            }
+            stage('geth-with-race-detection') {
+                steps {
+                    sh 'go run -race ./go/ct/driver run geth'
                 }
-                stage('lfvm-with-race-detection') {
-                    steps {
-                        sh "go run -race ./go/ct/driver run lfvm"
-                    }
+            }
+            stage('lfvm-with-race-detection') {
+                steps {
+                    sh 'go run -race ./go/ct/driver run lfvm'
                 }
             }
         }
     }
 
-    // todo uncomment when enabled
-    // post {
-    //     always {
-    //         build job: '/Notifications/slack-notification-pipeline', parameters: [
-    //             string(name: 'result', value: "${currentBuild.result}"),
-    //             string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-    //             string(name: 'duration', value: "${currentBuild.duration}"),
-    //             string(name: 'url', value: "${currentBuild.absoluteUrl}")
-    //         ]
-    //     }
-    // }
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: 'tosca')
+            ]
+        }
+    }
 }

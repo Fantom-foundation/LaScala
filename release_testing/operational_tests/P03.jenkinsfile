@@ -1,26 +1,27 @@
 // P03 performs end-to-end test synchronizing from the first opera block to the current head
 
 pipeline {
-    agent { node "db-small-ssd" }
+    agent { node "db-large-nvme" }
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'DAYS')
+        timeout(time: 24, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
         GOGC = '50'
-        GOMEMLIMIT = '60GiB'
+        GOMEMLIMIT = '120GiB'
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
     }
 
     parameters {
-        string(defaultValue: "testnet-25100-rpc.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
     }
 
     stages {
@@ -32,6 +33,15 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
+
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
             }
         }
 
@@ -74,9 +84,9 @@ pipeline {
             }
         }
 
-        stage('Create DB from legacy genesis') {
+        stage('Create DB from genesis') {
            steps {
-               // create db from a legacy genesis file
+               // create db from a genesis file
                 sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis} "
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
@@ -88,18 +98,64 @@ pipeline {
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
-    }
 
-    /*
+        stage('Parallel execution') {
+            parallel {
+                stage('Start RPC node') {
+                    steps {
+                        sh "echo 'Start RPC node'"
+
+                        sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
+
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            sh """timeout 6m ./build/sonicd \
+                                --mode=rpc \
+                                --datadir=${DATADIRPATH} \
+                                --port=5050 \
+                                --cache=65536 \
+                                --maxpeers=251 \
+                                --verbosity=3 \
+                                --metrics --pprof \
+                                --ws \
+                                --ws.addr=0.0.0.0 \
+                                --ws.port=18546 \
+                                --ws.origins="*" \
+                                --ws.api=eth,web3,net,ftm,txpool,abft,dag \
+                                --http \
+                                --http.addr=0.0.0.0 \
+                                --http.port=80 \
+                                --http.corsdomain="*" \
+                                --http.vhosts="*" \
+                                --http.api=eth,web3,net,ftm,txpool,abft,dag"""
+                                // --config=/etc/opera/config.toml
+                        }
+                    }
+                }
+
+
+                stage('Iterate RPC requests') {
+                    steps {
+                        sleep(time:3,unit:"MINUTES")
+
+                        sh 'echo "Start RPC request iteration"'
+
+                        dir('lascala/utils') {
+                            sh 'python3 rpc-requests.py'
+                        }
+                    }
+                }
+            }
+        }
+    }
     post {
         always {
-            build job: '/Notifications/slack-notification-pipeline', parameters: [
+            build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
-                string(name: 'url', value: "${currentBuild.absoluteUrl}")
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
             ]
         }
     }
-    */
 }
