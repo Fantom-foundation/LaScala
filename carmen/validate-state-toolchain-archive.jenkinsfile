@@ -1,0 +1,96 @@
+pipeline {
+    agent {label 'db-small-nvme'}
+    
+    options {
+        timestamps ()
+        timeout(time: 5, unit: 'HOURS') // expected: ~3h
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+    environment {
+        GORACE = 'halt_on_error=1'
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+    }
+
+    parameters {
+        string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
+        string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
+        string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
+        string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
+        string(name: 'aidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'carmenVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                checkout scmGit(
+                    branches: [[name: "${aidaVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                    checkout scmGit(
+                        branches: [[name: "${carmenVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                    )
+                }
+
+                sh "git submodule update --recursive"
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "go mod tidy"
+                sh "make -j aida-vm-sdb"
+                sh "go test ./..."
+                sh "mkdir -p ${params.tmpDb}/a"
+            }
+        }
+
+        stage('Synchronise') {
+            steps {
+                sh "build/aida-vm-sdb substate --aida-db  ${params.aidaDb} --db-tmp  ${params.tmpDb}/a  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db  --validate-state-hash 0 ${params.firstBlockHeight} "
+            }
+        }
+
+        stage('Verify Synchronized Archive') {
+            steps {
+                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
+            }
+        }
+
+        stage('Export') {
+            steps {
+                sh "cd carmen/go && go run ./database/mpt/tool export ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}/archive ${params.tmpDb}/a/genesis.dat"
+            }
+        }
+
+        stage('Import') {
+            steps {
+                sh "cd carmen/go && go run ./database/mpt/tool import-archive ${params.tmpDb}/a/genesis.dat ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
+            }
+        }
+
+        stage('Verify Importedal Archive') {
+            steps {
+                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/a/state_db_carmen_go-file_${params.firstBlockHeight}-recov/archive"
+            }
+        }
+    }
+     post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "carmen")
+            ]
+        }
+    }
+}
