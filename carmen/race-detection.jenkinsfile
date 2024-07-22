@@ -21,7 +21,6 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
     }
 
-
     stages {
         stage('Checkout') {
             steps {

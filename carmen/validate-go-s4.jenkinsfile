@@ -15,6 +15,11 @@ pipeline {
        	TMPDB = '/mnt/tmp-disk'
     }
 
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -23,16 +28,16 @@ pipeline {
                 }
 
                 checkout scmGit(
-                    branches: [[name: 'main']],
+                    branches: [[name: "${AidaVersion}"]],
                     userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
                 )
                 sh "git submodule update --init --recursive"
 
                 dir('carmen') {
-                	checkout scmGit(
-                		branches: [[name: 'main']],
-                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
-                	)
+                    checkout scmGit(
+                        branches: [[name: "${CarmenVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                    )
                 }
             }
         }
