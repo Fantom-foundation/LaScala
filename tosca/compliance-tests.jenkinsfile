@@ -39,47 +39,51 @@ pipeline {
         }
 
         stage('unit-tests') {
-            stage('go-tests') {
-                steps {
-                    sh 'go test ./... -count 1'
+            stages {
+                stage('go-tests') {
+                    steps {
+                        sh 'go test ./... -count 1'
+                    }
                 }
-            }
-            stage('go-tests-with-race-dedection') {
-                steps {
-                    sh 'go test -race ./... -count 1 -timeout 10000s'
+                stage('go-tests-with-race-dedection') {
+                    steps {
+                        sh 'go test -race ./... -count 1 -timeout 10000s'
+                    }
                 }
-            }
-            stage('cpp-tests') {
-                steps {
-                    sh 'make test'
+                stage('cpp-tests') {
+                    steps {
+                        sh 'make test'
+                    }
                 }
             }
         }
 
         stage('compliance-tests') {
-            stage('geth') {
-                steps {
-                    sh 'go run ./go/ct/driver run geth'
+            stages {
+                stage('geth') {
+                    steps {
+                        sh 'go run ./go/ct/driver run geth'
+                    }
                 }
-            }
-            stage('lfvm') {
-                steps {
-                    sh 'go run ./go/ct/driver run lfvm'
+                stage('lfvm') {
+                    steps {
+                        sh 'go run ./go/ct/driver run lfvm'
+                    }
                 }
-            }
-            stage('evmzero') {
-                steps {
-                    sh 'go run ./go/ct/driver run evmzero'
+                stage('evmzero') {
+                    steps {
+                        sh 'go run ./go/ct/driver run evmzero'
+                    }
                 }
-            }
-            stage('geth-with-race-detection') {
-                steps {
-                    sh 'go run -race ./go/ct/driver run geth'
+                stage('geth-with-race-detection') {
+                    steps {
+                        sh 'go run -race ./go/ct/driver run geth'
+                    }
                 }
-            }
-            stage('lfvm-with-race-detection') {
-                steps {
-                    sh 'go run -race ./go/ct/driver run lfvm'
+                stage('lfvm-with-race-detection') {
+                    steps {
+                        sh 'go run -race ./go/ct/driver run lfvm'
+                    }
                 }
             }
         }
