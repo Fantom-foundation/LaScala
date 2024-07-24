@@ -83,13 +83,11 @@ pipeline {
                                              --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
                                              ${BlockFrom} ${BlockTo}"""
                 }
-
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
         stage('Generate Report') {
-	    steps {
+	        steps {
                 sh 'echo "Running report generation post-test"'
 
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
@@ -98,11 +96,42 @@ pipeline {
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
 
+
+        stage('Upload artifacts') {
+            steps {
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.cpuprofile"
+                ])
+
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.memprofile"
+                ])
+
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.log"
+                ])
+
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.html"
+                ])
+            }
+        }
 
         stage('Teardown') {
             steps {

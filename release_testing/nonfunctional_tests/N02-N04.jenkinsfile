@@ -94,8 +94,6 @@ pipeline {
                                              --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
                                              ${BlockFrom} ${BlockTo}"""
                 }
-
-                archiveArtifacts artifacts: '*_N02.cpuprofile,*_N02.memprofile,*_N02.log'
             }
         }
 
@@ -114,9 +112,7 @@ pipeline {
                       ./scripts/analytics/rmd/f1.rmd \
                       ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N02.html'
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N02.html"
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_N02.html'
             }
         }
 
@@ -141,8 +137,6 @@ pipeline {
                                          --cpu-profile ${BUILD_NUMBER}_N04.cpuprofile --memory-profile ${BUILD_NUMBER}_N04.memprofile \
                                          62663622 63216776"""
                 }
-
-                archiveArtifacts artifacts: '*_N04.cpuprofile,*_N04.memprofile,*_N04.log'
             }
         }
 
@@ -161,12 +155,42 @@ pipeline {
                     ./scripts/analytics/rmd/aida-rpc.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_N04.html'
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_N04.html"
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_N04.html'
             }
         }
 
+
+        stage('Upload artifacts') {
+            steps {
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.cpuprofile"
+                ])
+
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.memprofile"
+                ])
+
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.log"
+                ])
+
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.html"
+                ])
+            }
+        }
 
         stage('Teardown') {
             steps {

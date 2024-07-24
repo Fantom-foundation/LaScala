@@ -61,7 +61,8 @@ pipeline {
                         }
                     }
                 }
-                archiveArtifacts artifacts: '*.cpuprofile'
+
+                uploadArtifacts()
             }
         }
 
@@ -77,7 +78,7 @@ pipeline {
             }
         }
 
-       stage('aida-sdb-record') {
+        stage('aida-sdb-record') {
             steps {
                 sh 'mkdir -p tracefiles'
                 sh 'rm -rf tracefiles/*'
@@ -137,7 +138,8 @@ pipeline {
                         }
                     }
                 }
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+
+                uploadArtifacts()
             }
         }
 
@@ -156,7 +158,8 @@ pipeline {
                             --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
                             43000000 44000000"""
                 }
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+
+                uploadArtifacts()
             }
         }
 
@@ -172,7 +175,8 @@ pipeline {
                             43000000 44000000"""
                 }
                 sh 'rm -fr ${TMPDB}/state_db_carmen_go-file_44000000'
-                archiveArtifacts artifacts: '*.cpuprofile'
+
+                uploadArtifacts()
             }
         }
 
@@ -182,4 +186,27 @@ pipeline {
             }
         }
     }
+}
+
+def uploadArtifacts() {
+    step([
+        $class: 'ClassicUploadStep',
+        credentialsId: 'aida-jenkins-service-account',
+        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+        pattern: "*.cpuprofile"
+    ])
+
+    step([
+        $class: 'ClassicUploadStep',
+        credentialsId: 'aida-jenkins-service-account',
+        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+        pattern: "*.memprofile"
+    ])
+
+    step([
+        $class: 'ClassicUploadStep',
+        credentialsId: 'aida-jenkins-service-account',
+        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+        pattern: "*.log"
+    ])
 }

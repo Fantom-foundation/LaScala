@@ -53,9 +53,18 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh 'echo "do something"'
                 }
+            }
+        }
 
-                // archiveArtifacts can be used to save any files or artifacts from the run to easily access them later
-                // archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+        // This stage is used to save any files or artifacts from the run to easily access them later
+        stage('Upload artifacts') {
+            steps {
+                step([
+                    $class: 'ClassicUploadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+                    pattern: "*.cpuprofile"
+                ])
             }
         }
 

@@ -1,6 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent { label 'db-small-ssd' }
+    agent { label 'norma' }
 
     options {
         timestamps ()
@@ -78,18 +78,30 @@ pipeline {
 }
 
 def runScenario(scenario) {
-    echo "Starting Norma demonet ${scenario} scenarion"
+    echo "Starting Norma demonet ${scenario} scenario"
 
     sh "rm -rf /tmp/norma*"
 
-    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenarion") {
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenario") {
         sh "build/norma run --label='report' ./scenarios/demonet/${scenario}.yml"
     }
 
     sh "echo 'Moving report file'"
 
-    sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_${scenario}_single_eval_report.html"
-    sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_${scenario}_measurements.csv"
+    sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_single_eval_report.html"
+    sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_measurements.csv"
 
-    archiveArtifacts artifacts: "${env.BUILD_NUMBER}_${scenario}_single_eval_report.html,${env.BUILD_NUMBER}_${scenario}_measurements.csv"
+    step([
+        $class: 'ClassicUploadStep',
+        credentialsId: 'aida-jenkins-service-account',
+        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+        pattern: "${env.BUILD_NUMBER}_single_eval_report.html"
+    ])
+
+    step([
+        $class: 'ClassicUploadStep',
+        credentialsId: 'aida-jenkins-service-account',
+        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
+        pattern: "${env.BUILD_NUMBER}_measurements.csv"
+    ])
 }
