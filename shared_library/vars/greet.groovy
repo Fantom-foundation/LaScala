@@ -1,3 +1,3 @@
-def greet(message) {
+def call(message) {
     echo "${message}"
 }
