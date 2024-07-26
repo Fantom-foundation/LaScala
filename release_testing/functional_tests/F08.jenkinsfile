@@ -1,4 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
+@Library('shared-library') _
+
 pipeline {
     agent { label 'norma' }
 
@@ -91,17 +93,6 @@ def runScenario(scenario) {
     sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_single_eval_report.html"
     sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_measurements.csv"
 
-    step([
-        $class: 'ClassicUploadStep',
-        credentialsId: 'aida-jenkins-service-account',
-        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-        pattern: "${env.BUILD_NUMBER}_single_eval_report.html"
-    ])
-
-    step([
-        $class: 'ClassicUploadStep',
-        credentialsId: 'aida-jenkins-service-account',
-        bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-        pattern: "${env.BUILD_NUMBER}_measurements.csv"
-    ])
+    uploadArtifact("${env.BUILD_NUMBER}_single_eval_report.html")
+    uploadArtifact("${env.BUILD_NUMBER}_measurements.csv")
 }

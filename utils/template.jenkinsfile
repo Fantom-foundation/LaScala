@@ -1,5 +1,6 @@
 // Generic template for the LaScala pipelines
 // It is based on the release testing pipelines. Stages can be replaced by more suitable ones.
+@Library('shared-library') _
 
 pipeline {
     agent any // any / { label 'release' } / { node 'rel001' }
@@ -59,12 +60,7 @@ pipeline {
         // This stage is used to save any files or artifacts from the run to easily access them later
         stage('Upload artifacts') {
             steps {
-                step([
-                    $class: 'ClassicUploadStep',
-                    credentialsId: 'aida-jenkins-service-account',
-                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-                    pattern: "*.cpuprofile"
-                ])
+                uploadArtifacts()
             }
         }
 

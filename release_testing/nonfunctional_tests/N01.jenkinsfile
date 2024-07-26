@@ -1,4 +1,5 @@
 // Measure transaction processing time
+@Library('shared-library') _
 
 pipeline {
     agent { label 'db-small-nvme' }
@@ -101,33 +102,7 @@ pipeline {
 
         stage('Upload artifacts') {
             steps {
-                step([
-                    $class: 'ClassicUploadStep',
-                    credentialsId: 'aida-jenkins-service-account',
-                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-                    pattern: "*.cpuprofile"
-                ])
-
-                step([
-                    $class: 'ClassicUploadStep',
-                    credentialsId: 'aida-jenkins-service-account',
-                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-                    pattern: "*.memprofile"
-                ])
-
-                step([
-                    $class: 'ClassicUploadStep',
-                    credentialsId: 'aida-jenkins-service-account',
-                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-                    pattern: "*.log"
-                ])
-
-                step([
-                    $class: 'ClassicUploadStep',
-                    credentialsId: 'aida-jenkins-service-account',
-                    bucket: "gs://aida-jenkins-artifacts/$JOB_NAME/$BUILD_NUMBER",
-                    pattern: "*.html"
-                ])
+                uploadArtifacts()
             }
         }
 
