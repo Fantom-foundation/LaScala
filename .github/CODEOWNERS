@@ -1,0 +1,13 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence, they will
+# be requested for review when someone opens a pull request.
+*       @wsodsong @Lubomir-Jahn
+
+# Owners of Carmen folder will be requested to review files
+# under /carmen/ folder.
+/carmen/ @kjezek
+
+# Owners of Tosca folder will be requested to review files
+# under /tosca/ folder.
+/tosca/ @simonlechner @LuisPH3
+
