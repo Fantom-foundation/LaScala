@@ -1,17 +1,11 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent { label 'db-small-ssd' }
+    agent { label 'quick' }
 
     options {
         timestamps ()
         timeout(time: 24, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
-    }
-
-    environment {
-        GOROOT = '/usr/lib/go-1.21/'
-        GOGC = '50'
-        GOMEMLIMIT = '60GiB'
     }
 
     parameters {
@@ -20,45 +14,12 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
-            steps {
-                script {
-                    currentBuild.description = "Building on ${env.NODE_NAME}"
-                }
-
-                checkout scmGit(
-                    branches: [[name: "${AidaVersion}"]],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
-                )
-                sh "git submodule update --init --recursive"
-
-                dir('carmen') {
-                	checkout scmGit(
-                		branches: [[name: "${CarmenVersion}"]],
-                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
-                	)
-                }
-
-                sh "git submodule update --recursive"
-
-                sh "go mod tidy"
-                sh "make all"
-            }
-        }
-
         stage('Run unit tests') {
             steps {
-                dir('carmen/go') {
-                    sh "go test -race ./... -count 1 -timeout 36000s -parallel 2"
-                }
-            }
-        }
-
-        stage('Teardown') {
-            steps {
-                sh "make clean"
+                build job: '/Carmen/Race-Detection', parameters: [
+                    string(name: 'AidaVersion', value: "${AidaVersion}"),
+                    string(name: 'CarmenVersion', value: "${CarmenVersion}")
+                ]
             }
         }
     }
