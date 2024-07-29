@@ -1,6 +1,6 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 pipeline {
-    agent { label 'quick' }
+    agent { label 'coordinator' }
 
     options {
         timestamps ()
