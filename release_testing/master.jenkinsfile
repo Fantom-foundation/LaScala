@@ -20,6 +20,20 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
         string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
+        booleanParam(defaultValue: true, description: 'If checked, F02-F05 stage will be executed', name: 'RunF02F05')
+        booleanParam(defaultValue: true, description: 'If checked, F03 stage will be executed', name: 'RunF03')
+        booleanParam(defaultValue: true, description: 'If checked, F04 stage will be executed', name: 'RunF04')
+        booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
+        booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
+        booleanParam(defaultValue: true, description: 'If checked, F08 stage will be executed', name: 'RunF08')
+        booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
+        booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
+        booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
+        booleanParam(defaultValue: true, description: 'If checked, N03 stage will be executed', name: 'RunN03')
+        booleanParam(defaultValue: true, description: 'If checked, P01 stage will be executed', name: 'RunP01')
+        booleanParam(defaultValue: true, description: 'If checked, P02 stage will be executed', name: 'RunP02')
+        booleanParam(defaultValue: true, description: 'If checked, P03 stage will be executed', name: 'RunP03')
     }
 
     stages {
@@ -90,6 +104,11 @@ pipeline {
         stage('Start parallel stage execution') {
             parallel {
                 stage('F01 block processing (testnet)') {
+                    when {
+                        expression {
+                            return params.RunF01;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F01', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -101,6 +120,11 @@ pipeline {
                     }
                 }
                 stage('F02/F05 block processing and RPC request processing (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunF02F05;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -112,6 +136,11 @@ pipeline {
                     }
                 }
                 stage('F03 RPC node simulation (testnet)') {
+                    when {
+                        expression {
+                            return params.RunF03;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F03', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -124,6 +153,11 @@ pipeline {
                     }
                 }
                 stage('F04 RPC node simulation (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunF04;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -136,6 +170,11 @@ pipeline {
                     }
                 }
                 stage('F06 Syntactic transactions') {
+                    when {
+                        expression {
+                            return params.RunF06;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F06', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -145,6 +184,11 @@ pipeline {
                     }
                 }
                 stage('F07 Ethereum State Tests') {
+                    when {
+                        expression {
+                            return params.RunF07;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F07', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -154,6 +198,11 @@ pipeline {
                     }
                 }
                 stage('F08 Norma') {
+                    when {
+                        expression {
+                            return params.RunF08;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F08', parameters: [
                             string(name: 'NormaVersion', value: "${NormaVersion}"),
@@ -161,6 +210,11 @@ pipeline {
                     }
                 }
                 stage('F09 Carmen Unit and Integration Tests') {
+                    when {
+                        expression {
+                            return params.RunF09;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F09', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -171,6 +225,11 @@ pipeline {
                     }
                 }
                 stage('N01 block processing (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunN01;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/NonfunctionalTests/N01', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -182,6 +241,11 @@ pipeline {
                     }
                 }
                 stage('N02/N04 block processing with archive-db and RPC request processing (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunN02N04;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/NonfunctionalTests/N02-N04', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -193,6 +257,11 @@ pipeline {
                     }
                 }
                 stage('N03 RPC node simulation (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunN03;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/NonfunctionalTests/N03', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
@@ -205,6 +274,11 @@ pipeline {
                     }
                 }
                 stage('P01 Opera Genesis Tests') {
+                    when {
+                        expression {
+                            return params.RunP01;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'TmpDb', value: "/mnt/tmp-disk"),
@@ -217,6 +291,11 @@ pipeline {
                     }
                 }
                 stage('P02 Sonic Genesis Tests') {
+                    when {
+                        expression {
+                            return params.RunP02;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P02', parameters: [
                             string(name: 'Genesis', value: "${Genesis}"),
@@ -225,6 +304,11 @@ pipeline {
                     }
                 }
                 stage('P03 Sonic RPC Test') {
+                    when {
+                        expression {
+                            return params.RunP03;
+                        }
+                    }
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
                             string(name: 'Genesis', value: "${Genesis}"),
