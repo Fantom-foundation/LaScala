@@ -72,14 +72,21 @@ pipeline {
                     sh 'go run ./go/ct/driver run evmzero'
                 }
             }
+        }
+
+        // Race detection tests:
+        // Interpreter implementations shall be thread save: multiple instances must run in parallel without
+        // interference. Race detection increasses the runtime significantly. Therefore, the number of tests
+        // cases is reduced by filtering for a subset of rules.
+        stage('race-detection') {
             stage('geth-with-race-detection') {
                 steps {
-                    sh 'go run -race ./go/ct/driver run geth'
+                    sh 'go run -race ./go/ct/driver run -f push geth'
                 }
             }
             stage('lfvm-with-race-detection') {
                 steps {
-                    sh 'go run -race ./go/ct/driver run lfvm'
+                    sh 'go run -race ./go/ct/driver run -f push lfvm'
                 }
             }
         }
