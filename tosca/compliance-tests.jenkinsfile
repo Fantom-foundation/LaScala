@@ -79,8 +79,8 @@ pipeline {
         }
 
         // Race detection tests:
-        // Interpreter implementations shall be thread save: multiple instances must run in parallel without
-        // interference. Race detection increasses the runtime significantly. Therefore, the number of tests
+        // Interpreter implementations shall be thread safe: multiple instances must run in parallel without
+        // interference. Race detection increases the runtime significantly. Therefore, the number of test
         // cases is reduced by filtering for a subset of rules.
         stage('race-detection') {
             stages {
