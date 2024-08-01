@@ -105,7 +105,10 @@ pipeline {
 
         stage('Upload artifacts') {
             steps {
-                uploadArtifacts()
+                script {
+                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
+                    uploadArtifactsLocal(artifacts)
+                }
             }
         }
 

@@ -63,7 +63,10 @@ pipeline {
                     }
                 }
 
-                uploadArtifacts()
+                script {
+                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
+                    uploadArtifactsLocal(artifacts)
+                }
             }
         }
 
@@ -140,7 +143,10 @@ pipeline {
                     }
                 }
 
-                uploadArtifacts()
+                script {
+                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
+                    uploadArtifactsLocal(artifacts)
+                }
             }
         }
 
@@ -160,7 +166,10 @@ pipeline {
                             43000000 44000000"""
                 }
 
-                uploadArtifacts()
+                script {
+                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
+                    uploadArtifactsLocal(artifacts)
+                }
             }
         }
 
@@ -177,7 +186,10 @@ pipeline {
                 }
                 sh 'rm -fr ${TMPDB}/state_db_carmen_go-file_44000000'
 
-                uploadArtifacts()
+                script {
+                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
+                    uploadArtifactsLocal(artifacts)
+                }
             }
         }
 

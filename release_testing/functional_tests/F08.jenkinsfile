@@ -93,6 +93,8 @@ def runScenario(scenario) {
     sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_single_eval_report.html"
     sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_measurements.csv"
 
-    uploadArtifact("${env.BUILD_NUMBER}_single_eval_report.html")
-    uploadArtifact("${env.BUILD_NUMBER}_measurements.csv")
+    script {
+        def artifacts = ["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"]
+        uploadArtifactsLocal(artifacts)
+    }
 }

@@ -60,7 +60,10 @@ pipeline {
         // This stage is used to save any files or artifacts from the run to easily access them later
         stage('Upload artifacts') {
             steps {
-                uploadArtifacts()
+                script {
+                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
+                    uploadArtifactsLocal(artifacts)
+                }
             }
         }
 
