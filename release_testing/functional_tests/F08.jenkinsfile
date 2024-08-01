@@ -95,6 +95,6 @@ def runScenario(scenario) {
 
     script {
         def artifacts = ["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"]
-        uploadArtifactsLocal(artifacts)
+        uploadArtifacts(artifacts)
     }
 }

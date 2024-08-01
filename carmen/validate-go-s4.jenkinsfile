@@ -64,7 +64,7 @@ pipeline {
             steps {
                 script {
                     def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                    uploadArtifactsLocal(artifacts)
+                    uploadArtifacts(artifacts)
                 }
             }
         }

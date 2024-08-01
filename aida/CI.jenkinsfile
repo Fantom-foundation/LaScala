@@ -65,7 +65,7 @@ pipeline {
 
                 script {
                     def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                    uploadArtifactsLocal(artifacts)
+                    uploadArtifacts(artifacts)
                 }
             }
         }
@@ -145,7 +145,7 @@ pipeline {
 
                 script {
                     def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                    uploadArtifactsLocal(artifacts)
+                    uploadArtifacts(artifacts)
                 }
             }
         }
@@ -168,7 +168,7 @@ pipeline {
 
                 script {
                     def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                    uploadArtifactsLocal(artifacts)
+                    uploadArtifacts(artifacts)
                 }
             }
         }
@@ -188,7 +188,7 @@ pipeline {
 
                 script {
                     def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                    uploadArtifactsLocal(artifacts)
+                    uploadArtifacts(artifacts)
                 }
             }
         }
