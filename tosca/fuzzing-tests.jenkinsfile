@@ -21,7 +21,7 @@ pipeline {
         choice(
             name: 'EntryPoint',
             choices: ['FuzzLfvm', 'FuzzGeth', 'FuzzDifferentialLfvmVsGeth'],
-            description: 'Selects which fuzzer test fucntion to start.')
+            description: 'Selects which fuzzer test function to start.')
     }
 
     stages {
