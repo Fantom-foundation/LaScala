@@ -103,16 +103,6 @@ pipeline {
             }
         }
 
-
-        stage('Upload artifacts') {
-            steps {
-                script {
-                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
-                    uploadArtifacts(artifacts)
-                }
-            }
-        }
-
         stage('Teardown') {
             steps {
                 sh "make clean"
@@ -122,6 +112,11 @@ pipeline {
 
     post {
         always {
+            script {
+                def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
+                uploadArtifacts(artifacts)
+            }
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),

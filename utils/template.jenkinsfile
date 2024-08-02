@@ -57,16 +57,6 @@ pipeline {
             }
         }
 
-        // This stage is used to save any files or artifacts from the run to easily access them later
-        stage('Upload artifacts') {
-            steps {
-                script {
-                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
-                    uploadArtifacts(artifacts)
-                }
-            }
-        }
-
         stage('Teardown') {
             // Teardown stage used for cleanup after pipeline run
             steps {
@@ -79,6 +69,12 @@ pipeline {
 
     post {
         always {
+            // Save any files or artifacts from the run to easily access them later
+            script {
+                def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
+                uploadArtifacts(artifacts)
+            }
+
             // Send notification with the build result to the Slack user or channel
             // If there is need to notify only single user on Slack, then user parameter should be used
             // string(name: 'user', value: "GITHUB_USERNAME")

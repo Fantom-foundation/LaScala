@@ -68,6 +68,11 @@ pipeline {
 
     post {
         always {
+            script {
+                def artifacts = ["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"]
+                uploadArtifacts(artifacts)
+            }
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
@@ -92,9 +97,4 @@ def runScenario(scenario) {
 
     sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_single_eval_report.html"
     sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_measurements.csv"
-
-    script {
-        def artifacts = ["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"]
-        uploadArtifacts(artifacts)
-    }
 }

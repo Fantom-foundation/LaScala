@@ -59,19 +59,15 @@ pipeline {
                 sh "build/aida-vm-sdb substate --validate-tx --db-impl carmen --db-variant cpp-file --carmen-schema 3 --vm-impl lfvm --archive --archive-variant ldb --db-tmp ${TMPDB} --aida-db ${AIDADB} --memory-breakdown --cpu-profile=${BUILD_NUMBER}.cpuprofile --memory-profile=${BUILD_NUMBER}.memprofile first last"
             }
         }
-
-        stage('Upload artifacts') {
-            steps {
-                script {
-                    def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                    uploadArtifacts(artifacts)
-                }
-            }
-        }
     }
 
     post {
         always {
+            script {
+                def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
+                uploadArtifacts(artifacts)
+            }
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),

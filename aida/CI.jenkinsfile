@@ -153,17 +153,18 @@ pipeline {
         stage('aida-vm-sdb-archive') {
             steps {
                 sh 'rm -f *.cpuprofile *.memprofile *.log'
+
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-		    sh """build/aida-vm-sdb substate ${CARMEN} \
-			    --vm-impl lfvm \
-			    --db-tmp ${TMPDB} \
-			    --aida-db ${AIDADB} \
-			    --update-buffer-size ${PRIMEBUFFER} \
-                            --keep-db \
-                            --archive --archive-variant ldb \
-                            --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
-                            --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
-                            43000000 44000000"""
+                    sh """build/aida-vm-sdb substate ${CARMEN} \
+                        --vm-impl lfvm \
+                        --db-tmp ${TMPDB} \
+                        --aida-db ${AIDADB} \
+                        --update-buffer-size ${PRIMEBUFFER} \
+                        --keep-db \
+                        --archive --archive-variant ldb \
+                        --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
+                        --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
+                        43000000 44000000"""
                 }
 
                 script {
