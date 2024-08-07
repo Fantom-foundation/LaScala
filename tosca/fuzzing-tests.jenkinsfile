@@ -4,7 +4,10 @@ pipeline {
 
     options {
         timestamps()
-        timeout(time: 2, unit: 'HOURS')
+        // This is a global timeout for the whole pipeline,
+        // it is a failsave to prevent the pipeline from running if missonfigured.
+        // This timeout will set the pipeline to ABORTED when triggered
+        timeout(time: 6, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -44,23 +47,30 @@ pipeline {
         stage('build-and-test') {
             steps {
                 // Unit tests are run to ensure that the code is working as expected.
-                // make test will build first, this makefile will call make with parallel
-                // jobs inside.
                 sh 'make test'
             }
         }
 
         stage('fuzzing-test') {
             steps {
-                sh "go test -fuzz=$EntryPoint ./go/ct"
+                // Fuzzing test runs for the provided time duration.
+                // Note: Make sure that the pipeline timeout is large enough
+                // to accommodate the fuzzing test duration, otherwise test
+                // will be aborted and therefore marked as red.
+                sh "go test -fuzz=$EntryPoint ./go/ct -fuzztime 5h"
+            }
+
+            post {
+                failure {
+                    // Archive the faulty inputs found to be downloaded and analyzed.
+                    archiveArtifacts artifacts: "go/ct/testdata/fuzz/$EntryPoint/*"
+                }
             }
         }
     }
 
     post {
         always {
-            // Archive the fuzzing test results for later inspection
-            archiveArtifacts artifacts: "go/ct/testdata/fuzz/$EntryPoint/*"
             // Send a slack notification
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
