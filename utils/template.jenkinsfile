@@ -1,5 +1,7 @@
 // Generic template for the LaScala pipelines
 // It is based on the release testing pipelines. Stages can be replaced by more suitable ones.
+
+// Import of all shared library methods
 @Library('shared-library') _
 
 pipeline {
