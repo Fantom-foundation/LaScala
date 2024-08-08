@@ -125,8 +125,6 @@ pipeline {
                         }
                     }
                 }
-
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
