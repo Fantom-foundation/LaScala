@@ -94,7 +94,7 @@ pipeline {
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.age 1s"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.age 1s"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
