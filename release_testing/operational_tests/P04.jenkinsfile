@@ -1,0 +1,171 @@
+// P03 performs end-to-end test synchronizing from the first opera block to the current head
+
+pipeline {
+    agent { node "db-small-nvme" }
+
+    options {
+        timestamps ()
+        timeout(time: 24, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
+        DATADIRPATH="${DATAROOTPATH}/sonic"
+        GENESISPATH="/mnt/tmp-disk/genesis"
+    }
+
+    parameters {
+        string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "lubo/P04", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
+                    ]]
+                )
+
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
+        stage('Preparation and build') {
+            steps {
+                // setup
+                sh "rm -f ${GENESISPATH}/${Genesis}.md5"
+                sh "mkdir -p $GENESISPATH"
+                sh "make"
+
+                // download genesis
+                script {
+                    if (!fileExists("${GENESISPATH}/${Genesis}")) {
+                        // sh "curl -o ${GENESISPATH}/${Genesis} gs://sonic-genesis/${Genesis}"
+                        step([
+                            $class: 'DownloadStep',
+                            credentialsId: 'aida-jenkins-service-account',
+                            bucketUri: "gs://sonic-genesis/${Genesis}",
+                            localDirectory: "$GENESISPATH"
+                        ])
+                    }
+
+                    // download MD5
+                    md5url = "gs://sonic-genesis/${Genesis}.md5"
+                    // sh "echo ${md5url}"
+
+                    step([
+                        $class: 'DownloadStep',
+                        credentialsId: 'aida-jenkins-service-account',
+                        bucketUri: "gs://sonic-genesis/${Genesis}.md5",
+                        localDirectory: "$GENESISPATH"
+                    ])
+
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${Genesis}.md5", returnStdout: true);
+                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
+
+                    // calculate MD5
+                    String genesisPath = "${GENESISPATH}/${Genesis}"
+                    def genesisMd5 = sh(script: "md5sum $genesisPath", returnStdout: true);
+                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    // compare MD5
+                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                        sh "echo removing corrupted file ${GENESISPATH}/${Genesis}"
+                        sh "rm ${GENESISPATH}/${Genesis}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                    } else {
+                        sh "echo hash ${md5CalculatedHash} confirmed"
+                    }
+                }
+            }
+        }
+
+        stage('Create DB from genesis') {
+           steps {
+               // create db from a genesis file
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis} "
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
+        stage('Synchronization') {
+            steps {
+                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.age 1s"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
+        stage('Parallel execution') {
+            parallel {
+                stage('Start RPC node') {
+                    steps {
+                        sh "echo 'Start RPC node'"
+
+                        sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
+
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            sh """timeout 6m ./build/sonicd \
+                                --mode=rpc \
+                                --datadir=${DATADIRPATH} \
+                                --port=5050 \
+                                --cache=65536 \
+                                --maxpeers=251 \
+                                --verbosity=3 \
+                                --metrics --pprof \
+                                --ws \
+                                --ws.addr=0.0.0.0 \
+                                --ws.port=18546 \
+                                --ws.origins="*" \
+                                --ws.api=eth,web3,net,ftm,txpool,abft,dag \
+                                --http \
+                                --http.addr=0.0.0.0 \
+                                --http.port=80 \
+                                --http.corsdomain="*" \
+                                --http.vhosts="*" \
+                                --http.api=eth,web3,net,ftm,txpool,abft,dag"""
+                                // --config=/etc/opera/config.toml
+                        }
+                    }
+                }
+
+                stage('Iterate RPC requests') {
+                    steps {
+                        sh 'echo "Start RPC request iteration"'
+
+                        dir('lascala/utils') {
+                            sh 'chmod +x ./test_getBlockReceipts.sh'
+                            sh './test_getBlockReceipts.sh http://0.0.0.0:80 http://138.201.136.226'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "lubo")
+            ]
+        }
+    }
+}
