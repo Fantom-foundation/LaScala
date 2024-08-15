@@ -19,7 +19,7 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
