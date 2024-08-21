@@ -19,7 +19,7 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
     }
@@ -94,7 +94,7 @@ pipeline {
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.age 1s"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.age 1s"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }

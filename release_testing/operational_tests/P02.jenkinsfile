@@ -19,7 +19,7 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "mainnet-288000-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
     }
 
@@ -64,7 +64,7 @@ pipeline {
 
         stage('Synchronize blockchain for 100 epoches') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch 5677"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.epoch 5677"
             }
         }
 
@@ -78,7 +78,7 @@ pipeline {
 
         stage('Continue synchronize event-imported DB') {
             steps {
-                sh "./build/sonicd --datadir ${EVENTDBPATH} --exitwhensynced.epoch 5777"
+                sh "./build/sonicd --datadir ${EVENTDBPATH} --verbosity 2 --exitwhensynced.epoch 5777"
                 sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
             }
         }
@@ -93,7 +93,7 @@ pipeline {
 
         stage('Continue synchronize genesis-imported DB') {
             steps {
-                sh "./build/sonicd --datadir ${GENESISDBPATH} --exitwhensynced.epoch 5777"
+                sh "./build/sonicd --datadir ${GENESISDBPATH} --verbosity 2 --exitwhensynced.epoch 5777"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }
