@@ -1,4 +1,5 @@
 // Test functional correctness of an RPC-like node using mainnet
+@Library('shared-library') _
 
 pipeline {
     agent { label 'db-large-nvme' }
@@ -85,8 +86,6 @@ pipeline {
                                              --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
                                              ${BlockFrom} ${BlockTo}"""
                 }
-
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
@@ -100,9 +99,7 @@ pipeline {
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
 
@@ -115,6 +112,8 @@ pipeline {
 
     post {
         always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),

@@ -1,6 +1,9 @@
 // Generic template for the LaScala pipelines
 // It is based on the release testing pipelines. Stages can be replaced by more suitable ones.
 
+// Import of all shared library methods
+@Library('shared-library') _
+
 pipeline {
     agent any // any / { label 'release' } / { node 'rel001' }
 
@@ -53,9 +56,6 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh 'echo "do something"'
                 }
-
-                // archiveArtifacts can be used to save any files or artifacts from the run to easily access them later
-                // archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
@@ -71,6 +71,9 @@ pipeline {
 
     post {
         always {
+            // Save any files or artifacts from the run to easily access them later
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
             // Send notification with the build result to the Slack user or channel
             // If there is need to notify only single user on Slack, then user parameter should be used
             // string(name: 'user', value: "GITHUB_USERNAME")

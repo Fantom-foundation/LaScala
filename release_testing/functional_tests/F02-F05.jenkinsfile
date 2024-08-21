@@ -1,4 +1,5 @@
 // Test functional correctness of live-db using mainnet and aida-rpc tool
+@Library('shared-library') _
 
 pipeline {
     agent { label "db-large-nvme" }
@@ -94,8 +95,6 @@ pipeline {
                                              --memory-breakdown --cpu-profile ${BUILD_NUMBER}_F02.cpuprofile --memory-profile ${BUILD_NUMBER}_F02.memprofile \
                                              ${BlockFrom} ${BlockTo}"""
                 }
-
-                archiveArtifacts artifacts: '*_F02.cpuprofile,*_F02.memprofile,*_F02.log'
             }
         }
         
@@ -114,10 +113,7 @@ pipeline {
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
                 
-                sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
-
+                sh "mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_F02.html"
             }
         }
 
@@ -143,8 +139,6 @@ pipeline {
                                          --cpu-profile ${BUILD_NUMBER}_F05.cpuprofile --memory-profile ${BUILD_NUMBER}_F05.memprofile \
                                          62663622 63216776"""
                 }
-
-                archiveArtifacts artifacts: '*_F05.cpuprofile,*_F05.memprofile,*_F05.log'
             }
         }
 
@@ -163,10 +157,7 @@ pipeline {
                     ./scripts/analytics/rmd/aida-rpc.rmd \
                     ./scripts/analytics/rmd"""
                 
-                sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
-
+                sh "mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_F05.html"
             }
         }
 
@@ -181,6 +172,8 @@ pipeline {
 
     post {
         always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),

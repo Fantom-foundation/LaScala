@@ -1,4 +1,5 @@
 // Aida CI test runs aida-sdb, aida-vm-sdb and aida-vm at various fork blocks
+@Library('shared-library') _
 
 pipeline {
     agent { label 'db-small-nvme' }
@@ -61,7 +62,8 @@ pipeline {
                         }
                     }
                 }
-                archiveArtifacts artifacts: '*.cpuprofile'
+
+                uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
             }
         }
 
@@ -77,7 +79,7 @@ pipeline {
             }
         }
 
-       stage('aida-sdb-record') {
+        stage('aida-sdb-record') {
             steps {
                 sh 'mkdir -p tracefiles'
                 sh 'rm -rf tracefiles/*'
@@ -137,26 +139,29 @@ pipeline {
                         }
                     }
                 }
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+
+                uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
             }
         }
 
         stage('aida-vm-sdb-archive') {
             steps {
                 sh 'rm -f *.cpuprofile *.memprofile *.log'
+
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-		    sh """build/aida-vm-sdb substate ${CARMEN} \
-			    --vm-impl lfvm \
-			    --db-tmp ${TMPDB} \
-			    --aida-db ${AIDADB} \
-			    --update-buffer-size ${PRIMEBUFFER} \
-                            --keep-db \
-                            --archive --archive-variant ldb \
-                            --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
-                            --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
-                            43000000 44000000"""
+                    sh """build/aida-vm-sdb substate ${CARMEN} \
+                        --vm-impl lfvm \
+                        --db-tmp ${TMPDB} \
+                        --aida-db ${AIDADB} \
+                        --update-buffer-size ${PRIMEBUFFER} \
+                        --keep-db \
+                        --archive --archive-variant ldb \
+                        --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
+                        --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
+                        43000000 44000000"""
                 }
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
+
+                uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
             }
         }
 
@@ -172,7 +177,8 @@ pipeline {
                             43000000 44000000"""
                 }
                 sh 'rm -fr ${TMPDB}/state_db_carmen_go-file_44000000'
-                archiveArtifacts artifacts: '*.cpuprofile'
+
+                uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
             }
         }
 

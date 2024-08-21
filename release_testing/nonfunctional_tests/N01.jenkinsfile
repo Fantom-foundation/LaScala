@@ -1,4 +1,5 @@
 // Measure transaction processing time
+@Library('shared-library') _
 
 pipeline {
     agent { label 'db-small-nvme' }
@@ -81,8 +82,6 @@ pipeline {
                                              --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
                                              ${BlockFrom} ${BlockTo}"""
                 }
-
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
@@ -96,9 +95,7 @@ pipeline {
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_${JOB_BASE_NAME}.html"
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
 
@@ -111,6 +108,8 @@ pipeline {
 
     post {
         always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
