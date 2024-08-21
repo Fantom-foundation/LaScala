@@ -68,10 +68,7 @@ pipeline {
 
     post {
         always {
-            script {
-                def artifacts = ["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"]
-                uploadArtifacts(artifacts)
-            }
+            uploadArtifacts(["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"])
 
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),

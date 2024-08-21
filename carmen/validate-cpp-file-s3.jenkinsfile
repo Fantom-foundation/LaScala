@@ -63,10 +63,7 @@ pipeline {
 
     post {
         always {
-            script {
-                def artifacts = ["*.cpuprofile", "*.memprofile", "*.log"]
-                uploadArtifacts(artifacts)
-            }
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
 
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),

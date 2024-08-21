@@ -72,10 +72,7 @@ pipeline {
     post {
         always {
             // Save any files or artifacts from the run to easily access them later
-            script {
-                def artifacts = ["*.cpuprofile", "*.memprofile", "*.log", "*.html"]
-                uploadArtifacts(artifacts)
-            }
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
 
             // Send notification with the build result to the Slack user or channel
             // If there is need to notify only single user on Slack, then user parameter should be used
