@@ -21,9 +21,10 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
         string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
-        booleanParam(defaultValue: true, description: 'If checked, F02-F05 stage will be executed', name: 'RunF02F05')
+        booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunF02')
         booleanParam(defaultValue: true, description: 'If checked, F03 stage will be executed', name: 'RunF03')
         booleanParam(defaultValue: true, description: 'If checked, F04 stage will be executed', name: 'RunF04')
+        booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunF05')
         booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
         booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
         booleanParam(defaultValue: true, description: 'If checked, F08 stage will be executed', name: 'RunF08')
@@ -119,19 +120,58 @@ pipeline {
                         ]
                     }
                 }
-                stage('F02/F05 block processing and RPC request processing (mainnet)') {
+                stage('F02 block processing (mainnet) 0-45m') {
                     when {
                         expression {
-                            return params.RunF02F05;
+                            return params.RunF02;
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02-F05', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "45000000"),
+                            string(name: 'GenesisBlock', value: ""),
+                            string(name: 'AidaVersion', value: "$AidaVersion"),
+                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
+                            string(name: 'ToscaVersion', value: "$ToscaVersion")
+                        ]
+                    }
+                }
+
+                stage('F02 block processing (mainnet) 45m-60m') {
+                    when {
+                        expression {
+                            return params.RunF02;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
+                            string(name: 'BlockFrom', value: "45000001"),
+                            string(name: 'BlockTo', value: "60000000"),
+                            string(name: 'GenesisBlock', value: "45000000"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/61"),
+                            string(name: 'AidaVersion', value: "$AidaVersion"),
+                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
+                            string(name: 'ToscaVersion', value: "$ToscaVersion")
+                        ]
+                    }
+                }
+
+                stage('F02 block processing (mainnet) 60m-last') {
+                    when {
+                        expression {
+                            return params.RunF02;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
+                            string(name: 'BlockFrom', value: "60000001"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
-                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'GenesisBlock', value: "60000000"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/53"),
+                            string(name: 'AidaVersion', value: "$AidaVersion"),
+                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
+                            string(name: 'ToscaVersion', value: "$ToscaVersion")
                         ]
                     }
                 }
@@ -166,6 +206,20 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
+                stage('F05 RPC request processing (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunF05;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F05', parameters: [
+                            string(name: 'AidaVersion', value: "$AidaVersion"),
+                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
+                            string(name: 'ToscaVersion', value: "$ToscaVersion")
                         ]
                     }
                 }
