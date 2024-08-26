@@ -1,4 +1,4 @@
-// P03 performs end-to-end test synchronizing from the first opera block to the current head
+// P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests adn compare block receipts
 
 pipeline {
     agent { node "sonic-statedb" }
