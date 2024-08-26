@@ -70,7 +70,7 @@ pipeline {
                                 --port=5050 \
                                 --cache=65536 \
                                 --maxpeers=251 \
-                                --verbosity=3 \
+                                --verbosity=2 \
                                 --metrics --pprof \
                                 --ws \
                                 --ws.addr=0.0.0.0 \
