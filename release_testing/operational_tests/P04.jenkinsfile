@@ -18,7 +18,7 @@ pipeline {
 
     parameters {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
-        string(defaultValue: "lubo/P04", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
     }
 
     stages {
@@ -50,7 +50,7 @@ pipeline {
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${SONICSTATEDB} --exitwhensynced.age 1s"
+                sh "./build/sonicd --datadir ${SONICSTATEDB} --exitwhensynced.age 5m"
                 sh "./build/sonictool --datadir ${SONICSTATEDB} check live"
             }
         }
@@ -64,7 +64,7 @@ pipeline {
                         sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
 
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            sh """timeout 60m ./build/sonicd \
+                            sh """timeout 20m ./build/sonicd \
                                 --mode=rpc \
                                 --datadir=${SONICSTATEDB} \
                                 --port=5050 \
@@ -90,7 +90,7 @@ pipeline {
 
                 stage('Iterate RPC requests') {
                     steps {
-                        sleep(time:180,unit:"SECONDS")
+                        sleep(time:60,unit:"SECONDS")
 
                         sh 'echo "Start RPC request iteration"'
 
@@ -102,13 +102,13 @@ pipeline {
 
                 stage('Compare block receipts') {
                     steps {
-                        sleep(time:240,unit:"SECONDS")
+                        sleep(time:60,unit:"SECONDS")
 
                         sh 'echo "Start comparing block receipts"'
 
                         dir('lascala/utils') {
                             sh 'chmod +x ./test_getBlockReceipts.sh'
-                            sh './test_getBlockReceipts.sh http://127.0.0.1 http://138.201.136.226'
+                            sh './test_getBlockReceipts.sh http://127.0.0.1 http://10.128.0.46 1000'
                         }
                     }
                 }
