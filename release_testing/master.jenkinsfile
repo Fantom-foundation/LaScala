@@ -131,9 +131,9 @@ pipeline {
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "45000000"),
                             string(name: 'GenesisBlock', value: ""),
-                            string(name: 'AidaVersion', value: "$AidaVersion"),
-                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
-                            string(name: 'ToscaVersion', value: "$ToscaVersion")
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
@@ -150,9 +150,9 @@ pipeline {
                             string(name: 'BlockTo', value: "60000000"),
                             string(name: 'GenesisBlock', value: "45000000"),
                             string(name: 'BucketPath', value: "carmen-genesis-generator/61"),
-                            string(name: 'AidaVersion', value: "$AidaVersion"),
-                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
-                            string(name: 'ToscaVersion', value: "$ToscaVersion")
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
@@ -169,9 +169,9 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'GenesisBlock', value: "60000000"),
                             string(name: 'BucketPath', value: "carmen-genesis-generator/53"),
-                            string(name: 'AidaVersion', value: "$AidaVersion"),
-                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
-                            string(name: 'ToscaVersion', value: "$ToscaVersion")
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
@@ -217,9 +217,9 @@ pipeline {
                     }
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F05', parameters: [
-                            string(name: 'AidaVersion', value: "$AidaVersion"),
-                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
-                            string(name: 'ToscaVersion', value: "$ToscaVersion")
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
