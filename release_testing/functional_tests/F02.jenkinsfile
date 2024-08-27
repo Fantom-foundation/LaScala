@@ -1,7 +1,7 @@
 // Test functional correctness of live-db using mainnet and aida-rpc tool
 
 pipeline {
-    agent { label "db-small-nvme" }
+    agent { label "${AgentLabel}" }
 
     options {
         timestamps ()
@@ -29,6 +29,7 @@ pipeline {
         string(defaultValue: "carmen-genesis-generator/53", description: "Genesis file URI.", name: "BucketPath")
         string(defaultValue: "60000000", description: "Genesis start block number. Leave empty to skip this stage.", name: "GenesisBlock")
         string(defaultValue: "", description: "Additional flags for aida-vm-sdb substate command", name: "CustomFlags")
+        string(defaultValue: "db-small-nvme", description: "Agent to build this job. Recommended are 'db-small-nvme' for shorter runs and 'db-large-nvme' for longer ones", name: "AgentLabel")
         booleanParam(defaultValue: true, description: 'Turn on/off transaction and state hash validation of aida-vm-sdb tool', name: 'Validate')
         booleanParam(defaultValue: true, description: 'Turn on/off archive mode of aida-vm-sdb tool', name: 'Archive')
     }
