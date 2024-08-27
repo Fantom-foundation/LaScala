@@ -30,6 +30,7 @@ pipeline {
         string(defaultValue: "60000000", description: "Genesis start block number. Leave empty to skip this stage.", name: "GenesisBlock")
         string(defaultValue: "", description: "Additional flags for aida-vm-sdb substate command", name: "CustomFlags")
         booleanParam(defaultValue: true, description: 'Turn on/off transaction and state hash validation of aida-vm-sdb tool', name: 'Validate')
+        booleanParam(defaultValue: true, description: 'Turn on/off archive mode of aida-vm-sdb tool', name: 'Archive')
     }
 
     stages {
@@ -152,6 +153,7 @@ pipeline {
                 script {
                     def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file"
                     def validationFlags = "--validate-tx --validate-state-hash"
+                    def archiveFlags = "--archive --archive-variant s5"
 
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """build/aida-vm-sdb  substate ${Validate ? validationFlags : ''} \
@@ -160,7 +162,7 @@ pipeline {
                                                  --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_F02" \
                                                  --aida-db /mnt/aida-db-central/aida-db \
                                                  ${GenesisBlock.isEmpty() ? '' : srcDb} \
-                                                 --archive --archive-variant s5 \
+                                                 ${Archive ? archiveFlags : ''} \
                                                  --track-progress --no-heartbeat-logging \
                                                  --register-run ${RegisterRunPath} \
                                                  --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02' : RunId} \
