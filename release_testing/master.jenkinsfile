@@ -187,7 +187,7 @@ pipeline {
                             string(name: 'BlockFrom', value: "60000001"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'GenesisBlock', value: "60000000"),
-                            string(name: 'BucketPath', value: "carmen-genesis-generator/53"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/61"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
