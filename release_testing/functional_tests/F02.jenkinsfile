@@ -157,13 +157,13 @@ pipeline {
                     def archiveFlags = "--archive --archive-variant s5"
 
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        sh """build/aida-vm-sdb  substate ${Validate ? validationFlags : ''} \
+                        sh """build/aida-vm-sdb  substate ${params.Validate ? validationFlags : ''} \
                                                  --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                                  --vm-impl geth \
                                                  --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_F02" \
                                                  --aida-db /mnt/aida-db-central/aida-db \
                                                  ${GenesisBlock.isEmpty() ? '' : srcDb} \
-                                                 ${Archive ? archiveFlags : ''} \
+                                                 ${params.Archive ? archiveFlags : ''} \
                                                  --track-progress --no-heartbeat-logging \
                                                  --register-run ${RegisterRunPath} \
                                                  --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02' : RunId} \
@@ -210,7 +210,7 @@ pipeline {
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: "aida")
+                string(name: 'user', value: "lubo")
             ]
         }
     }
