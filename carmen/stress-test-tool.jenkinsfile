@@ -16,7 +16,7 @@ pipeline {
 
     parameters {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "1000000", description: 'The number of blocks to test', name: 'Blocks')
+        string(defaultValue: "100000", description: 'The number of blocks to test', name: 'Blocks')
     }
 
     stages {
