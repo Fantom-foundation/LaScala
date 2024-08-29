@@ -32,6 +32,12 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps {
+                sh "make"
+            }
+        }
+
         stage('Run unit tests') {
             steps {
                 dir('go') {
