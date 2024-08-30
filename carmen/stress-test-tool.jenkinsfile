@@ -1,0 +1,69 @@
+pipeline {
+    agent {label 'db-small-nvme'}
+
+    options {
+        timestamps ()
+        timeout (time: 24, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GORACE = 'halt_on_error=1'
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "100000", description: 'The number of blocks to test', name: 'Blocks')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+                checkout scmGit(
+                    branches: [[name: "${CarmenVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                )
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "make"
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                dir('go') {
+                    sh "go test ./... -timeout 60m -parallel 2 -p 2 "
+                }
+            }
+        }
+
+        stage('Run Stress Test Tool') {
+            steps {
+                dir('go') {
+                    sh "go run ./database/mpt/tool stress-test --num-blocks '${Blocks}' "
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "carmen")
+            ]
+        }
+    }
+}
