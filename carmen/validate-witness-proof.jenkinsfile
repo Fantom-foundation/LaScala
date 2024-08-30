@@ -62,7 +62,7 @@ pipeline {
 
         stage('Verify Witness Proof') {
             steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verifyverify-proof ${params.tmpDb}/state_db_carmen_go-file_${params.Blocks}/live"
+                sh "cd carmen/go && go run ./database/mpt/tool verify-proof ${params.tmpDb}/state_db_carmen_go-file_${params.Blocks}/live"
             }
         }
     }
