@@ -1,0 +1,81 @@
+pipeline {
+    agent {label 'db-small-nvme'}
+
+    options {
+        timestamps ()
+        timeout (time: 24, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GORACE = 'halt_on_error=1'
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+    }
+
+    parameters {
+        string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
+        string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "5000000", description: 'The block height to import and test witness proof on', name: 'Blocks')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                    checkout scmGit(
+                        branches: [[name: "${CarmenVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                    )
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "go mod tidy"
+                sh "make -j aida-vm-sdb"
+                sh 'go test ./...'
+            }
+        }
+
+        stage('Synchronise') {
+            steps {
+                sh "build/aida-vm-sdb substate --aida-db  ${params.aidaDb} --db-tmp  ${params.tmpDb}  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db  --validate-state-hash 0 ${params.Blocks} "
+            }
+        }
+
+        stage('Verify Witness Proof') {
+            steps {
+                sh "cd carmen/go && go run ./database/mpt/tool verify-proof ${params.tmpDb}/state_db_carmen_go-file_${params.Blocks}/live"
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "carmen")
+            ]
+        }
+    }
+}
