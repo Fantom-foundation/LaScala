@@ -8,6 +8,7 @@ pipeline {
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
         SONIC_VERSION = ''
+        LASCALA_VERSION = ''
     }
 
     parameters {
@@ -34,6 +35,7 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, P01 stage will be executed', name: 'RunP01')
         booleanParam(defaultValue: true, description: 'If checked, P02 stage will be executed', name: 'RunP02')
         booleanParam(defaultValue: true, description: 'If checked, P03 stage will be executed', name: 'RunP03')
+        booleanParam(defaultValue: true, description: 'If checked, P04 stage will be executed', name: 'RunP04')
     }
 
     stages {
@@ -96,6 +98,21 @@ pipeline {
                             returnStdout: true
                         ).trim()
                         echo "Sonic branch last commit id: ${SONIC_VERSION}"
+                    }
+                }
+
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/LaScala.git']]
+                    )
+
+                    script {
+                       LASCALA_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "LaScala branch last commit id: ${LASCALA_VERSION}"
                     }
                 }
             }
@@ -313,7 +330,20 @@ pipeline {
                         build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
                             string(name: 'Genesis', value: "${Genesis}"),
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
-                            string(name: 'LaScalaVersion', value: "${LaScalaVersion}")
+                            string(name: 'LaScalaVersion', value: "${LASCALA_VERSION}")
+                        ]
+                    }
+                }
+                stage('P04 Sonic RPC Test') {
+                    when {
+                        expression {
+                            return params.RunP04;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
+                            string(name: 'LaScalaVersion', value: "${LASCALA_VERSION}")
                         ]
                     }
                 }
