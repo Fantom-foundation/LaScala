@@ -388,7 +388,6 @@ pipeline {
                     }
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P02', parameters: [
-                            string(name: 'Genesis', value: "${Genesis}"),
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
