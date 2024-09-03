@@ -31,10 +31,6 @@ def main(argv):
 
     logging.info("Using URL: " + url)
 
-    # Positional command line arguments (i.e. non optional ones) are
-    # still available via 'args':
-    logging.info("Positional args: " + args)
-
     for q in queries:
         time.sleep(100/1000)
         logging.info('Processing ' + q['name'])
