@@ -29,14 +29,14 @@ def main(argv):
             # use alternative algorithm:
             url = arg
 
-    logging.info("Using URL: ", url)
+    logging.info("Using URL: " + url)
 
     # Positional command line arguments (i.e. non optional ones) are
     # still available via 'args':
-    logging.info("Positional args: ", args)
+    logging.info("Positional args: " + args)
 
     for q in queries:
-        time.sleep(25/1000)
+        time.sleep(100/1000)
         logging.info('Processing ' + q['name'])
         response = requests.post(url, data=q['body'], headers=headers)
         expected = re.compile(q['result'])
