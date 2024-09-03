@@ -2,7 +2,8 @@ import yaml
 import requests
 import re
 import logging
-import sys, getopt
+import sys
+import getopt
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.INFO)
 
@@ -18,7 +19,7 @@ def main(argv):
 
     # parse command line options:
     try:
-        opts, args = getopt.getopt(argv, "a:", ["algorithm="])
+        opts, args = getopt.getopt(argv, "rpc:", ["rpc-node-url="])
     except getopt.GetoptError:
         sys.exit(2)
 
