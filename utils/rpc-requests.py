@@ -36,7 +36,7 @@ def main(argv):
     logging.info("Positional args: ", args)
 
     for q in queries:
-        time.sleep(1000/49)
+        time.sleep(25/1000)
         logging.info('Processing ' + q['name'])
         response = requests.post(url, data=q['body'], headers=headers)
         expected = re.compile(q['result'])
