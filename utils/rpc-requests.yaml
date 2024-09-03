@@ -161,12 +161,12 @@
   {
     name: 'dag_getEvent_fail_invalid_arg1',
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'dag_getEvent_fail_invalid_arg2',
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'dag_getEvent_fail_missing_args',
@@ -198,7 +198,7 @@
   {
     name: 'dag_getEventPayload_fail_invalid_arg1',
     body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba73",true],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'dag_getEventPayload_fail_invalid_arg2',
@@ -351,7 +351,7 @@
   {
     name: 'eth_call_fail_missing_arg1',
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'eth_call_fail_missing_arg2',
@@ -514,7 +514,7 @@
   {
     name: 'eth_getBalance_fail_header_not_found',
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xc94770007dda54cF92009BFF0dE90c06F603a09f","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'eth_getBalance_fail_too_many_args',
@@ -729,7 +729,7 @@
   {
     name: 'eth_getCode_fail_header_too_big',
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'eth_getCode_missing_args',
@@ -863,7 +863,7 @@
   {
     name: 'eth_getStorageAt_fail_header_too_big',
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32000'
   },
   {
     name: 'eth_getStorageAt_fail_invalid_arg1',
