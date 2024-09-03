@@ -155,7 +155,8 @@
   },
   {
     name: 'dag_getEvent_ok2',
-    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383"],"id":1}',
+#    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383"],"id":1}',
+    body: '{"method":"dag_getEvent","params":["0x0004a03e0000197a7b8af15e3d9e1c2a4ef553c41aa37dfc6d91c2792954210f"],"id":1,"jsonrpc":"2.0"}',
     result: '"epoch"\s*:\s*"0x17043"'
   },
   {
