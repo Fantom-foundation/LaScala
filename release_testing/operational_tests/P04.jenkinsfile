@@ -1,0 +1,130 @@
+// P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests adn compare block receipts
+
+pipeline {
+    agent { node "sonic-statedb" }
+
+    options {
+        timestamps ()
+        timeout(time: 24, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
+        string(defaultValue: "http://10.128.0.46", description: 'URL address of referential Sonic node', name: 'ReferentialUrl')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
+                    ]]
+                )
+
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "make"
+            }
+        }
+
+        stage('Synchronization') {
+            steps {
+                sh "./build/sonicd --datadir ${SONICSTATEDB} --exitwhensynced.age 5m"
+                sh "./build/sonictool --datadir ${SONICSTATEDB} check live"
+            }
+        }
+
+        stage('Parallel execution') {
+            parallel {
+                stage('Start RPC node') {
+                    steps {
+                        sh "echo 'Start RPC node'"
+
+                        sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
+
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            sh """timeout 20m ./build/sonicd \
+                                --mode=rpc \
+                                --datadir=${SONICSTATEDB} \
+                                --port=5050 \
+                                --cache=65536 \
+                                --maxpeers=251 \
+                                --verbosity=2 \
+                                --metrics --pprof \
+                                --ws \
+                                --ws.addr=0.0.0.0 \
+                                --ws.port=18546 \
+                                --ws.origins="*" \
+                                --ws.api=eth,web3,net,ftm,txpool,abft,dag \
+                                --http \
+                                --http.addr=127.0.0.1 \
+                                --http.port=80 \
+                                --http.corsdomain="*" \
+                                --http.vhosts="*" \
+                                --http.api=eth,web3,net,ftm,txpool,abft,dag"""
+                        }
+                    }
+                }
+
+                stage('Iterate RPC requests') {
+                    steps {
+                        sleep(time:120,unit:"SECONDS")
+
+                        sh 'echo "Start RPC request iteration"'
+
+                        dir('lascala/utils') {
+                            sh 'python3 rpc-requests.py'
+                        }
+                    }
+                }
+
+                stage('Compare block receipts') {
+                    steps {
+                        sleep(time:120,unit:"SECONDS")
+
+                        sh 'echo "Start comparing block receipts"'
+
+                        dir('lascala/utils') {
+                            sh 'chmod +x ./test_getBlockReceipts.sh'
+                            sh "./test_getBlockReceipts.sh http://127.0.0.1 ${ReferentialUrl}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}

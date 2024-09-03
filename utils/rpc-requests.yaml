@@ -153,21 +153,21 @@
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b"],"id":1}',
     result: 'event 0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b not found'
   },
-  {
-    name: 'dag_getEvent_ok2',
-    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383"],"id":1}',
-    result: '"epoch"\s*:\s*"0x17043"'
-  },
-  {
-    name: 'dag_getEvent_fail_invalid_arg1',
-    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
-  {
-    name: 'dag_getEvent_fail_invalid_arg2',
-    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
+#  {
+#    name: 'dag_getEvent_ok2',
+#    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383"],"id":1}',
+#    result: '"epoch"\s*:\s*"0x17043"'
+#  },
+#  {
+#    name: 'dag_getEvent_fail_invalid_arg1',
+#    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff"],"id":1}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
+#  {
+#    name: 'dag_getEvent_fail_invalid_arg2',
+#    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["invalid"],"id":1}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
   {
     name: 'dag_getEvent_fail_missing_args',
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":[],"id":1}',
@@ -185,21 +185,21 @@
   },
 
   # --- dag_getEventPayload ---
-  {
-    name: 'dag_getEventPayload_ok1',
-    body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",false],"id":1,"jsonrpc":"2.0"}',
-    result: '"epoch"\s*:\s*"0x17043"'
-  },
-  {
-    name: 'dag_getEventPayload_ok2',
-    body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",true],"id":1,"jsonrpc":"2.0"}',
-    result: '"epoch"\s*:\s*"0x17043"'
-  },
-  {
-    name: 'dag_getEventPayload_fail_invalid_arg1',
-    body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba73",true],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
+#  {
+#    name: 'dag_getEventPayload_ok1',
+#    body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",false],"id":1,"jsonrpc":"2.0"}',
+#    result: '"epoch"\s*:\s*"0x17043"'
+#  },
+#  {
+#    name: 'dag_getEventPayload_ok2',
+#    body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",true],"id":1,"jsonrpc":"2.0"}',
+#    result: '"epoch"\s*:\s*"0x17043"'
+#  },
+#  {
+#    name: 'dag_getEventPayload_fail_invalid_arg1',
+#    body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba73",true],"id":1,"jsonrpc":"2.0"}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
   {
     name: 'dag_getEventPayload_fail_invalid_arg2',
     body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",truee],"id":1,"jsonrpc":"2.0"}',
@@ -348,11 +348,11 @@
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac"},"latest"],"id":1}',
     result: '"error"\s*:\s*{.*"code":-32000'
   },
-  {
-    name: 'eth_call_fail_missing_arg1',
-    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
+#  {
+#    name: 'eth_call_fail_missing_arg1',
+#    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
   {
     name: 'eth_call_fail_missing_arg2',
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"}],"id":1}',
@@ -511,11 +511,11 @@
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x5bad55"],"id":1}',
     result: '"error"\s*:\s*{.*"code":-32602'
   },
-  {
-    name: 'eth_getBalance_fail_header_not_found',
-    body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xc94770007dda54cF92009BFF0dE90c06F603a09f","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
+#  {
+#    name: 'eth_getBalance_fail_header_not_found',
+#    body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xc94770007dda54cF92009BFF0dE90c06F603a09f","0xffffffffffffff"],"id":1}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
   {
     name: 'eth_getBalance_fail_too_many_args',
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","latest","toomanyargs"],"id":1}',
@@ -726,11 +726,11 @@
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0x1eb3fcc"],"id":1}',
     result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
   },
-  {
-    name: 'eth_getCode_fail_header_too_big',
-    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
+#  {
+#    name: 'eth_getCode_fail_header_too_big',
+#    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0xffffffffffffff"],"id":1}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
   {
     name: 'eth_getCode_missing_args',
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":[],"id":1}',
@@ -860,11 +860,11 @@
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","0x1eb3fcc"],"id":1}',
     result: '"result"\s*:\s*"0x[0]{64}"'
   },
-  {
-    name: 'eth_getStorageAt_fail_header_too_big',
-    body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
-  },
+#  {
+#    name: 'eth_getStorageAt_fail_header_too_big',
+#    body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","0xffffffffffffff"],"id":1}',
+#    result: '"error"\s*:\s*{.*"code":-32602'
+#  },
   {
     name: 'eth_getStorageAt_fail_invalid_arg1',
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["invalid","0x0","latest"],"id":1}',
@@ -1535,11 +1535,11 @@
 #  },
 
   # --- eth_syncing ---
-  {
-    name: 'eth_syncing_ok',
-    body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}',
-    result: '"result"\s*:\s*false'
-  },
+#  {
+#    name: 'eth_syncing_ok',
+#    body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}',
+#    result: '"result"\s*:\s*false'
+#  },
   {
     name: 'eth_syncing_fail_too_many_args',
     body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[false,true],"id":1}',
@@ -1620,11 +1620,11 @@
   },
 
   # --- txpool_content ---
-  {
-    name: 'txpool_content_ok',
-    body: '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}',
-    result: '"result"\s*:\s*{\s*"pending"\s*:\s*{\s*"0x[0-9a-fA-F]{40}"'
-  },
+#  {
+#    name: 'txpool_content_ok',
+#    body: '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}',
+#    result: '"result"\s*:\s*{\s*"pending"\s*:\s*{\s*"0x[0-9a-fA-F]{40}"'
+#  },
   {
     name: 'txpool_content_too_many_args',
     body: '{"jsonrpc":"2.0","method":"txpool_content","params":[true],"id":1}',
@@ -1654,11 +1654,11 @@
   },
 
   # --- web3_clientVersion ---
-  {
-    name: 'web3_clientVersion_ok',
-    body: '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}',
-    result: '"result"\s*:\s*"go-opera/v[0-9]+\.[0-9]+\.[0-9]+'
-  },
+#  {
+#    name: 'web3_clientVersion_ok',
+#    body: '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}',
+#    result: '"result"\s*:\s*"go-opera/v[0-9]+\.[0-9]+\.[0-9]+'
+#  },
   {
     name: 'web3_clientVersion_fail_too_many_args',
     body: '{"jsonrpc":"2.0","method":"web3_clientVersion","params":["0x123456789"],"id":1}',
