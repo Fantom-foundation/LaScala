@@ -137,7 +137,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('F02 block processing (mainnet) 0-30m') {
+                stage('F02 block processing (mainnet)') {
                     when {
                         expression {
                             return params.RunF02;
