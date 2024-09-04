@@ -159,7 +159,7 @@ pipeline {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """build/aida-vm-sdb  substate ${params.Validate ? validationFlags : ''} \
                                                  --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                                 --vm-impl geth \
+                                                 --vm-impl lfvm \
                                                  --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_F02" \
                                                  --aida-db /mnt/aida-db-central/aida-db \
                                                  ${GenesisBlock.isEmpty() ? '' : srcDb} \
