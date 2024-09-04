@@ -144,73 +144,16 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02/master', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
-                            string(name: 'BlockTo', value: "30000000"),
-                            string(name: 'GenesisBlock', value: ""),
-                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
-                        ]
-                    }
-                }
-
-                stage('F02 block processing (mainnet) 30m-50m') {
-                    when {
-                        expression {
-                            return params.RunF02;
-                        }
-                    }
-                    steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
-                            string(name: 'BlockFrom', value: "30000001"),
-                            string(name: 'BlockTo', value: "50000000"),
-                            string(name: 'GenesisBlock', value: "30000000"),
-                            string(name: 'BucketPath', value: "carmen-genesis-generator/61"),
-                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
-                        ]
-                    }
-                }
-
-                stage('F02 block processing (mainnet) 50m-60m') {
-                    when {
-                        expression {
-                            return params.RunF02;
-                        }
-                    }
-                    steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
-                            string(name: 'BlockFrom', value: "50000001"),
-                            string(name: 'BlockTo', value: "60000000"),
-                            string(name: 'GenesisBlock', value: "50000000"),
-                            string(name: 'BucketPath', value: "carmen-genesis-generator/61"),
-                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
-                        ]
-                    }
-                }
-
-                stage('F02 block processing (mainnet) 60m-last') {
-                    when {
-                        expression {
-                            return params.RunF02;
-                        }
-                    }
-                    steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
-                            string(name: 'BlockFrom', value: "60000001"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
-                            string(name: 'GenesisBlock', value: "60000000"),
-                            string(name: 'BucketPath', value: "carmen-genesis-generator/53"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }
+
                 stage('F03 RPC node simulation (testnet)') {
                     when {
                         expression {
