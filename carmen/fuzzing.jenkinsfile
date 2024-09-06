@@ -50,6 +50,7 @@ pipeline {
         }
         
         stage('Build') {
+            agent {label 'quick'}
             steps {
                 sh 'make'
                 sh 'cd go && go test ./...'
