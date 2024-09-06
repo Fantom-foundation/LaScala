@@ -43,9 +43,7 @@ pipeline {
                     userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 )
 
-                dir('go') {
-                   stash 'source'
-                }
+                stash 'source'
             }
         }
         
@@ -66,7 +64,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./common -fuzztime 3h -fuzz=FuzzMapOperations'
+                        sh 'cd go && go test ./common -fuzztime 3h -fuzz=FuzzMapOperations'
                     }
                 }
                 stage('Fuzzing NWays Cache') {
@@ -74,7 +72,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./common/ -fuzztime 3h -fuzz FuzzLruCache_RandomOps'
+                        sh 'cd go && go test ./common/ -fuzztime 3h -fuzz FuzzLruCache_RandomOps'
                     }
                 }
                 stage('Fuzzing LRU Cache') {
@@ -82,7 +80,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./common/ -fuzztime 3h -fuzz FuzzNWays_RandomOps'
+                        sh 'cd go && go test ./common/ -fuzztime 3h -fuzz FuzzNWays_RandomOps'
                     }
                 }
                 stage('Fuzzing Buffered File') {
@@ -90,7 +88,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_RandomOps'
+                        sh 'cd go && go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_RandomOps'
                     }
                 }
                 stage('Fuzzing Buffered File - data') {
@@ -98,7 +96,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_ReadWrite'
+                        sh 'cd go && go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_ReadWrite'
                     }
                 }
                 stage('Fuzzing Stack') {
@@ -106,7 +104,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./backend/stock/file -fuzztime 3h -fuzz FuzzStack_RandomOps'
+                        sh 'cd go && go test ./backend/stock/file -fuzztime 3h -fuzz FuzzStack_RandomOps'
                     }
                 }                
                 stage('Fuzzing Stock - file') {
@@ -114,7 +112,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./backend/stock/file -fuzztime 3h -fuzz FuzzFileStock_RandomOps'
+                        sh 'cd go && go test ./backend/stock/file -fuzztime 3h -fuzz FuzzFileStock_RandomOps'
                     }
                 }                  
                 stage('Fuzzing Stock - synced') {
@@ -122,7 +120,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./backend/stock/memory -fuzztime 3h -fuzz FuzzSyncStock_RandomOps'
+                        sh 'cd go && go test ./backend/stock/memory -fuzztime 3h -fuzz FuzzSyncStock_RandomOps'
                     }
                 }
                 stage('Fuzzing Live MPT - Accounts') {
@@ -130,7 +128,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountOps'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountOps'
                     }
                 }  
                 stage('Fuzzing Live MPT - Storage') {
@@ -138,7 +136,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountStorageOps'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountStorageOps'
                     }
                 }                  
                 stage('Fuzzing Archive MPT - Accounts') {
@@ -146,7 +144,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountOps'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountOps'
                     }
                 }
                 stage('Fuzzing Archive MPT - Storage') {
@@ -154,7 +152,7 @@ pipeline {
                     steps {
                         deleteDir()
                         unstash 'source'
-                        sh 'go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountStorageOps'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountStorageOps'
                     }
                 }
             }
