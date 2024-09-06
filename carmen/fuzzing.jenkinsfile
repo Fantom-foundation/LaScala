@@ -52,6 +52,8 @@ pipeline {
         stage('Build') {
             agent {label 'quick'}
             steps {
+                deleteDir()
+                unstash 'source'
                 sh 'make'
                 sh 'cd go && go test ./...'
             }
