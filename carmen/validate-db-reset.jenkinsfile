@@ -30,13 +30,11 @@ pipeline {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
 
-                dir('aida'){
-                    checkout scmGit(
-                        branches: [[name: "${AidaVersion}"]],
-                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
-                    )
-                    sh "git submodule update --init --recursive"
-                }
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
+                )
+                sh "git submodule update --init --recursive"
 
                 dir('carmen') {
                     checkout scmGit(
@@ -49,32 +47,32 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('aida'){
-                    sh "go mod tidy"
-                    sh "make -j aida-vm-sdb"
-                    sh 'go test ./...'
-                }
+                sh "go mod tidy"
+                sh "make -j aida-vm-sdb"
+                sh 'go test ./...'
             }
         }
 
         stage('Loop') {
             steps {
-                dir('carmen') {
-                    sh "rm -f *.cpuprofile *.memprofile *.log"
-                    sh "python3 scripts/db-heal-test.py --aida ${env.WORKSPACE}/aida --window ${Window} --cp-granularity ${CheckpointGranularity} --aida-db ${AIDADB} --tmp ${TMPDB} --iter ${NumberOfIterations}"
-                }
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+                sh "python3 ${env.WORKSPACE}/carmen/scripts/db-heal-test.py --aida ${env.WORKSPACE} --window ${Window} --cp-granularity ${CheckpointGranularity} --aida-db ${AIDADB} --tmp ${TMPDB} --iter ${NumberOfIterations}"
+
             }
         }
     }
     post {
-            always {
-                build job: '/Notifications/slack-notification', parameters: [
-                    string(name: 'result', value: "${currentBuild.result}"),
-                    string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-                    string(name: 'duration', value: "${currentBuild.duration}"),
-                    string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                    string(name: 'user', value: "carmen")
-                ]
-            }
+        always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
+
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "carmen")
+            ]
         }
+    }
+
 }
