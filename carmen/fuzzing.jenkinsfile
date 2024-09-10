@@ -1,0 +1,173 @@
+// Copyright (c) 2024 Fantom Foundation
+//
+// Use of this software is governed by the Business Source License included
+// in the LICENSE file and at fantom.foundation/bsl11.
+//
+// Change Date: 2028-4-16
+//
+// On the date above, in accordance with the Business Source License, use of
+// this software will be governed by the GNU Lesser General Public License v3.
+
+pipeline {
+    agent {label 'coordinator'}
+
+    options {
+        timestamps ()
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '6GiB'
+        AIDADB = '/mnt/aida-db-central/aida-db'
+        TMPDB = '/mnt/tmp-disk'
+        AIDA_VERSION = ''
+        CARMEN_VERSION  = ''
+        TOSCA_VERSION = ''
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${CarmenVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                )
+
+                stash 'source'
+            }
+        }
+        
+        stage('Build') {
+            agent {label 'db-small-ssd'}
+            steps {
+                deleteDir()
+                unstash 'source'
+                sh 'make'
+                sh 'cd go && go test ./...'
+            }
+        }
+
+        stage('Fuzzing') {
+            parallel {
+                stage('FastMap') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./common -fuzztime 3h -fuzz=FuzzMapOperations'
+                    }
+                }
+                stage('Fuzzing NWays Cache') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./common/ -fuzztime 3h -fuzz FuzzLruCache_RandomOps'
+                    }
+                }
+                stage('Fuzzing LRU Cache') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./common/ -fuzztime 3h -fuzz FuzzNWays_RandomOps'
+                    }
+                }
+                stage('Fuzzing Buffered File') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_RandomOps'
+                    }
+                }
+                stage('Fuzzing Buffered File - data') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_ReadWrite'
+                    }
+                }
+                stage('Fuzzing Stack') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./backend/stock/file -fuzztime 3h -fuzz FuzzStack_RandomOps'
+                    }
+                }                
+                stage('Fuzzing Stock - file') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./backend/stock/file -fuzztime 3h -fuzz FuzzFileStock_RandomOps'
+                    }
+                }                  
+                stage('Fuzzing Stock - synced') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./backend/stock/memory -fuzztime 3h -fuzz FuzzSyncStock_RandomOps'
+                    }
+                }
+                stage('Fuzzing Live MPT - Accounts') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountOps'
+                    }
+                }  
+                stage('Fuzzing Live MPT - Storage') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountStorageOps'
+                    }
+                }                  
+                stage('Fuzzing Archive MPT - Accounts') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountOps'
+                    }
+                }
+                stage('Fuzzing Archive MPT - Storage') {
+                    agent {label 'quick'}
+                    steps {
+                        deleteDir()
+                        unstash 'source'
+                        sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountStorageOps'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "carmen")
+            ]
+        }
+    }
+}
