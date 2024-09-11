@@ -155,8 +155,8 @@
   },
   {
     name: 'dag_getEvent_ok2',
-    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00048bb600001d7297b80aadafab26a041e9a6da611d08defa68e374ca2b701d"],"id":1}',
-    result: '"epoch"\s*:\s*"0x17043"'
+    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01"],"id":1}',
+    result: '"epoch"\s*:\s*"0x4a4b6"'
   },
   {
     name: 'dag_getEvent_fail_invalid_arg1',
@@ -187,13 +187,13 @@
   # --- dag_getEventPayload ---
   {
     name: 'dag_getEventPayload_ok1',
-    body: '{"method":"dag_getEventPayload","params":["0x00048bb600001d7297b80aadafab26a041e9a6da611d08defa68e374ca2b701d",false],"id":1,"jsonrpc":"2.0"}',
-    result: '"epoch"\s*:\s*"0x17043"'
+    body: '{"method":"dag_getEventPayload","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01",false],"id":1,"jsonrpc":"2.0"}',
+    result: '"epoch"\s*:\s*"0x4a4b6"'
   },
   {
     name: 'dag_getEventPayload_ok2',
-    body: '{"method":"dag_getEventPayload","params":["0x00048bb600001d7297b80aadafab26a041e9a6da611d08defa68e374ca2b701d",true],"id":1,"jsonrpc":"2.0"}',
-    result: '"epoch"\s*:\s*"0x17043"'
+    body: '{"method":"dag_getEventPayload","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01",true],"id":1,"jsonrpc":"2.0"}',
+    result: '"epoch"\s*:\s*"0x4a4b6"'
   },
   {
     name: 'dag_getEventPayload_fail_invalid_arg1',
