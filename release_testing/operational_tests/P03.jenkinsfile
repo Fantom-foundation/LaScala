@@ -98,54 +98,6 @@ pipeline {
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
-
-        stage('Parallel execution') {
-            parallel {
-                stage('Start RPC node') {
-                    steps {
-                        sh "echo 'Start RPC node'"
-
-                        sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
-
-                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            sh """timeout 6m ./build/sonicd \
-                                --mode=rpc \
-                                --datadir=${DATADIRPATH} \
-                                --port=5050 \
-                                --cache=65536 \
-                                --maxpeers=251 \
-                                --verbosity=3 \
-                                --metrics --pprof \
-                                --ws \
-                                --ws.addr=0.0.0.0 \
-                                --ws.port=18546 \
-                                --ws.origins="*" \
-                                --ws.api=eth,web3,net,ftm,txpool,abft,dag \
-                                --http \
-                                --http.addr=0.0.0.0 \
-                                --http.port=80 \
-                                --http.corsdomain="*" \
-                                --http.vhosts="*" \
-                                --http.api=eth,web3,net,ftm,txpool,abft,dag"""
-                                // --config=/etc/opera/config.toml
-                        }
-                    }
-                }
-
-
-                stage('Iterate RPC requests') {
-                    steps {
-                        sleep(time:3,unit:"MINUTES")
-
-                        sh 'echo "Start RPC request iteration"'
-
-                        dir('lascala/utils') {
-                            sh 'python3 rpc-requests.py'
-                        }
-                    }
-                }
-            }
-        }
     }
     post {
         always {

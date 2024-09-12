@@ -15,8 +15,8 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "100000", description: 'The number of blocks to test', name: 'Blocks')
     }
 
     stages {
@@ -38,10 +38,18 @@ pipeline {
             }
         }
 
-        stage('Run unit tests') {
+        stage('Tests') {
             steps {
                 dir('go') {
-                    sh "go test ./... -tags=stress_test -count 1 -timeout 36000s -parallel 2"
+                    sh "go test ./... -timeout 60m -parallel 2 -p 2 "
+                }
+            }
+        }
+
+        stage('Run Stress Test Tool') {
+            steps {
+                dir('go') {
+                    sh "go run ./database/mpt/tool stress-test --num-blocks '${Blocks}' "
                 }
             }
         }
