@@ -1330,11 +1330,11 @@
   },
 
   # --- eth_protocolVersion ---
-  #  {
-  #    name: 'eth_protocolVersion_fail_invalid_method',
-  #    body: '{"jsonrpc":"2.0","method":"eth_protocolVersion","params":[],"id":1}',
-  #    result: 'the method eth_protocolVersion does not exist'
-  #  },
+    {
+      name: 'eth_protocolVersion_fail_invalid_method',
+      body: '{"jsonrpc":"2.0","method":"eth_protocolVersion","params":[],"id":1}',
+      result: 'the method eth_protocolVersion does not exist'
+    },
 
   # --- eth_sendRawTransaction ---
   {
@@ -1535,11 +1535,11 @@
 #  },
 
   # --- eth_syncing ---
-#  {
-#    name: 'eth_syncing_ok',
-#    body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}',
-#    result: '"result"\s*:\s*false'
-#  },
+  {
+    name: 'eth_syncing_ok',
+    body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}',
+    result: '"result"\s*:\s*false'
+  },
   {
     name: 'eth_syncing_fail_too_many_args',
     body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[false,true],"id":1}',
@@ -1620,11 +1620,11 @@
   },
 
   # --- txpool_content ---
-#  {
-#    name: 'txpool_content_ok',
-#    body: '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}',
-#    result: '"result"\s*:\s*{\s*"pending"\s*:\s*{\s*"0x[0-9a-fA-F]{40}"'
-#  },
+  {
+    name: 'txpool_content_ok',
+    body: '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}',
+    result: '"result"\s*:\s*{\s*"pending"\s*:\s*{\s*"0x[0-9a-fA-F]{40}"'
+  },
   {
     name: 'txpool_content_too_many_args',
     body: '{"jsonrpc":"2.0","method":"txpool_content","params":[true],"id":1}',
