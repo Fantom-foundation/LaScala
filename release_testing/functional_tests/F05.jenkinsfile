@@ -1,4 +1,5 @@
 // Test functional correctness of live-db using mainnet and aida-rpc tool
+@Library('shared-library') _
 
 pipeline {
     agent { label "sonic-statedb" }
@@ -6,6 +7,7 @@ pipeline {
     options {
         timestamps ()
         timeout(time: 5, unit: 'HOURS') // expected: 2-3 hours
+        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
@@ -81,8 +83,6 @@ pipeline {
                                          --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                          ${BlockFrom} ${BlockTo}"""
                 }
-
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
@@ -96,10 +96,7 @@ pipeline {
                     ./scripts/analytics/rmd/aida-rpc.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F05.html"
-
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
 
@@ -114,6 +111,8 @@ pipeline {
 
     post {
         always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
