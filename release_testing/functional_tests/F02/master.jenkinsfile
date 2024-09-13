@@ -1,0 +1,86 @@
+// Master job for running release candidate tests in parallel
+
+pipeline {
+    agent { label 'coordinator' }
+
+    parameters {
+        string(defaultValue: "first", description: '', name: 'BlockFrom')
+        string(defaultValue: "last", description: '', name: 'BlockTo')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+    }
+
+    stages {
+        stage('Start parallel stage execution') {
+            parallel {
+                stage('F02 block processing (mainnet) 0-30m') {
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "30000000"),
+                            string(name: 'GenesisBlock', value: ""),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                        ]
+                    }
+                }
+
+                stage('F02 block processing (mainnet) 30m-50m') {
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
+                            string(name: 'BlockFrom', value: "30000001"),
+                            string(name: 'BlockTo', value: "50000000"),
+                            string(name: 'GenesisBlock', value: "30000000"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                        ]
+                    }
+                }
+
+                stage('F02 block processing (mainnet) 50m-65m') {
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
+                            string(name: 'BlockFrom', value: "50000001"),
+                            string(name: 'BlockTo', value: "65000000"),
+                            string(name: 'GenesisBlock', value: "50000000"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                        ]
+                    }
+                }
+
+                stage('F02 block processing (mainnet) 65m-last') {
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
+                            string(name: 'BlockFrom', value: "65000001"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'GenesisBlock', value: "65000000"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
+                            string(name: 'AidaVersion', value: "${AidaVersion}"),
+                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
+                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                        ]
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}
