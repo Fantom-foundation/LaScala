@@ -128,7 +128,7 @@ pipeline {
                     def fake_statedb_info = [ "dbImpl": "carmen",
                                               "dbVariant": "go-file",
                                               "archiveMode": false,
-                                              "archiveVariant": "s5",
+                                              "archiveVariant": "",
                                               "schema": 5,
                                               "block": GenesisBlock.toInteger(),
                                               "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
@@ -153,8 +153,14 @@ pipeline {
 
                 script {
                     def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file"
-                    def validationFlags = "--validate-tx --validate-state-hash"
+                    def validationFlags = ""
                     def archiveFlags = "--archive --archive-variant s5"
+
+                    if (params.GenesisBlock.isEmpty()) {
+                        validationFlags = "--validate-tx --validate-state-hash"
+                    } else {
+                        validationFlags = "--validate-tx"
+                    }
 
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """build/aida-vm-sdb  substate ${params.Validate ? validationFlags : ''} \
@@ -210,7 +216,7 @@ pipeline {
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: "lubo")
+                string(name: 'user', value: "aida")
             ]
         }
     }
