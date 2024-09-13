@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'coordinator' }
+    agent { label 'db-small-nvme' }
 
     options {
         timestamps ()
@@ -18,7 +18,7 @@ pipeline {
     parameters {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "200", description: 'How many iterations will script do.', name: 'NumberOfIterations')
+        string(defaultValue: "1000", description: 'How many iterations will script do.', name: 'NumberOfIterations')
         string(defaultValue: "1", description: 'Delay between start of sync process and forced termination (in seconds).', name: 'Window')
         string(defaultValue: "1", description: 'How often will Carmen create checkpoints (in blocks).', name: 'CheckpointGranularity')
     }
@@ -42,7 +42,6 @@ pipeline {
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                     )
                 }
-                stash 'source'
             }
         }
 
@@ -54,32 +53,10 @@ pipeline {
             }
         }
 
-        stage('Db-Heal-Test') {
-            parallel {
-                stage('Worker-1') {
-                    agent{label 'db-small-nvme'}
-                    steps {
-                        deleteDir()
-                        unstash 'source'
-                        sh "python3 ${env.WORKSPACE}/carmen/scripts/db-heal-test.py --aida ${env.WORKSPACE} --window ${Window} --cp-granularity ${CheckpointGranularity} --aida-db ${AIDADB} --tmp ${TMPDB} --iter ${NumberOfIterations}"
-                    }
-                }
-                stage('Worker-2') {
-                    agent{label 'db-small-nvme'}
-                        steps {
-                            deleteDir()
-                            unstash 'source'
-                            sh "python3 ${env.WORKSPACE}/carmen/scripts/db-heal-test.py --aida ${env.WORKSPACE} --window ${Window} --cp-granularity ${CheckpointGranularity} --aida-db ${AIDADB} --tmp ${TMPDB} --iter ${NumberOfIterations}"
-                        }
-                }
-                stage('Worker-3') {
-                    agent{label 'db-small-nvme'}
-                    steps {
-                        deleteDir()
-                        unstash 'source'
-                        sh "python3 ${env.WORKSPACE}/carmen/scripts/db-heal-test.py --aida ${env.WORKSPACE} --window ${Window} --cp-granularity ${CheckpointGranularity} --aida-db ${AIDADB} --tmp ${TMPDB} --iter ${NumberOfIterations}"
-                    }
-                }
+        stage('Loop') {
+            steps {
+                sh "python3 ${env.WORKSPACE}/carmen/scripts/db-heal-test.py --aida ${env.WORKSPACE} --window ${Window} --cp-granularity ${CheckpointGranularity} --aida-db ${AIDADB} --tmp ${TMPDB} --iter ${NumberOfIterations}"
+
             }
         }
     }
@@ -94,4 +71,5 @@ pipeline {
             ]
         }
     }
+
 }
