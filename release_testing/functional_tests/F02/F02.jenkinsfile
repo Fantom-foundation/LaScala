@@ -1,4 +1,5 @@
 // Test functional correctness of live-db using mainnet and aida-rpc tool
+@Library('shared-library') _
 
 pipeline {
     agent { label "${AgentLabel}" }
@@ -128,7 +129,7 @@ pipeline {
                     def fake_statedb_info = [ "dbImpl": "carmen",
                                               "dbVariant": "go-file",
                                               "archiveMode": false,
-                                              "archiveVariant": "s5",
+                                              "archiveVariant": "",
                                               "schema": 5,
                                               "block": GenesisBlock.toInteger(),
                                               "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
@@ -153,8 +154,14 @@ pipeline {
 
                 script {
                     def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file"
-                    def validationFlags = "--validate-tx --validate-state-hash"
+                    def validationFlags = ""
                     def archiveFlags = "--archive --archive-variant s5"
+
+                    if (params.GenesisBlock.isEmpty()) {
+                        validationFlags = "--validate-tx --validate-state-hash"
+                    } else {
+                        validationFlags = "--validate-tx"
+                    }
 
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """build/aida-vm-sdb  substate ${params.Validate ? validationFlags : ''} \
@@ -172,8 +179,6 @@ pipeline {
                                                  ${BlockFrom} ${BlockTo}"""
                     }
                 }
-
-                archiveArtifacts artifacts: '*.cpuprofile,*.memprofile,*.log'
             }
         }
 
@@ -187,10 +192,7 @@ pipeline {
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh "mv scripts/analytics/rmd/f1.html scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
-
-                archiveArtifacts artifacts: "scripts/analytics/rmd/${BUILD_NUMBER}_F02.html"
-
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
 
@@ -205,12 +207,14 @@ pipeline {
 
     post {
         always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: "lubo")
+                string(name: 'user', value: "aida")
             ]
         }
     }
