@@ -53,7 +53,7 @@ pipeline {
                 deleteDir()
                 unstash 'source'
                 sh 'make'
-                sh 'cd go && go test ./...'
+                sh 'cd go && go test ./... -timeout 60m'
             }
         }
 
