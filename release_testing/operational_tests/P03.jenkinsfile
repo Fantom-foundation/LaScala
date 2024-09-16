@@ -1,7 +1,7 @@
 // P03 performs end-to-end test synchronizing from the first opera block to the current head
 
 pipeline {
-    agent { node "db-large-nvme" }
+    agent { node "db-small-nvme" }
 
     options {
         timestamps ()
@@ -16,10 +16,11 @@ pipeline {
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
+        GENESISURL="https://download.fantom.network"
     }
 
     parameters {
-        string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "mainnet-latest-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
     }
@@ -55,14 +56,14 @@ pipeline {
                 // download genesis
                 script {
                     if (!fileExists("${GENESISPATH}/${Genesis}")) {
-                        sh "curl -o ${GENESISPATH}/${Genesis} https://download.fantom.network/${Genesis}"
+                        sh "wget -nv ${GENESISURL}/${Genesis} -O ${GENESISPATH}/${Genesis}"
                     }
 
                     // download MD5
-                    md5url = "https://download.fantom.network/${Genesis}.md5"
+                    md5url = "${GENESISURL}/${Genesis}.md5"
                     sh "echo ${md5url}"
 
-                    def md5Expected = sh(script: "curl ${md5url}", returnStdout: true);
+                    def md5Expected = sh(script: "wget ${md5url}", returnStdout: true);
                     String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
 
                     // calculate MD5
