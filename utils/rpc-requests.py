@@ -2,11 +2,14 @@ import yaml
 import requests
 import re
 import logging
+import sys
+import getopt
+import time
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.INFO)
 
 
-def main():
+def main(argv):
     with open('rpc-requests.yaml') as f:
         queries = yaml.safe_load(f)
 
@@ -15,7 +18,21 @@ def main():
     errors = 0
     count = 0
 
+    # parse command line options:
+    try:
+        opts, args = getopt.getopt(argv, "rpc:", ["rpc-node-url="])
+    except getopt.GetoptError:
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt in ("-rpc", "--rpc-node-url"):
+            # use alternative algorithm:
+            url = arg
+
+    logging.info("Using URL: " + url)
+
     for q in queries:
+        time.sleep(100/1000)
         logging.info('Processing ' + q['name'])
         response = requests.post(url, data=q['body'], headers=headers)
         expected = re.compile(q['result'])
@@ -35,4 +52,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
