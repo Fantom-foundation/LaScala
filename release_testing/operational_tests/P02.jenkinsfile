@@ -71,8 +71,8 @@ pipeline {
 
         stage('Export & import events') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} export events ${DATAROOTPATH}/sonic.events"
-                sh "./build/sonictool --datadir ${EVENTDBPATH} import events ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonictool --datadir ${DATADIRPATH} events export ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonictool --datadir ${EVENTDBPATH} events import ${DATAROOTPATH}/sonic.events"
                 sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
             }
         }
@@ -86,7 +86,7 @@ pipeline {
 
         stage('Export & import genesis') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} export genesis ${DATAROOTPATH}/sonic.g"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis export ${DATAROOTPATH}/sonic.g"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} genesis --experimental ${DATAROOTPATH}/sonic.g"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
