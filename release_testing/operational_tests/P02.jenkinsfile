@@ -94,7 +94,7 @@ pipeline {
 
         stage('Continue synchronize genesis-imported DB') {
             steps {
-                sh "./build/sonicd --datadir ${GENESISDBPATH} --verbosity 2 --exitwhensynced.epoch 5777"
+                sh "./build/sonicd --datadir ${GENESISDBPATH} --verbosity 2 --exitwhensynced.epoch 5877"
                 sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }
