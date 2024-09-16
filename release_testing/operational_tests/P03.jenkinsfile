@@ -56,20 +56,22 @@ pipeline {
                 // download genesis
                 script {
                     if (!fileExists("${GENESISPATH}/${Genesis}")) {
-                        sh "wget -nv ${GENESISURL}/${Genesis} -O ${GENESISPATH}/${Genesis}"
+                        sh "wget ${GENESISURL}/${Genesis} -O ${GENESISPATH}/${Genesis} -nv"
                     }
 
                     // download MD5
-                    md5url = "${GENESISURL}/${Genesis}.md5"
-                    sh "echo ${md5url}"
+                    sh "wget ${GENESISURL}/${Genesis}.md5 -O ${GENESISPATH}/${Genesis}.md5 -nv"
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${Genesis}.md5", returnStdout: true);
 
-                    def md5Expected = sh(script: "wget ${md5url}", returnStdout: true);
                     String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
 
                     // calculate MD5
-                    String genesisPath = "${GENESISPATH}/${Genesis}"
-                    def genesisMd5 = sh(script: "md5sum $genesisPath", returnStdout: true);
+                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${Genesis}", returnStdout: true);
+
                     String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    sh "echo ${md5ExpectedHash}"
+                    sh "echo ${md5CalculatedHash}"
 
                     // compare MD5
                     if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
