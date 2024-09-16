@@ -20,7 +20,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
-        string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "mainnet-latest-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
         booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunF02')
         booleanParam(defaultValue: true, description: 'If checked, F03 stage will be executed', name: 'RunF03')
