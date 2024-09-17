@@ -19,7 +19,7 @@ pipeline {
     parameters {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
-        string(defaultValue: "http://10.128.0.46", description: 'URL address of referential Sonic node', name: 'ReferentialUrl')
+        string(defaultValue: "http://10.128.0.10", description: 'URL address of referential Sonic node', name: 'ReferentialUrl')
     }
 
     stages {
