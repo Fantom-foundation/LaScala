@@ -11,11 +11,11 @@ pipeline {
         GOROOT = '/usr/lib/go-1.21/'
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
+        TMP_DB = '/mnt/tmp-disk'
+        AIDA_DB = '/mnt/aida-db-central/aida-db'
     }
 
     parameters {
-        string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
-        string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(name: 'firstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
         string(name: 'aidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
@@ -46,7 +46,7 @@ pipeline {
                 sh "go mod tidy"
                 sh "make -j aida-vm-sdb"
                 sh "go test ./..."
-                sh "mkdir -p ${params.tmpDb}/al"
+                sh "mkdir -p ${env.TMP_DB}"
             }
         }
 
@@ -54,45 +54,45 @@ pipeline {
 
         stage('Synchronise Live DB') {
             steps {
-                sh "build/aida-vm-sdb substate --aida-db  ${params.aidaDb} --db-tmp  ${params.tmpDb}  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db  --validate-state-hash 0 ${params.firstBlockHeight} "
+                sh "build/aida-vm-sdb substate --aida-db  ${env.AIDA_DB} --db-tmp  ${env.TMP_DB}  --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --keep-db  --validate-state-hash 0 ${params.firstBlockHeight} "
             }
         }
 
         stage('Verify Live DB') {
             steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/live"
+                sh "cd carmen/go && go run ./database/mpt/tool verify ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/live"
             }
         }
 
         stage('Export Live DB') {
             steps {
-                sh "cd carmen/go && go run ./database/mpt/tool export ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/live ${params.tmpDb}/genesis.dat"
+                sh "cd carmen/go && go run ./database/mpt/tool export ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/live ${env.TMP_DB}/genesis.dat"
             }
         }
 
         stage('Init Archive from Live DB dump') {
             steps {
-                sh "cd carmen/go && go run ./database/mpt/tool init-archive ${params.tmpDb}/genesis.dat ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
+                sh "cd carmen/go && go run ./database/mpt/tool init-archive ${env.TMP_DB}/genesis.dat ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
             }
         }
 
         stage('Verify Imported Archive') {
             steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
+                sh "cd carmen/go && go run ./database/mpt/tool verify ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/archive"
             }
         }
         stage('Continue Synchronise Archive and Live DB') {
             steps {
-                sh "sed -i 's/\"archiveMode\": false/\"archiveMode\": true/' ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/statedb_info.json"
-                sh "sed -i 's/\"archiveVariant\": \"\"/\"archiveVariant\": \"s5\"/' ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/statedb_info.json"
+                sh "sed -i 's/\"archiveMode\": false/\"archiveMode\": true/' ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/statedb_info.json"
+                sh "sed -i 's/\"archiveVariant\": \"\"/\"archiveVariant\": \"s5\"/' ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/statedb_info.json"
                 script {nextBlock=params.firstBlockHeight.toInteger()+1}
-                sh "build/aida-vm-sdb substate --aida-db ${params.aidaDb} --db-tmp ${params.tmpDb} --db-src ${params.tmpDb}/state_db_carmen_go-file_${params.firstBlockHeight}/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db --validate-state-hash ${nextBlock} ${params.secondBlockHeight}"
+                sh "build/aida-vm-sdb substate --aida-db ${env.AIDA_DB} --db-tmp ${env.TMP_DB} --db-src ${env.TMP_DB}/state_db_carmen_go-file_${params.firstBlockHeight}/ --vm-impl=lfvm --db-impl carmen --db-variant go-file --carmen-schema 5 --archive --archive-variant s5 --keep-db --validate-state-hash ${nextBlock} ${params.secondBlockHeight}"
             }
         }
         stage('Re-verify Archive and Live DB') {
             steps {
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/state_db_carmen_go-file_${params.secondBlockHeight}/live"
-                sh "cd carmen/go && go run ./database/mpt/tool verify ${params.tmpDb}/state_db_carmen_go-file_${params.secondBlockHeight}/archive"
+                sh "cd carmen/go && go run ./database/mpt/tool verify ${env.TMP_DB}/state_db_carmen_go-file_${params.secondBlockHeight}/live"
+                sh "cd carmen/go && go run ./database/mpt/tool verify ${env.TMP_DB}/state_db_carmen_go-file_${params.secondBlockHeight}/archive"
             }
         }
     }
