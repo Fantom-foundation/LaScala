@@ -71,15 +71,23 @@ pipeline {
 
                 stage('F02 block processing (mainnet) 70m-last') {
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
-                            string(name: 'BlockFrom', value: "70000001"),
-                            string(name: 'BlockTo', value: "${BlockTo}"),
-                            string(name: 'GenesisBlock', value: "70000000"),
-                            string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
-                            string(name: 'AidaVersion', value: "${AidaVersion}"),
-                            string(name: 'CarmenVersion', value: "${CarmenVersion}"),
-                            string(name: 'ToscaVersion', value: "${ToscaVersion}")
-                        ]
+                        script {
+                            String blockTo = params.BlockTo
+
+                            if (blockTo.toInteger() <= 70000001) {
+                                blockTo = "last"
+                            }
+
+                            build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
+                                string(name: 'BlockFrom', value: "70000001"),
+                                string(name: 'BlockTo', value: "${blockTo}"),
+                                string(name: 'GenesisBlock', value: "70000000"),
+                                string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
+                                string(name: 'AidaVersion', value: "$AidaVersion"),
+                                string(name: 'CarmenVersion', value: "$CarmenVersion"),
+                                string(name: 'ToscaVersion', value: "$ToscaVersion")
+                            ]
+                        }
                     }
                 }
             }
