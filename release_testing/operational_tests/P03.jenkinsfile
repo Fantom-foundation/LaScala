@@ -58,6 +58,9 @@ pipeline {
                 sh "mkdir -p $GENESISPATH"
 
                 script {
+                    genesisUrl = GENESISURL
+                    genesis = GENESISDEFAULT
+
                     if (!params.Genesis.isEmpty() && params.Genesis != GENESISDEFAULT) {
                         genesisUrl = GENESISURL + "/opera/mainnet"
                         genesis = params.Genesis
