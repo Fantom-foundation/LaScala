@@ -1,33 +1,75 @@
+// Runs unit test of Carmen to secure that Carmen functions operates as intended
+@Library('shared-library') _
+
 pipeline {
-    agent {label 'quick'}
+    agent { label 'norma' }
+
+    options {
+        timestamps ()
+        timeout(time: 12, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+        // estimated 20-30 minutes
+    }
+
+    environment {
+        GOROOT = '/usr/lib/go-1.21/'
+        GOGC = '50'
+        GOMEMLIMIT = '60GiB'
+    }
 
     parameters {
-        string(name: 'TmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
-        string(name: 'AidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
-        string(name: 'FirstBlockHeight', defaultValue: '5000000', description: 'First block height to import.')
-        string(name: 'SecondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
     }
 
     stages {
-        stage('Redirect to SyncToolchain') {
+        stage('Build') {
             steps {
-                build job: '/Carmen/Validate-State-Toolchain-Archive+Live', parameters: [
-                    string(name: 'nodeLabel', value: "db-small-nvme"),
-                    string(name: 'tmpDb', value: "${TmpDb}"),
-                    string(name: 'aidaDb', value: "${AidaDb}"),
-                    string(name: 'firstBlockHeight', value: "5000000"),
-                    string(name: 'secondBlockHeight', value: "6000000"),
-                    string(name: 'aidaVersion', value: "${AidaVersion}"),
-                    string(name: 'carmenVersion', value: "${CarmenVersion}")
-                ]
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${NormaVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Norma.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                sh "go mod tidy"
+                sh "make -j"
+            }
+        }
+
+        stage('Run dynamic scenario') {
+            steps {
+                runScenario("dynamic")
+            }
+        }
+
+//         stage('Run slope scenario') {
+//             steps {
+//                 runScenario("slope")
+//             }
+//         }
+
+        stage('Run static scenario') {
+            steps {
+                runScenario("static")
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
             }
         }
     }
 
     post {
         always {
+            uploadArtifacts(["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"])
+
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
@@ -37,4 +79,19 @@ pipeline {
             ]
         }
     }
+}
+
+def runScenario(scenario) {
+    echo "Starting Norma demonet ${scenario} scenario"
+
+    sh "rm -rf /tmp/norma*"
+
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenario") {
+        sh "build/norma run --label='report' ./scenarios/demonet/${scenario}.yml"
+    }
+
+    sh "echo 'Moving report file'"
+
+    sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_single_eval_report.html"
+    sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_measurements.csv"
 }
