@@ -1,5 +1,8 @@
 // P03 performs end-to-end test synchronizing from the first opera block to the current head
 
+def genesisUrl
+def genesis
+
 pipeline {
     agent { node "db-small-nvme" }
 
@@ -17,16 +20,17 @@ pipeline {
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
         GENESISURL="https://download.fantom.network"
+        GENESISDEFAULT="mainnet-latest-validator.g"
     }
 
     parameters {
-        string(defaultValue: "mainnet-latest-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
+        string(defaultValue: "", description: 'Name of the genesis file to download', name: 'Genesis')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout and build') {
             steps {
                 checkout scmGit(
                     branches: [[name: "${SonicVersion}"]],
@@ -43,30 +47,38 @@ pipeline {
                         ]]
                     )
                 }
+
+                sh "make"
             }
         }
 
-        stage('Preparation and build') {
+        stage('Preparation') {
             steps {
                 // setup
-                sh "rm -f ${GENESISPATH}/${Genesis}.md5"
                 sh "mkdir -p $GENESISPATH"
-                sh "make"
 
-                // download genesis
                 script {
-                    if (!fileExists("${GENESISPATH}/${Genesis}")) {
-                        sh "wget ${GENESISURL}/${Genesis} -O ${GENESISPATH}/${Genesis} -nv"
+                    if (!params.Genesis.isEmpty() && params.Genesis != GENESISDEFAULT) {
+                        genesisUrl = GENESISURL + "/opera/mainnet"
+                        genesis = params.Genesis
+                    }
+
+                    // remove old md5
+                    sh "rm -f ${GENESISPATH}/${genesis}.md5"
+
+                    // download genesis
+                    if (!fileExists("${GENESISPATH}/${genesis}")) {
+                        sh "wget ${genesisUrl}/${genesis} -O ${GENESISPATH}/${genesis} -nv"
                     }
 
                     // download MD5
-                    sh "wget ${GENESISURL}/${Genesis}.md5 -O ${GENESISPATH}/${Genesis}.md5 -nv"
-                    def md5Expected = sh(script: "cat ${GENESISPATH}/${Genesis}.md5", returnStdout: true);
+                    sh "wget ${genesisUrl}/${genesis}.md5 -O ${GENESISPATH}/${genesis}.md5 -nv"
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${genesis}.md5", returnStdout: true);
 
                     String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
 
                     // calculate MD5
-                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${Genesis}", returnStdout: true);
+                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${genesis}", returnStdout: true);
 
                     String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
 
@@ -75,22 +87,21 @@ pipeline {
 
                     // compare MD5
                     if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
-                        sh "echo removing corrupted file ${GENESISPATH}/${Genesis}"
-                        sh "rm ${GENESISPATH}/${Genesis}"
+                        sh "echo removing corrupted file ${GENESISPATH}/${genesis}"
+                        sh "rm ${GENESISPATH}/${genesis}"
                         currentBuild.result = 'FAILURE'
                         error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
                     } else {
                         sh "echo hash ${md5CalculatedHash} confirmed"
                     }
                 }
-
             }
         }
 
         stage('Create DB from genesis') {
            steps {
                // create db from a genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${Genesis} "
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${genesis} "
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
@@ -102,6 +113,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             build job: '/Notifications/slack-notification', parameters: [
