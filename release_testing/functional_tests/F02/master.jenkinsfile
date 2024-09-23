@@ -72,10 +72,15 @@ pipeline {
                 stage('F02 block processing (mainnet) 70m-last') {
                     steps {
                         script {
-                            String blockTo = params.BlockTo
+                            String blockTo = ""
 
-                            if (blockTo.toInteger() <= 70000001) {
-                                blockTo = "last"
+                            try {
+                                if (params.BlockTo.toInteger() <= 70000001) {
+                                    blockTo = "last"
+                                }
+                            }
+                            catch(all) {
+                                blockTo = params.BlockTo
                             }
 
                             build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
