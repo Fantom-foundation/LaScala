@@ -49,7 +49,7 @@ pipeline {
         stage('Run Stress Test Tool') {
             steps {
                 dir('go') {
-                    sh "go run ./database/mpt/tool stress-test --num-blocks '${Blocks}' "
+                    sh "go run ./database/mpt/tool stress-test --num-blocks '${Blocks}' --tmp-dir /mnt/tmp-disk "
                 }
             }
         }
