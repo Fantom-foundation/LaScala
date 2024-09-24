@@ -310,7 +310,7 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/P01', parameters: [
+                        build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'NormaVersion', value: "${NormaVersion}"),
                         ]
                     }
