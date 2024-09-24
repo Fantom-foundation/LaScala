@@ -45,17 +45,40 @@ pipeline {
             steps {
                 runScenario("dynamic")
             }
+
+            post {
+                always {
+                    uploadArtifacts(["*.yml", "*.csv", "*.log", "*.html"])
+                    sh "rm -f *.yml *.csv *.log *.html"
+                }
+            }
         }
 
-//         stage('Run slope scenario') {
-//             steps {
-//                 runScenario("slope")
-//             }
-//         }
+        /*
+        stage('Run slope scenario') {
+            steps {
+                runScenario("slope")
+            }
+
+            post {
+                always {
+                    uploadArtifacts(["*.yml", "*.csv", "*.log", "*.html"])
+                    sh "rm -f *.yml *.csv *.log *.html"
+                }
+            }
+        }
+        */
 
         stage('Run static scenario') {
             steps {
                 runScenario("static")
+            }
+
+            post {
+                always {
+                    uploadArtifacts(["*.yml", "*.csv", "*.log", "*.html"])
+                    sh "rm -f *.yml *.csv *.log *.html"
+                }
             }
         }
 
@@ -68,8 +91,6 @@ pipeline {
 
     post {
         always {
-            uploadArtifacts(["${env.BUILD_NUMBER}_single_eval_report.html", "${env.BUILD_NUMBER}_measurements.csv"])
-
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
@@ -87,11 +108,6 @@ def runScenario(scenario) {
     sh "rm -rf /tmp/norma*"
 
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenario") {
-        sh "build/norma run --label='report' ./scenarios/demonet/${scenario}.yml"
+        sh "build/norma run --label="${scenario}" -o . ./scenarios/demonet/${scenario}.yml"
     }
-
-    sh "echo 'Moving report file'"
-
-    sh "cp /tmp/norma*/single_eval_report.html ./${env.BUILD_NUMBER}_single_eval_report.html"
-    sh "cp /tmp/norma*/measurements.csv ./${env.BUILD_NUMBER}_measurements.csv"
 }
