@@ -48,7 +48,7 @@ pipeline {
 
             post {
                 always {
-                    uploadArtifacts(["*.yml", "*.csv", "*.log", "*.html"])
+                    uploadArtifacts(["*.csv", "*.log", "*.html"])
                     sh "rm -f *.yml *.csv *.log *.html"
                 }
             }
