@@ -105,8 +105,6 @@ pipeline {
 def runScenario(scenario) {
     echo "Starting Norma demonet ${scenario} scenario"
 
-    sh "rm -rf /tmp/norma*"
-
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenario") {
         sh "build/norma run --label="${scenario}" -o . ./scenarios/demonet/${scenario}.yml"
     }
