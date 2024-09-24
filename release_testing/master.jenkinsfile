@@ -32,7 +32,7 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
-        booleanParam(defaultValue: true, description: 'If checked, N03 stage will be executed', name: 'RunN03')
+        booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
         booleanParam(defaultValue: true, description: 'If checked, P01 stage will be executed', name: 'RunP01')
         booleanParam(defaultValue: true, description: 'If checked, P02 stage will be executed', name: 'RunP02')
         booleanParam(defaultValue: true, description: 'If checked, P03 stage will be executed', name: 'RunP03')
