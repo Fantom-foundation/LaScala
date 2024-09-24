@@ -28,7 +28,6 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunF05')
         booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
         booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
-        booleanParam(defaultValue: true, description: 'If checked, F08 stage will be executed', name: 'RunF08')
         booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
@@ -137,6 +136,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('F02 block processing (mainnet)') {
                     when {
                         expression {
@@ -171,6 +171,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('F04 RPC node simulation (mainnet)') {
                     when {
                         expression {
@@ -188,6 +189,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('F05 RPC request processing (mainnet)') {
                     when {
                         expression {
@@ -202,6 +204,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('F06 Syntactic transactions') {
                     when {
                         expression {
@@ -216,6 +219,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('F07 Ethereum State Tests') {
                     when {
                         expression {
@@ -230,18 +234,7 @@ pipeline {
                         ]
                     }
                 }
-                stage('F08 Norma') {
-                    when {
-                        expression {
-                            return params.RunF08;
-                        }
-                    }
-                    steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F08', parameters: [
-                            string(name: 'NormaVersion', value: "${NormaVersion}"),
-                        ]
-                    }
-                }
+
                 stage('F09 Carmen Unit and Integration Tests') {
                     when {
                         expression {
@@ -257,6 +250,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('N01 block processing (mainnet)') {
                     when {
                         expression {
@@ -273,6 +267,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('N02/N04 block processing with archive-db and RPC request processing (mainnet)') {
                     when {
                         expression {
@@ -289,6 +284,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('N03 RPC node simulation (mainnet)') {
                     when {
                         expression {
@@ -306,23 +302,20 @@ pipeline {
                         ]
                     }
                 }
-                stage('P01 Opera Genesis Tests') {
+
+                stage('P01 Norma') {
                     when {
                         expression {
                             return params.RunP01;
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
-                            string(name: 'TmpDb', value: "/mnt/tmp-disk"),
-                            string(name: 'AidaDb', value: "/mnt/aida-db-central/aida-db"),
-                            string(name: 'FirstBlockHeight', value: "5000000"),
-                            string(name: 'SecondBlockHeight', value: "6000000"),
-                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
+                        build job: '/ReleaseTesting/FunctionalTests/P01', parameters: [
+                            string(name: 'NormaVersion', value: "${NormaVersion}"),
                         ]
                     }
                 }
+
                 stage('P02 Sonic Genesis Tests') {
                     when {
                         expression {
@@ -335,7 +328,8 @@ pipeline {
                         ]
                     }
                 }
-                stage('P03 Sonic RPC Test') {
+
+                stage('P03 Sonic Synchronization Test') {
                     when {
                         expression {
                             return params.RunP03;
@@ -349,6 +343,7 @@ pipeline {
                         ]
                     }
                 }
+
                 stage('P04 Sonic RPC Test') {
                     when {
                         expression {
