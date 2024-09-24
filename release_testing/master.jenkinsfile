@@ -18,7 +18,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
         string(defaultValue: "mainnet-297900-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
@@ -133,7 +133,8 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -149,7 +150,8 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -167,7 +169,8 @@ pipeline {
                             string(name: 'ArchiveQueryRate', value: "200"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -184,7 +187,8 @@ pipeline {
                             string(name: 'ArchiveQueryRate', value: "200"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -198,7 +202,8 @@ pipeline {
                         build job: '/ReleaseTesting/FunctionalTests/F05', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -212,7 +217,8 @@ pipeline {
                         build job: '/ReleaseTesting/FunctionalTests/F06', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -226,7 +232,8 @@ pipeline {
                         build job: '/ReleaseTesting/FunctionalTests/F07', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -269,7 +276,8 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -285,7 +293,8 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -302,7 +311,8 @@ pipeline {
                             string(name: 'ArchiveQueryRate', value: "150"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }

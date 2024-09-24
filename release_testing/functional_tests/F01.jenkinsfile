@@ -22,6 +22,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path where the database will be created.', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Forced name of the database', name: 'RunId')
     }
@@ -52,6 +53,13 @@ pipeline {
                     checkout scmGit(
                         branches: [[name: "${ToscaVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
+
+                dir('sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${SonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
                     )
                 }
 
