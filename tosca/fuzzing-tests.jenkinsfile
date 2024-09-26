@@ -16,6 +16,7 @@ pipeline {
         GOGC = '50'
         GOMEMLIMIT = '30GiB'
         GORACE = 'halt_on_error=1'
+        PATH = "${env.HOME}/.cargo/bin:${env.PATH}" //< rustc
     }
 
     parameters {
