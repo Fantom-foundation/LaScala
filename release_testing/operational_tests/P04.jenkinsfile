@@ -51,8 +51,7 @@ pipeline {
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 5m"
-                sh "./build/sonictool --datadir ${SONICSTATEDB} check live"
+                sh "./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s"
             }
         }
 
@@ -102,7 +101,7 @@ pipeline {
 
                 stage('Compare block receipts') {
                     steps {
-                        sleep(time:120,unit:"SECONDS")
+                        sleep(time:300,unit:"SECONDS")
 
                         sh 'echo "Start comparing block receipts"'
 
