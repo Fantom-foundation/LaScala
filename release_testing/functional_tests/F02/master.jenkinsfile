@@ -55,16 +55,30 @@ pipeline {
                     }
                 }
 
-                stage('F02 block processing (mainnet) 65m-last') {
+                stage('F02 block processing (mainnet) 65m-70m') {
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
                             string(name: 'BlockFrom', value: "65000001"),
-                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'BlockTo', value: "70000000"),
                             string(name: 'GenesisBlock', value: "65000000"),
                             string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}")
+                        ]
+                    }
+                }
+
+                stage('F02 block processing (mainnet) 70m-last') {
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
+                            string(name: 'BlockFrom', value: "70000001"),
+                            string(name: 'BlockTo', value: "last"),
+                            string(name: 'GenesisBlock', value: "70000000"),
+                            string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
+                            string(name: 'AidaVersion', value: "$AidaVersion"),
+                            string(name: 'CarmenVersion', value: "$CarmenVersion"),
+                            string(name: 'ToscaVersion', value: "$ToscaVersion")
                         ]
                     }
                 }

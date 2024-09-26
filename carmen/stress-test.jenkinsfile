@@ -41,7 +41,7 @@ pipeline {
         stage('Run unit tests') {
             steps {
                 dir('go') {
-                    sh "go test ./... -tags=stress_test -count 1 -timeout 36000s -parallel 2"
+                    sh "TMPDIR=/mnt/tmp-disk go test ./... -tags=stress_test -count 1 -timeout 36000s -parallel 2"
                 }
             }
         }
