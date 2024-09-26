@@ -49,6 +49,8 @@ pipeline {
                 		branches: [[name: "${CarmenVersion}"]],
                 		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                 	)
+
+                    sh "git submodule update --recursive"
                 }
 
                 dir('tosca') {
@@ -56,9 +58,9 @@ pipeline {
                         branches: [[name: "${ToscaVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
-                }
 
-                sh "git submodule update --recursive"
+                    sh "git submodule update --recursive"
+                }
 
                 sh "go mod tidy"
                 sh "make all"
