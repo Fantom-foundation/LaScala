@@ -5,7 +5,7 @@ pipeline {
     options {
         timestamps()
         // This is a global timeout for the whole pipeline,
-        // it is a failsave to prevent the pipeline from running if missonfigured.
+        // it is a failsave to prevent the pipeline from running if misconfigured.
         // This timeout will set the pipeline to ABORTED when triggered
         timeout(time: 2, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
