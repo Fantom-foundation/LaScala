@@ -13,6 +13,7 @@ pipeline {
 
     environment {
         GOROOT = '/usr/lib/go-1.21/'
+        PATH = "${env.HOME}/.cargo/bin:${env.PATH}" //< rustc
     }
 
     parameters {
