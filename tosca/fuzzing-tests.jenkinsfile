@@ -20,12 +20,17 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: 'main', description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(
+            defaultValue: 'main',
+            description: 'Can be either branch name or commit hash.',
+            name: 'ToscaVersion'
+        )
 
         choice(
             name: 'EntryPoint',
             choices: ['FuzzLfvm', 'FuzzGeth', 'FuzzDifferentialLfvmVsGeth'],
-            description: 'Selects which fuzzer test function to start.')
+            description: 'Selects which fuzzer test function to start.'
+        )
     }
 
     stages {
@@ -54,17 +59,25 @@ pipeline {
 
         stage('fuzzing-test') {
             steps {
-                // Fuzzing test runs for the provided time duration.
-                // Note: Make sure that the pipeline timeout is large enough
-                // to accommodate the fuzzing test duration, otherwise test
-                // will be aborted and therefore marked as red.
-                sh "go test -fuzz=$EntryPoint ./go/ct -fuzztime 5h"
+                script {
+                    // Calculate 2/3 of the available cores; this reduces the
+                    // memory usage, which led to test interruptions in the past.
+                    def totalCores = sh(script: 'nproc', returnStdout: true).trim().toInteger()
+                    def coresToUse = (totalCores * 2 / 3).toInteger()
+
+                    // Fuzzing time is set to 5 hours. Notice that pipeline timeout
+                    // is larger to accommodate for checkout, build, and test stages.
+                    def timeout = '5h'
+
+                    // Run the fuzzing tests
+                    sh "go test -fuzz=${EntryPoint} ./go/ct -fuzztime ${timeout} -parallel ${coresToUse}"
+                }
             }
 
             post {
                 failure {
                     // Archive the faulty inputs found to be downloaded and analyzed.
-                    archiveArtifacts artifacts: "go/ct/testdata/fuzz/$EntryPoint/*"
+                    archiveArtifacts artifacts: "go/ct/testdata/fuzz/${EntryPoint}/*"
                 }
             }
         }
