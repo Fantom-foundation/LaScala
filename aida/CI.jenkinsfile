@@ -15,11 +15,21 @@ pipeline {
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
 
-        CARMEN = '--db-impl carmen --db-variant go-file --carmen-schema 3'
+        // Aida options
+        CARMEN = '--db-impl carmen --db-variant go-file --carmen-schema 5'
         PRIMEBUFFER = '4096'
         TMPDB = '/mnt/tmp-disk'
         AIDADB = '/mnt/aida-db-central/aida-db'
-        BLOCKS = 'zero,opera,london,berlin,lastpatch'
+
+        // Genesis
+        GENESISBLOCK = 70000000
+        GENESISPATH = "${TMPDB}/genesis"
+        BUCKET = "carmen-genesis-generator/74"
+        BUCKETURI = "gs://aida-jenkins-genesis/${BUCKET}/genesis_live_${GENESISBLOCK}.dat"
+
+
+        // test range
+        BLOCKS = "zero,opera,london,berlin,${GENESISBLOCK}"
         INTERVAL = '1000000'
     }
 
@@ -36,29 +46,29 @@ pipeline {
                 )
                 sh 'git submodule deinit -f --all'
                 sh 'git submodule update --init --recursive'
-                sh 'make clean'
-                sh 'make all'
+                sh 'make -j all'
             }
         }
 
-        stage('aida-vm-replay') {
+        stage('aida-vm') {
             steps {
                 sh 'rm -f *.cpuprofile *.memprofile *.log'
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
                     script {
                         BLOCKS.tokenize(',').each { block ->;
+                            (firstBlock, lastBlock) = calculateLastBlock(block, INTERVAL)
                             sh """build/aida-vm --vm-impl lfvm \
                                     --aida-db ${AIDADB} \
                                     --workers 32 \
                                     --validate-tx \
-                                    --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}-LFVM-${block}.cpuprofile \
-                                                ${block} ${block}+${INTERVAL}"""
+                                    --cpu-profile ${BUILD_NUMBER}-${STAGE_NAME}-LFVM-${block}.cpuprofile \
+                                                ${firstBlock} ${lastBlock}"""
                             sh """build/aida-vm --vm-impl geth \
                                     --aida-db ${AIDADB} \
                                     --workers 32 \
                                     --validate-tx \
-                                    --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}-GETHVM-${block}.cpuprofile \
-                                    ${block} ${block}+${INTERVAL}"""
+                                    --cpu-profile ${BUILD_NUMBER}-${STAGE_NAME}-GETHVM-${block}.cpuprofile \
+                                    ${firstBlock} ${lastBlock}"""
                         }
                     }
                 }
@@ -74,7 +84,7 @@ pipeline {
                     sh """build/aida-stochastic-sdb replay ${CARMEN} \
                                --db-tmp ${TMPDB} \
                                --db-shadow-impl geth \
-                               1000 data/simulation_uniform.json"""
+                               1000 stochastic/data/simulation_uniform.json"""
                 }
             }
         }
@@ -83,63 +93,115 @@ pipeline {
             steps {
                 sh 'mkdir -p tracefiles'
                 sh 'rm -rf tracefiles/*'
-                //catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                //    sh 'build/aida-sdb record --cpu-profile cpu-profile-0.dat --trace-file tracefiles/trace-0.dat --aida-db ${AIDADB} opera opera+100000'
-                //    sh 'build/aida-sdb record --cpu-profile cpu-profile-1.dat --trace-file tracefiles/trace-1.dat --aida-db ${AIDADB} opera+100001 opera+200000'
-                //    sh 'build/aida-sdb record --cpu-profile cpu-profile-2.dat --trace-file tracefiles/trace-2.dat --aida-db ${AIDADB} opera+200001 opera+300000'
-                //}
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                    sh 'build/aida-sdb record --cpu-profile cpu-profile-0.dat --trace-file tracefiles/trace-0.dat --aida-db ${AIDADB} opera opera+100000'
+                    sh 'build/aida-sdb record --cpu-profile cpu-profile-1.dat --trace-file tracefiles/trace-1.dat --aida-db ${AIDADB} opera+100001 opera+200000'
+                    sh 'build/aida-sdb record --cpu-profile cpu-profile-2.dat --trace-file tracefiles/trace-2.dat --aida-db ${AIDADB} opera+200001 opera+300000'
+                }
             }
         }
 
         stage('aida-sdb-replay') {
             steps {
-                //catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
                     // one trace file
-                //    sh """build/aida-sdb replay ${CARMEN} \
-                //            --vm-impl lfvm \
-                //            --db-tmp ${TMPDB} \
-                //            --aida-db ${AIDADB} \
-                //            --update-buffer-size ${PRIMEBUFFER} \
-                //            --shadow-db --db-shadow-impl geth \
-                //            --cpu-profile cpu-profile.dat \
-                //            --memory-profile mem-profile.dat \
-                //            --memory-breakdown \
-                //            --trace-file tracefiles/trace-0.dat opera opera+100000"""
+                    sh """build/aida-sdb replay ${CARMEN} \
+                            --vm-impl lfvm \
+                            --db-tmp ${TMPDB} \
+                            --aida-db ${AIDADB} \
+                            --update-buffer-size ${PRIMEBUFFER} \
+                            --shadow-db --db-shadow-impl geth \
+                            --cpu-profile cpu-profile.dat \
+                            --memory-profile mem-profile.dat \
+                            --memory-breakdown \
+                            --trace-file tracefiles/trace-0.dat opera opera+100000"""
                     // multiple trace files
-                //    sh """build/aida-sdb replay ${CARMEN} \
-                //            --vm-impl lfvm \
-                //            --db-tmp ${TMPDB} \
-                //            --aida-db ${AIDADB} \
-                //            --update-buffer-size ${PRIMEBUFFER} \
-                //            --shadow-db --db-shadow-impl geth \
-                //            --cpu-profile cpu-profile.dat \
-                //            --memory-profile mem-profile.dat \
-                //            --memory-breakdown \
-                //            --trace-dir tracefiles opera opera+300000"""
-                //}
+                    sh """build/aida-sdb replay ${CARMEN} \
+                            --vm-impl lfvm \
+                            --db-tmp ${TMPDB} \
+                            --aida-db ${AIDADB} \
+                            --update-buffer-size ${PRIMEBUFFER} \
+                            --shadow-db --db-shadow-impl geth \
+                            --cpu-profile cpu-profile.dat \
+                            --memory-profile mem-profile.dat \
+                            --memory-breakdown \
+                            --trace-dir tracefiles opera opera+300000"""
+                }
                 sh 'rm -rf tracefiles'
+            }
+        }
+
+        stage('prepare source db') {
+            steps {
+                sh 'rm -f *.cpuprofile *.memprofile *.log'
+
+                // download genesis
+                sh "mkdir -p $GENESISPATH"
+                script {
+                    // if genesis file does not exist, download it.
+                    if (!fileExists("${GENESISPATH}/${BUCKET}/genesis_live_${GENESISBLOCK}.dat")) {
+                        step([
+                            $class: 'DownloadStep',
+                            credentialsId: 'aida-jenkins-service-account',
+                            bucketUri: "${BUCKETURI}",
+                            localDirectory: "$GENESISPATH"
+                        ])
+                    }
+
+                    // if statedb_info.json does not exist, prepare src db from genesis.
+                    if (!fileExists("${TMPDB}/state_db_carmen_go-file/live/statedb_info.json")) {
+                        // prepare src db from genesis
+                        sh 'rm -rf ${TMPDB}/state_db_carmen_go-file'
+                        dir('carmen/go') {
+                            sh """go run ./database/mpt/tool import-live-db \
+                                    ${GENESISPATH}/${BUCKET}/genesis_live_${GENESISBLOCK}.dat \
+                                    ${TMPDB}/state_db_carmen_go-file/live"""
+                        }
+                        // create fake statedb_info.json
+                        def fake_statedb_info = [ "dbImpl": "carmen",
+                                                    "dbVariant": "go-file",
+                                                    "archiveMode": false,
+                                                    "archiveVariant": "",
+                                                    "schema": 5,
+                                                    "block": GENESISBLOCK.toInteger(),
+                                                    "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
+                                                    "gitCommit": "f5a5facf651ea08abf38c18ebd1d3a99b5ec5e8f",
+                                                    "createTimeUTC": "Wed Aug 14 06:14:05 UTC 2024"
+                                                    ]
+                        writeJSON file: "${TMPDB}/state_db_carmen_go-file/statedb_info.json", json: fake_statedb_info
+                    }
+                }
+                // show statedb_info.json
+                sh "cat ${TMPDB}/state_db_carmen_go-file/statedb_info.json"
             }
         }
 
         stage('aida-vm-sdb-carmen') {
             steps {
-                sh 'rm -f *.cpuprofile *.memprofile *.log'
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
                     script {
                         BLOCKS.tokenize(',').each { block ->;
-                            sh """build/aida-vm-sdb substate ${CARMEN} \
+                            (firstBlock, lastBlock) = calculateLastBlock(block, INTERVAL)
+                            def options = ""
+                            if (block == GENESISBLOCK) {
+                                // prepare stateDB from genesis
+                                echo "Prepare an additional option for using an existing stateDB"
+                                options = "--db-src ${TMPDB}/state_db_carmen_go-file/"
+                            }
+                            sh """build/aida-vm-sdb substate \
+                                    ${CARMEN} ${options}\
                                     --vm-impl lfvm \
                                     --db-tmp ${TMPDB} \
                                     --aida-db ${AIDADB} \
                                     --update-buffer-size ${PRIMEBUFFER} \
-                                    --validate-tx \
-                                    --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}-${block}.cpuprofile \
-                                    --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}-${block}.memprofile \
-                                    ${block} ${block}+${INTERVAL}"""
+                                    --validate-tx --validate-state-hash \
+                                    --cpu-profile ${BUILD_NUMBER}-${STAGE_NAME}-${block}.cpuprofile \
+                                    --memory-profile ${BUILD_NUMBER}-${STAGE_NAME}-${block}.memprofile \
+                                    ${firstBlock} ${lastBlock}"""
                         }
                     }
                 }
-
+                sh "rm -r $GENESISPATH"
                 uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log"])
             }
         }
@@ -155,9 +217,9 @@ pipeline {
                         --aida-db ${AIDADB} \
                         --update-buffer-size ${PRIMEBUFFER} \
                         --keep-db \
-                        --archive --archive-variant ldb \
-                        --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
-                        --memory-profile=${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
+                        --archive --archive-variant s5 \
+                        --cpu-profile ${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
+                        --memory-profile ${BUILD_NUMBER}-${STAGE_NAME}.memprofile \
                         43000000 44000000"""
                 }
 
@@ -173,7 +235,7 @@ pipeline {
                             --aida-db ${AIDADB} \
                             --workers 20 \
                             --db-src ${TMPDB}/state_db_carmen_go-file_44000000 \
-                            --cpu-profile=${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
+                            --cpu-profile ${BUILD_NUMBER}-${STAGE_NAME}.cpuprofile \
                             43000000 44000000"""
                 }
                 sh 'rm -fr ${TMPDB}/state_db_carmen_go-file_44000000'
@@ -188,4 +250,13 @@ pipeline {
             }
         }
     }
+}
+
+def calculateLastBlock(block, interval) {
+    if (block.isNumber()) {
+        numBlock = block.toInteger()
+        // start from block + 1, one block after the genesis block.
+        return [block.toInteger() + 1, block.toInteger() + interval.toInteger()]
+    }
+    return [block, "${block}+${interval}"]
 }
