@@ -9,7 +9,6 @@ pipeline {
 
     environment {
         GORACE = 'halt_on_error=1'
-        GOROOT = '/usr/lib/go-1.21/'
         GOGC = '50'
         GOMEMLIMIT = '60GiB'
         AIDADB = '/mnt/aida-db-central/aida-db'
