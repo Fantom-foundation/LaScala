@@ -185,7 +185,7 @@ pipeline {
                             def options = ""
                             if (block == GENESISBLOCK) {
                                 // prepare stateDB from genesis
-                                echo "Prepare an additoinal option for using an existing stateDB"
+                                echo "Prepare an additional option for using an existing stateDB"
                                 options = "--db-src ${TMPDB}/state_db_carmen_go-file/"
                             }
                             sh """build/aida-vm-sdb substate \
