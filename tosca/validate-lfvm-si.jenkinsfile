@@ -10,7 +10,6 @@ pipeline {
     }
 
     environment {
-        GOROOT = '/usr/lib/go-1.21/'
         GOGC = '50'
         GOMEMLIMIT = '60GiB'
     }
