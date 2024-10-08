@@ -1,7 +1,7 @@
 // P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests adn compare block receipts
 
 pipeline {
-    agent { node "sonic-statedb" }
+    agent { node "x86-4-32-archive" }
 
     options {
         timestamps ()
@@ -11,7 +11,7 @@ pipeline {
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
+        GOMEMLIMIT = '28GiB'
         SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
     }
 

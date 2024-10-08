@@ -4,17 +4,17 @@ def genesisUrl
 def genesis
 
 pipeline {
-    agent { node "db-small-nvme" }
+    agent { node "x86-4-32-m" }
 
     options {
         timestamps ()
-        timeout(time: 24, unit: 'HOURS')
+        timeout(time: 2, unit: 'DAYS')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
+        GOMEMLIMIT = '28GiB'
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"

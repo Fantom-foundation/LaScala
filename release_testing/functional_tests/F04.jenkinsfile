@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'db-large-nvme' }
+    agent { label 'x86-8-64-l' }
 
     options {
         timestamps ()
@@ -78,7 +78,7 @@ pipeline {
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl geth \
                                              --db-tmp /mnt/tmp-disk \
-                                             --aida-db /mnt/aida-db-central/aida-db \
+                                             --aida-db /mnt/aida-db-mainnet/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                              --workers=${Workers} \

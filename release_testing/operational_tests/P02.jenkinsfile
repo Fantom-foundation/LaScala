@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'db-small-ssd'}
+    agent {label 'x86-4-32-s'}
 
     options {
         timestamps ()
