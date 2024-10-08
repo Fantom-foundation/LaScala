@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'db-small-nvme' }
+    agent { label 'x86-8-64-m' }
 
     options {
         timestamps ()
@@ -12,13 +12,13 @@ pipeline {
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
+        GOMEMLIMIT = '60GiB'
 
         // Aida options
         CARMEN = '--db-impl carmen --db-variant go-file --carmen-schema 5'
         PRIMEBUFFER = '4096'
         TMPDB = '/mnt/tmp-disk'
-        AIDADB = '/mnt/aida-db-central/aida-db'
+        AIDADB = '/mnt/aida-db-mainnet/aida-db'
 
         // Genesis
         GENESISBLOCK = 70000000
