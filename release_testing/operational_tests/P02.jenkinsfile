@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'x86-4-32-s'}
+    agent {label 'x86-4-16-m'}
 
     options {
         timestamps ()
@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '60GiB'
+        GOMEMLIMIT = '12GiB'
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
