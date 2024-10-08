@@ -3,7 +3,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 1, unit: 'DAY') // expected: ~15h
+        timeout(time: 1, unit: 'DAYS') // expected: ~15h
         disableConcurrentBuilds(abortPrevious: false)
     }
 
