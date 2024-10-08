@@ -11,11 +11,6 @@ pipeline {
         disableConcurrentBuilds(abortPrevious: false)
     }
 
-    environment {
-        GOROOT = '/usr/lib/go-1.21/'
-        PATH = "${env.HOME}/.cargo/bin:${env.PATH}" //< rustc
-    }
-
     parameters {
         string(defaultValue: 'main', description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
     }
