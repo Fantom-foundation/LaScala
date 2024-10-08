@@ -82,7 +82,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-vm-sdb  substate --validate-tx --validate-state-hash \
                                          --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                         --vm-impl geth \
+                                         --vm-impl lfvm \
                                          --db-tmp /mnt/tmp-disk \
                                          --chainid 4002 \
                                          --aida-db /mnt/aida-db-testnet/aida-db \

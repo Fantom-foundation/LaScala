@@ -94,7 +94,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-vm-sdb  substate \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
-                                             --vm-impl geth \
+                                             --vm-impl lfvm \
                                              --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_N02"\
                                              --aida-db /mnt/aida-db-central/aida-db \
                                              --track-progress --no-heartbeat-logging \
@@ -138,10 +138,10 @@ pipeline {
                 sh "rm -f *_N04.cpuprofile *_N04.memprofile *_N04.log"
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh """build/aida-rpc --db-src=/mnt/tmp-disk/state_db_N02/ \
-                                         --rpc-recording=/mnt/aida-rpc-recordings/api-recording-2023-05-19_11-36.gz \
-                                         --vm-impl=geth \
-                                         --workers=${Workers} \
+                    sh """build/aida-rpc --db-src /mnt/tmp-disk/state_db_N02/ \
+                                         --rpc-recording /mnt/aida-rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --vm-impl lfvm \
+                                         --workers ${Workers} \
                                          --register-run ${RegisterRunPath} \
                                          --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N04' : RunId} \
                                          --cpu-profile ${BUILD_NUMBER}_N04.cpuprofile --memory-profile ${BUILD_NUMBER}_N04.memprofile \

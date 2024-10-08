@@ -128,7 +128,7 @@ pipeline {
                                             --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                             --db-tmp /mnt/tmp-disk \
                                             --shadow-db --db-shadow-impl geth \
-                                            --vm-impl geth \
+                                            --vm-impl lfvm \
                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                             ${file}"""
                         }
