@@ -11,7 +11,7 @@ pipeline {
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
+        GOMEMLIMIT = '60GiB'
         DATAROOTPATH="/mnt/tmp-disk"
         GENESISPATH="/mnt/tmp-disk/genesis"
         BUCKETURI="gs://aida-jenkins-genesis"
@@ -30,7 +30,7 @@ pipeline {
         string(defaultValue: "carmen-genesis-generator/74", description: "Genesis file URI.", name: "BucketPath")
         string(defaultValue: "60000000", description: "Genesis start block number. Leave empty to skip this stage.", name: "GenesisBlock")
         string(defaultValue: "", description: "Additional flags for aida-vm-sdb substate command", name: "CustomFlags")
-        string(defaultValue: "db-small-nvme", description: "Agent to build this job. Recommended are 'db-small-nvme' for shorter runs and 'db-large-nvme' for longer ones", name: "AgentLabel")
+        string(defaultValue: "x86-8-64-m", description: "Agent to build this job. Recommended are 'x86-8-64-m' for shorter runs and 'x86-8-64-l' for longer ones", name: "AgentLabel")
         booleanParam(defaultValue: true, description: 'Turn on/off transaction and state hash validation of aida-vm-sdb tool', name: 'Validate')
         booleanParam(defaultValue: true, description: 'Turn on/off archive mode of aida-vm-sdb tool', name: 'Archive')
     }
@@ -177,7 +177,7 @@ pipeline {
                                                  --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                                  --vm-impl lfvm \
                                                  --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_F02" \
-                                                 --aida-db /mnt/aida-db-central/aida-db \
+                                                 --aida-db /mnt/aida-db-mainnet/aida-db \
                                                  ${GenesisBlock.isEmpty() ? '' : srcDb} \
                                                  ${params.Archive ? archiveFlags : ''} \
                                                  --track-progress --no-heartbeat-logging \

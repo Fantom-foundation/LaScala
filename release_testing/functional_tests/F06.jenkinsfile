@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'db-small-nvme' }
+    agent { label 'x86-8-32-m' }
 
     options {
         timestamps ()
@@ -12,7 +12,7 @@ pipeline {
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
+        GOMEMLIMIT = '28GiB'
     }
 
     parameters {

@@ -96,7 +96,7 @@ pipeline {
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl lfvm \
                                              --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_N02"\
-                                             --aida-db /mnt/aida-db-central/aida-db \
+                                             --aida-db /mnt/aida-db-mainnet/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --archive --archive-variant s5 \
                                              --register-run ${RegisterRunPath} \

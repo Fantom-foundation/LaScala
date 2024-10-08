@@ -1,7 +1,7 @@
 // Test ethereum compliant data sets
 
 pipeline {
-    agent { label 'db-small-ssd' }
+    agent { label 'x86-4-16-s' }
 
     options {
         timestamps ()
@@ -11,7 +11,7 @@ pipeline {
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '60GiB'
+        GOMEMLIMIT = '12GiB'
         BLACKLIST = '''/mnt/tmp-disk/eth-tests/GeneralStateTests/stCodeCopyTest/ExtCodeCopyTests.json,\
             /mnt/tmp-disk/eth-tests/GeneralStateTests/stCreate2/CreateMessageRevertedOOGInInit.json,\
             /mnt/tmp-disk/eth-tests/GeneralStateTests/stEIP158Specific/EXTCODESIZE_toEpmty.json,\
