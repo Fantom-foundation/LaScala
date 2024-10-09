@@ -1,0 +1,102 @@
+// Runs unit tests of Sonic and go-ethereum-sonic
+
+pipeline {
+    agent { label 'x86-4-16-s' }
+
+    options {
+        timestamps ()
+        timeout(time: 2, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '12GiB'
+    }
+
+    parameters {
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'GoEthereumSonicVersion')
+    }
+
+    stages {
+        stage('Checkout and build') {
+            // Build stage of the pipeline, preparation and setup for the main stage should be done here
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                dir('sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${SonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                    )
+
+                    sh "go mod tidy"
+                    sh "make all"
+                }
+
+                dir('go-ethereum-sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${GoEthereumSonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/go-ethereum-sonic.git']]
+                    )
+
+                    sh "go mod tidy"
+                    sh "make all"
+                }
+            }
+        }
+
+        stage('Sonic unit test') {
+            steps {
+                sh 'echo "Running Sonic unit test stage"'
+
+                dir('sonic') {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh 'go test ./...'
+                    }
+                }
+            }
+        }
+
+        stage('go-ethereum-sonic unit test') {
+            steps {
+                sh 'echo "Running go-ethereum-sonic unit test stage"'
+
+                dir('go-ethereum-sonic') {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh 'go test ./...'
+                    }
+                }
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh 'echo "Running teardown stage"'
+
+                dir('sonic') {
+                    sh 'make clean'
+                }
+
+                dir('go-ethereum-sonic') {
+                    sh 'make clean'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}
