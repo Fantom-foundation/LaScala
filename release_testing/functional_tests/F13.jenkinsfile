@@ -1,7 +1,7 @@
 // Runs unit tests of Sonic and go-ethereum-sonic
 
 pipeline {
-    agent { label 'x86-4-16-s' }
+    agent { label 'x86-8-16-s' }
 
     options {
         timestamps ()
