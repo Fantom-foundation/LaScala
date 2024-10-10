@@ -14,9 +14,18 @@ pipeline {
     }
 
     stages {
-        stage('Run unit tests') {
+        stage('Run race detection unit tests') {
             steps {
                 build job: '/Carmen/Race-Detection', parameters: [
+                    string(name: 'AidaVersion', value: "${AidaVersion}"),
+                    string(name: 'CarmenVersion', value: "${CarmenVersion}")
+                ]
+            }
+        }
+
+        stage('Run stress unit tests') {
+            steps {
+                build job: '/Carmen/Stress-tests-unit', parameters: [
                     string(name: 'AidaVersion', value: "${AidaVersion}"),
                     string(name: 'CarmenVersion', value: "${CarmenVersion}")
                 ]
