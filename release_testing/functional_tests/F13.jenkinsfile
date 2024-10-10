@@ -3,7 +3,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 1, unit: 'HOUR') // expected ~5 minutes
+        timeout(time: 1, unit: 'HOURS') // expected ~5 minutes
     }
 
     environment {
