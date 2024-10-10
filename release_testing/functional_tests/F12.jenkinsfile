@@ -51,7 +51,7 @@ pipeline {
 
         stage('Sonic unit test') {
             steps {
-                sh 'echo "Running Sonic unit test stage"'
+                echo 'Running Sonic unit test stage'
 
                 dir('sonic') {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -63,7 +63,7 @@ pipeline {
 
         stage('go-ethereum-sonic unit test') {
             steps {
-                sh 'echo "Running go-ethereum-sonic unit test stage"'
+                echo 'Running go-ethereum-sonic unit test stage'
 
                 dir('go-ethereum-sonic') {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {

@@ -31,7 +31,7 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
         booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
         booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
-        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
+        booleanParam(defaultValue: true, description: 'If checked, F12 stage will be executed', name: 'RunF12')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
         booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
@@ -276,14 +276,14 @@ pipeline {
                     }
                 }
 
-                stage('F13 Sonic and go-ethereum-sonic Unit Tests') {
+                stage('F12 Sonic and go-ethereum-sonic Unit Tests') {
                     when {
                         expression {
-                            return params.RunF13;
+                            return params.RunF12;
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F13', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F12', parameters: [
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
                             string(name: 'GoEthereumSonicVersion', value: "${GO_ETHEREUM_SONIC_VERSION}")
                         ]
