@@ -1,0 +1,64 @@
+pipeline {
+    agent { label 'x86-4-16-s' }
+
+    options {
+        timestamps ()
+        timeout(time: 1, unit: 'HOUR') // expected ~5 minutes
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '12GiB'
+    }
+
+    parameters {
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LachesisBaseSonicVersion')
+    }
+
+    stages {
+        stage('Checkout and build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${LachesisBaseSonicVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/lachesis-base-sonic.git']]
+                )
+
+                sh 'go mod tidy'
+            }
+        }
+
+        stage('Lachesis-base-sonic unit test') {
+            steps {
+                echo 'Running lachesis-base-sonic unit test stage'
+
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh 'make test'
+                }
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                echo 'Running teardown stage'
+
+                sh 'make clean'
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}

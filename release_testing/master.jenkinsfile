@@ -8,6 +8,7 @@ pipeline {
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
         SONIC_VERSION = ''
+        LACHESIS_BASE_SONIC_VERSION = ''
         LASCALA_VERSION = ''
     }
 
@@ -29,6 +30,7 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
         booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
         booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
+        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
         booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
@@ -98,6 +100,21 @@ pipeline {
                             returnStdout: true
                         ).trim()
                         echo "Sonic branch last commit id: ${SONIC_VERSION}"
+                    }
+                }
+
+                dir('lachesis-base-sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${LachesisBaseSonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/lachesis-base-sonic.git']]
+                    )
+
+                    script {
+                       LACHESIS_BASE_SONIC_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "Lachesis-base-sonic branch last commit id: ${LACHESIS_BASE_SONIC_VERSION}"
                     }
                 }
 
@@ -254,6 +271,19 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('F13 Lachesis-base-sonic unit tests') {
+                    when {
+                        expression {
+                            return params.RunF13;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F13', parameters: [
+                            string(name: 'LachesisBaseSonicVersion', value: "${LACHESIS_BASE_SONIC_VERSION}")
                         ]
                     }
                 }
