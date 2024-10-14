@@ -1,5 +1,3 @@
-// Runs unit tests of Sonic and go-ethereum-sonic
-
 pipeline {
     agent { label 'x86-8-16-s' }
 
@@ -43,6 +41,7 @@ pipeline {
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/go-ethereum-sonic.git']]
                     )
 
+                    sh "git submodule update --init --recursive"
                     sh "go mod tidy"
                     sh "make all"
                 }
@@ -51,7 +50,7 @@ pipeline {
 
         stage('Sonic unit test') {
             steps {
-                echo 'Running Sonic unit test stage'
+                sh 'echo "Running Sonic unit test stage"'
 
                 dir('sonic') {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -63,11 +62,11 @@ pipeline {
 
         stage('go-ethereum-sonic unit test') {
             steps {
-                echo 'Running go-ethereum-sonic unit test stage'
+                sh 'echo "Running go-ethereum-sonic unit test stage"'
 
                 dir('go-ethereum-sonic') {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        sh 'go test ./...'
+                        sh 'go test ./... --timeout 1h'
                     }
                 }
             }
