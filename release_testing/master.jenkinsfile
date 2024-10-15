@@ -8,6 +8,7 @@ pipeline {
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
         SONIC_VERSION = ''
+        LACHESIS_BASE_SONIC_VERSION = ''
         GO_ETHEREUM_SONIC_VERSION = ''
         LASCALA_VERSION = ''
     }
@@ -35,6 +36,7 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F10 stage will be executed', name: 'RunF10')
         booleanParam(defaultValue: true, description: 'If checked, F11 stage will be executed', name: 'RunF11')
         booleanParam(defaultValue: true, description: 'If checked, F12 stage will be executed', name: 'RunF12')
+        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
         booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
@@ -107,6 +109,21 @@ pipeline {
                     }
                 }
 
+                dir('lachesis-base-sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${LachesisBaseSonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/lachesis-base-sonic.git']]
+                    )
+
+                    script {
+                       LACHESIS_BASE_SONIC_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "Lachesis-base-sonic branch last commit id: ${LACHESIS_BASE_SONIC_VERSION}"
+                    }
+                }
+                
                 dir('go-ethereum-sonic') {
                     checkout scmGit(
                         branches: [[name: "${GoEthereumSonicVersion}"]],
@@ -335,6 +352,19 @@ pipeline {
                         build job: '/ReleaseTesting/FunctionalTests/F12', parameters: [
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
                             string(name: 'GoEthereumSonicVersion', value: "${GO_ETHEREUM_SONIC_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('F13 Lachesis-base-sonic unit tests') {
+                    when {
+                        expression {
+                            return params.RunF13;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F13', parameters: [
+                            string(name: 'LachesisBaseSonicVersion', value: "${LACHESIS_BASE_SONIC_VERSION}")
                         ]
                     }
                 }
