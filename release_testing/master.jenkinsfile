@@ -9,6 +9,7 @@ pipeline {
         TOSCA_VERSION = ''
         SONIC_VERSION = ''
         LACHESIS_BASE_SONIC_VERSION = ''
+        GO_ETHEREUM_SONIC_VERSION = ''
         LASCALA_VERSION = ''
     }
 
@@ -20,6 +21,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'GoEthereumSonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
         string(defaultValue: "mainnet-latest-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
@@ -29,7 +31,11 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunF05')
         booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
         booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
+        booleanParam(defaultValue: true, description: 'If checked, F08 stage will be executed', name: 'RunF08')
         booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
+        booleanParam(defaultValue: true, description: 'If checked, F10 stage will be executed', name: 'RunF10')
+        booleanParam(defaultValue: true, description: 'If checked, F11 stage will be executed', name: 'RunF11')
+        booleanParam(defaultValue: true, description: 'If checked, F12 stage will be executed', name: 'RunF12')
         booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
@@ -115,6 +121,21 @@ pipeline {
                             returnStdout: true
                         ).trim()
                         echo "Lachesis-base-sonic branch last commit id: ${LACHESIS_BASE_SONIC_VERSION}"
+                    }
+                }
+                
+                dir('go-ethereum-sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${GoEthereumSonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/go-ethereum-sonic.git']]
+                    )
+
+                    script {
+                       GO_ETHEREUM_SONIC_VERSION = sh (
+                            script: 'git log -1 --pretty=format:"%H"',
+                            returnStdout: true
+                        ).trim()
+                        echo "Go-ethereum-sonic branch last commit id: ${GO_ETHEREUM_SONIC_VERSION}"
                     }
                 }
 
@@ -259,6 +280,20 @@ pipeline {
                     }
                 }
 
+                stage('F08 Carmen stress test') {
+                    when {
+                        expression {
+                            return params.RunF08;
+                        }
+                    }
+                    steps {
+                        build job: '/Carmen/Stress-tests-tool', parameters: [
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'Blocks', value: "100000")
+                        ]
+                    }
+                }
+
                 stage('F09 Carmen Unit and Integration Tests') {
                     when {
                         expression {
@@ -271,6 +306,52 @@ pipeline {
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}")
+                        ]
+                    }
+                }
+                
+                stage('F10 Carmen DB heal') {
+                    when {
+                        expression {
+                            return params.RunF10;
+                        }
+                    }
+                    steps {
+                        build job: '/Carmen/Validate-Db-Heal', parameters: [
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'NumberOfIterations', value: "1000"),
+                            string(name: 'Window', value: "1"),
+                            string(name: 'CheckpointGranularity', value: "1")
+                        ]
+                    }
+                }
+
+                stage('F11 Carmen verification of witness proof') {
+                    when {
+                        expression {
+                            return params.RunF11;
+                        }
+                    }
+                    steps {
+                        build job: '/Carmen/Validate-Witness-Proof', parameters: [
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'Blocks', value: "5000000")
+                        ]
+                    }
+                }
+
+                stage('F12 Sonic and go-ethereum-sonic Unit Tests') {
+                    when {
+                        expression {
+                            return params.RunF12;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F12', parameters: [
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
+                            string(name: 'GoEthereumSonicVersion', value: "${GO_ETHEREUM_SONIC_VERSION}")
                         ]
                     }
                 }
