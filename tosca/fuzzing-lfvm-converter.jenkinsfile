@@ -1,6 +1,6 @@
 // Runs Tosca Fuzzing Tests
 pipeline {
-    agent { label 'quick' }
+    agent { label 'fuzzing' }
 
     options {
         timestamps()
@@ -11,8 +11,34 @@ pipeline {
         disableConcurrentBuilds(abortPrevious: false)
     }
 
+    environment {
+        GOMEMLIMIT = '30GiB'
+        GOCACHE = '/mnt/tmp-disk/go-cache'
+    }
+
     parameters {
-        string(defaultValue: 'main', description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Can be either branch name or commit hash.'
+        )
+
+        booleanParam(
+            name: 'CleanCache',
+            defaultValue: false,
+            description: 'clean cache before running'
+        )
+    }
+
+    stage('clean-cache') {
+        when {
+            expression { return params.CleanCache }
+        }
+        steps {
+            script {
+                sh "rm -rf $GOCACHE"
+            }
+        }
     }
 
     stages {
@@ -23,7 +49,7 @@ pipeline {
                 }
 
                 checkout scmGit(
-                    branches: [[name: "$ToscaVersion"]],
+                    branches: [[name: params.ToscaVersion]],
                     userRemoteConfigs: [[
                         url: 'https://github.com/Fantom-foundation/Tosca.git'
                     ]]
