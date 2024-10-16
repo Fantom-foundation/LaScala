@@ -176,7 +176,7 @@ pipeline {
                         sh """build/aida-vm-sdb  substate ${params.Validate ? validationFlags : ''} \
                                                  --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                                  --vm-impl lfvm \
-                                                 --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_F02" \
+                                                 --db-tmp /mnt/tmp-disk \
                                                  --aida-db /mnt/aida-db-mainnet/aida-db \
                                                  ${GenesisBlock.isEmpty() ? '' : srcDb} \
                                                  ${params.Archive ? archiveFlags : ''} \
