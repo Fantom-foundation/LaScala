@@ -38,8 +38,9 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F12 stage will be executed', name: 'RunF12')
         booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
-        booleanParam(defaultValue: true, description: 'If checked, N02-N04 stage will be executed', name: 'RunN02N04')
+        booleanParam(defaultValue: true, description: 'If checked, N02 stage will be executed', name: 'RunN02')
         booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
+        booleanParam(defaultValue: true, description: 'If checked, N04 stage will be executed', name: 'RunN04')
         booleanParam(defaultValue: true, description: 'If checked, P01 stage will be executed', name: 'RunP01')
         booleanParam(defaultValue: true, description: 'If checked, P02 stage will be executed', name: 'RunP02')
         booleanParam(defaultValue: true, description: 'If checked, P03 stage will be executed', name: 'RunP03')
@@ -387,14 +388,14 @@ pipeline {
                     }
                 }
 
-                stage('N02/N04 block processing with archive-db and RPC request processing (mainnet)') {
+                stage('N02 block processing with archive-db') {
                     when {
                         expression {
-                            return params.RunN02N04;
+                            return params.RunN02;
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/NonfunctionalTests/N02-N04', parameters: [
+                        build job: '/ReleaseTesting/NonfunctionalTests/N02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
@@ -416,6 +417,25 @@ pipeline {
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'ArchiveQueryRate', value: "150"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
+                        ]
+                    }
+                }
+
+
+                stage('N04 RPC request processing (mainnet)') {
+                    when {
+                        expression {
+                            return params.RunN04;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/NonfunctionalTests/N04', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
