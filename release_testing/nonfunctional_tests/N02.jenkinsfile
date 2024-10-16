@@ -1,12 +1,12 @@
-// Measure transaction processing time while
+// Measure transaction processing time
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'dedicate' }
+    agent { node "dedicate" }
 
     options {
         timestamps ()
-        timeout(time: 14, unit: 'DAYS')
+        timeout(time: 12, unit: 'DAYS') // expected: 10 days
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -18,11 +18,11 @@ pipeline {
     parameters {
         string(defaultValue: "first", description: '', name: 'BlockFrom')
         string(defaultValue: "last", description: '', name: 'BlockTo')
-        string(defaultValue: "150", description: '', name: 'ArchiveQueryRate')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
     }
@@ -56,10 +56,10 @@ pipeline {
                         branches: [[name: "${ToscaVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
-                    
+
                     sh "git submodule update --recursive"
                 }
-                
+
                 dir('sonic') {
                     checkout scmGit(
                         branches: [[name: "${SonicVersion}"]],
@@ -72,9 +72,9 @@ pipeline {
             }
         }
 
-        stage('Test stage') {
+        stage('N02 stage') {
             steps {
-                sh 'echo "Running testing stage"'
+                sh 'echo "Running N02 stage"'
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 
@@ -84,34 +84,36 @@ pipeline {
                     sh """build/aida-vm-sdb  substate \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl lfvm \
-                                             --db-tmp /mnt/tmp-disk \
+                                             --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_N02"\
                                              --aida-db /mnt/aida-db-mainnet/aida-db \
                                              --track-progress --no-heartbeat-logging \
-                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
-                                             --archive --archive-variant s5 --archive-query-rate ${ArchiveQueryRate} \
+                                             --archive --archive-variant s5 \
                                              --register-run ${RegisterRunPath} \
-                                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
+                                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N02' : RunId} \
+                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                              ${BlockFrom} ${BlockTo}"""
                 }
             }
         }
 
         stage('Generate Report') {
-	        steps {
+            steps {
                 sh 'echo "Running report generation post-test"'
 
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
-                    ./scripts/analytics/rmd/knit.R \
-                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId}.db \
-                    ./scripts/analytics/rmd/f1.rmd \
-                    ./scripts/analytics/rmd"""
+                      ./scripts/analytics/rmd/knit.R \
+                      ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N02' : RunId}.db \
+                      ./scripts/analytics/rmd/f1.rmd \
+                      ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_N02.html'
             }
         }
 
         stage('Teardown') {
             steps {
+                sh 'echo "Running teardown stage"'
+
                 sh "make clean"
             }
         }
