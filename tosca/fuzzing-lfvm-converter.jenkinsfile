@@ -12,7 +12,6 @@ pipeline {
     }
 
     environment {
-        GOMEMLIMIT = '30GiB'
         GOCACHE = '/mnt/tmp-disk/go-cache'
     }
 
