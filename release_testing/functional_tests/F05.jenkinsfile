@@ -57,10 +57,10 @@ pipeline {
                         branches: [[name: "${ToscaVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
-                    
+
                     sh "git submodule update --recursive"
                 }
-                
+
                 dir('sonic') {
                     checkout scmGit(
                         branches: [[name: "${SonicVersion}"]],
@@ -84,7 +84,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-rpc --validate --continue-on-failure \
                                          --db-src ${SONICSTATEDB}/ \
-                                         --rpc-recording /mnt/aida-rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --rpc-recording /mnt/aida-rpc-recordings/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                          --vm-impl lfvm \
                                          --workers ${Workers} \
                                          --register-run ${RegisterRunPath} \

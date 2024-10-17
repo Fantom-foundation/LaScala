@@ -83,7 +83,7 @@ pipeline {
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-rpc --db-src ${SONICSTATEDB}/ \
-                                         --rpc-recording /mnt/aida-rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --rpc-recording /mnt/aida-rpc-recordings/rpc-recordings/api-recording-2023-05-19_11-36.gz \
                                          --vm-impl lfvm \
                                          --workers ${Workers} \
                                          --register-run ${RegisterRunPath} \
