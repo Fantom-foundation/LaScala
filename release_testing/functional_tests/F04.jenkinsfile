@@ -58,15 +58,9 @@ pipeline {
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
 
-                dir('tosca') {
-                    checkout scmGit(
-                        branches: [[name: "${ToscaVersion}"]],
-                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
-                    )
-                    
                     sh "git submodule update --recursive"
                 }
-                
+
                 dir('sonic') {
                     checkout scmGit(
                         branches: [[name: "${SonicVersion}"]],
