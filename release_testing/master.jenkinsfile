@@ -22,6 +22,7 @@ pipeline {
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'GoEthereumSonicVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LachesisBaseSonicVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
         string(defaultValue: "mainnet-latest-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
         booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
@@ -124,7 +125,7 @@ pipeline {
                         echo "Lachesis-base-sonic branch last commit id: ${LACHESIS_BASE_SONIC_VERSION}"
                     }
                 }
-                
+
                 dir('go-ethereum-sonic') {
                     checkout scmGit(
                         branches: [[name: "${GoEthereumSonicVersion}"]],
@@ -310,7 +311,7 @@ pipeline {
                         ]
                     }
                 }
-                
+
                 stage('F10 Carmen DB heal') {
                     when {
                         expression {
