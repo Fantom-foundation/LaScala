@@ -1,6 +1,6 @@
 // Runs Tosca Fuzzing Tests
 pipeline {
-    agent { label 'quick' }
+    agent { label 'fuzzing' }
 
     options {
         timestamps()
@@ -12,26 +12,39 @@ pipeline {
     }
 
     environment {
-        GOGC = '50'
-        GOMEMLIMIT = '30GiB'
-        GORACE = 'halt_on_error=1'
+        GOCACHE = '/mnt/tmp-disk/go-cache'
     }
 
     parameters {
         string(
+            name: 'ToscaVersion',
             defaultValue: 'main',
-            description: 'Can be either branch name or commit hash.',
-            name: 'ToscaVersion'
+            description: 'Can be either branch name or commit hash.'
         )
-
         choice(
             name: 'EntryPoint',
             choices: ['FuzzLfvm', 'FuzzGeth', 'FuzzDifferentialLfvmVsGeth'],
             description: 'Selects which fuzzer test function to start.'
         )
+
+        booleanParam(
+            name: 'CleanCache',
+            defaultValue: false, description: 'clean cache before running'
+        )
     }
 
     stages {
+        stage('clean-cache') {
+            when {
+                expression { return params.CleanCache }
+            }
+            steps {
+                script {
+                    sh "rm -rf $GOCACHE"
+                }
+            }
+        }
+
         stage('checkout') {
             steps {
                 script {
@@ -39,7 +52,7 @@ pipeline {
                 }
 
                 checkout scmGit(
-                    branches: [[name: "$ToscaVersion"]],
+                    branches: [[name: params.ToscaVersion]],
                     userRemoteConfigs: [[
                         url: 'https://github.com/Fantom-foundation/Tosca.git'
                     ]]
@@ -57,19 +70,9 @@ pipeline {
 
         stage('fuzzing-test') {
             steps {
-                script {
-                    // Calculate 2/3 of the available cores; this reduces the
-                    // memory usage, which led to test interruptions in the past.
-                    def totalCores = sh(script: 'nproc', returnStdout: true).trim().toInteger()
-                    def coresToUse = (totalCores * 2 / 3).toInteger()
-
-                    // Fuzzing time is set to 5 hours. Notice that pipeline timeout
-                    // is larger to accommodate for checkout, build, and test stages.
-                    def timeout = '5h'
-
-                    // Run the fuzzing tests
-                    sh "go test -fuzz=${EntryPoint} ./go/ct -fuzztime ${timeout} -parallel ${coresToUse}"
-                }
+                // Fuzzing time is set to 5 hours. Notice that pipeline timeout
+                // is larger to accommodate for checkout, build, and test stages.
+                sh "go test -fuzz=${EntryPoint} ./go/ct -fuzztime 5h"
             }
 
             post {
