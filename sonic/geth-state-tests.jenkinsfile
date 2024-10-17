@@ -63,7 +63,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh "go mod tidy"
-                sh "make -j aida-vm-sdb"
+                sh "make aida-vm-sdb"
             }
         }
         stage('GethDB+GethVM') {
