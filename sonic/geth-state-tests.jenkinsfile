@@ -3,7 +3,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout (time: 3, unit: 'HOURS') // ~3h
+        timeout (time: 4, unit: 'HOURS') // ~2.5h
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -68,22 +68,22 @@ pipeline {
         }
         stage('GethDB+GethVM') {
             steps {
-                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
             }
         }
         stage('Carmen+GethVM') {
             steps {
-                sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+                sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
             }
         }
         stage('GethDB+LFVM') {
             steps {
-                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
             }
         }
         stage('Carmen+LFVM') {
             steps {
-                 sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+                 sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
             }
         }
     }
