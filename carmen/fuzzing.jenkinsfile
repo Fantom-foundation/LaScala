@@ -65,6 +65,11 @@ pipeline {
                         unstash 'source'
                         sh 'cd go && go test ./common -fuzztime 3h -fuzz=FuzzMapOperations'
                     }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/common/testdata/fuzz/FuzzMapOperations/*"
+                        }
+                    }
                 }
                 stage('Fuzzing NWays Cache') {
                     agent {label 'quick'}
@@ -72,6 +77,11 @@ pipeline {
                         deleteDir()
                         unstash 'source'
                         sh 'cd go && go test ./common/ -fuzztime 3h -fuzz FuzzLruCache_RandomOps'
+                    }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/common/testdata/fuzz/FuzzLruCache_RandomOps/*"
+                        }
                     }
                 }
                 stage('Fuzzing LRU Cache') {
@@ -81,6 +91,11 @@ pipeline {
                         unstash 'source'
                         sh 'cd go && go test ./common/ -fuzztime 3h -fuzz FuzzNWays_RandomOps'
                     }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/common/testdata/fuzz/FuzzNWays_RandomOps/*"
+                        }
+                    }
                 }
                 stage('Fuzzing Buffered File') {
                     agent {label 'quick'}
@@ -88,6 +103,11 @@ pipeline {
                         deleteDir()
                         unstash 'source'
                         sh 'cd go && go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_RandomOps'
+                    }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/backend/utils/testdata/fuzz/FuzzBufferedFile_RandomOps/*"
+                        }
                     }
                 }
                 stage('Fuzzing Buffered File - data') {
@@ -97,6 +117,11 @@ pipeline {
                         unstash 'source'
                         sh 'cd go && go test ./backend/utils -fuzztime 3h -fuzz FuzzBufferedFile_ReadWrite'
                     }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/backend/utils/testdata/fuzz/FuzzBufferedFile_ReadWrite/*"
+                        }
+                    }
                 }
                 stage('Fuzzing Stack') {
                     agent {label 'quick'}
@@ -104,6 +129,11 @@ pipeline {
                         deleteDir()
                         unstash 'source'
                         sh 'cd go && go test ./backend/stock/file -fuzztime 3h -fuzz FuzzStack_RandomOps'
+                    }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/backend/stock/file/testdata/fuzz/FuzzStack_RandomOps/*"
+                        }
                     }
                 }                
                 stage('Fuzzing Stock - file') {
@@ -113,6 +143,11 @@ pipeline {
                         unstash 'source'
                         sh 'cd go && go test ./backend/stock/file -fuzztime 3h -fuzz FuzzFileStock_RandomOps'
                     }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/backend/stock/file/testdata/fuzz/FuzzFileStock_RandomOps/*"
+                        }
+                    }
                 }                  
                 stage('Fuzzing Stock - synced') {
                     agent {label 'quick'}
@@ -120,6 +155,11 @@ pipeline {
                         deleteDir()
                         unstash 'source'
                         sh 'cd go && go test ./backend/stock/memory -fuzztime 3h -fuzz FuzzSyncStock_RandomOps'
+                    }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/backend/stock/memory/testdata/fuzz/FuzzSyncStock_RandomOps/*"
+                        }
                     }
                 }
                 stage('Fuzzing Live MPT - Accounts') {
@@ -129,6 +169,11 @@ pipeline {
                         unstash 'source'
                         sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountOps'
                     }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/database/mpt/testdata/fuzz/FuzzLiveTrie_RandomAccountOps/*"
+                        }
+                    }
                 }  
                 stage('Fuzzing Live MPT - Storage') {
                     agent {label 'quick'}
@@ -136,6 +181,11 @@ pipeline {
                         deleteDir()
                         unstash 'source'
                         sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzLiveTrie_RandomAccountStorageOps'
+                    }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/database/mpt/testdata/fuzz/FuzzLiveTrie_RandomAccountStorageOps/*"
+                        }
                     }
                 }                  
                 stage('Fuzzing Archive MPT - Accounts') {
@@ -145,6 +195,11 @@ pipeline {
                         unstash 'source'
                         sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountOps'
                     }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/database/mpt/testdata/fuzz/FuzzArchiveTrie_RandomAccountOps/*"
+                        }
+                    }
                 }
                 stage('Fuzzing Archive MPT - Storage') {
                     agent {label 'quick'}
@@ -152,6 +207,11 @@ pipeline {
                         deleteDir()
                         unstash 'source'
                         sh 'cd go && go test ./database/mpt/ -fuzztime 3h -fuzz FuzzArchiveTrie_RandomAccountStorageOps'
+                    }
+                    post {
+                       failure {
+                            archiveArtifacts artifacts: "go/database/mpt/testdata/fuzz/FuzzArchiveTrie_RandomAccountStorageOps/*"
+                        }
                     }
                 }
             }
