@@ -5,7 +5,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'DAYS') // expected ~14h
+        timeout(time: 2, unit: 'DAYS') // expected ~15h for the default substateDB
     }
 
     environment {
