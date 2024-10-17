@@ -6,8 +6,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 1, unit: 'DAYS') // expected: 10 hours
-        disableConcurrentBuilds(abortPrevious: false)
+        timeout(time: 2, unit: 'DAYS') // expected: 10 hours
     }
 
     environment {
@@ -17,15 +16,16 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "62663622", description: '', name: 'BlockFrom')
+        string(defaultValue: "58108620", description: '', name: 'BlockFrom')
         string(defaultValue: "63216776", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "02b3875e2b5bfbca7fde57253284dce4162714f2", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+        string(defaultValue: "", description: 'RPC recording file. Leave empty for whole directory iteration', name: 'RpcRecording')
     }
 
     stages {
@@ -69,7 +69,7 @@ pipeline {
                 }
 
                 sh "go mod tidy"
-                sh "make all"
+                sh "make aida-rpc"
             }
         }
 
@@ -84,7 +84,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-rpc --validate --continue-on-failure \
                                          --db-src ${SONICSTATEDB}/ \
-                                         --rpc-recording /mnt/aida-rpc-recordings/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --rpc-recording /mnt/aida-rpc-recordings/rpc-recordings/${RpcRecording} \
                                          --vm-impl lfvm \
                                          --workers ${Workers} \
                                          --register-run ${RegisterRunPath} \

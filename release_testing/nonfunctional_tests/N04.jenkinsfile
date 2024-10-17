@@ -1,4 +1,4 @@
-// Measure transaction processing time
+// Test functional correctness of live-db using mainnet and aida-rpc tool
 @Library('shared-library') _
 
 pipeline {
@@ -6,8 +6,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 1, unit: 'DAYS') // expected: 10 days
-        disableConcurrentBuilds(abortPrevious: false)
+        timeout(time: 2, unit: 'DAYS') // expected: 10 hours
     }
 
     environment {
@@ -17,19 +16,20 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "62663622", description: '', name: 'BlockFrom')
+        string(defaultValue: "58108620", description: '', name: 'BlockFrom')
         string(defaultValue: "63216776", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "02b3875e2b5bfbca7fde57253284dce4162714f2", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+        string(defaultValue: "", description: 'RPC recording file. Leave empty for whole directory iteration', name: 'RpcRecording')
     }
 
     stages {
-        stage('Build') {
+        stage('Build and preparation') {
             steps {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
@@ -69,7 +69,7 @@ pipeline {
                 }
 
                 sh "go mod tidy"
-                sh "make all"
+                sh "make aida-rpc"
             }
         }
 
@@ -77,13 +77,13 @@ pipeline {
             steps {
                 sh 'echo "Running N04 stage"'
 
-                sh "rm -f *.cpuprofile *.memprofile *.log"
-
                 sh "mkdir -p ${RegisterRunPath}"
+
+                sh "rm -f *_N04.cpuprofile *_N04.memprofile *_N04.log"
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh """build/aida-rpc --db-src ${SONICSTATEDB}/ \
-                                         --rpc-recording /mnt/aida-rpc-recordings/rpc-recordings/api-recording-2023-05-19_11-36.gz \
+                                         --rpc-recording /mnt/aida-rpc-recordings/rpc-recordings/${RpcRecording} \
                                          --vm-impl lfvm \
                                          --workers ${Workers} \
                                          --register-run ${RegisterRunPath} \
@@ -104,7 +104,7 @@ pipeline {
                     ./scripts/analytics/rmd/aida-rpc.rmd \
                     ./scripts/analytics/rmd"""
 
-                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_N04.html'
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
 
