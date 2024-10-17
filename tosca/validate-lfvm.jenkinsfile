@@ -1,17 +1,16 @@
 // Validate Substate using the Tosca LFVM implementation
 
 pipeline {
-    agent { label 'db-small-ssd' }
+    agent { label 'x86-16-32-s' }
 
     options {
         timestamps ()
         timeout(time: 2, unit: 'DAYS') // expected ~14h
-        disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
         GOGC = '50'
-        GOMEMLIMIT = '60GiB'
+        GOMEMLIMIT = '28GiB'
     }
 
     parameters {
@@ -19,6 +18,8 @@ pipeline {
         string(defaultValue: "last", description: '', name: 'BlockTo')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(defaultValue: "/mnt/aida-db-mainnet/aida-db", description: 'Path to a substate DB', name: 'SubstateDB')
+        string(defaultValue: "250", description: 'Path to a substate DB', name: 'ChainID')
     }
 
     stages {
@@ -51,9 +52,8 @@ pipeline {
 
         stage('validate') {
             steps {
-                sh "rm -f *.cpuprofile *.memprofile *.log"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh "build/aida-vm --workers 20 --aida-db /mnt/aida-db-central/aida-db --vm-impl lfvm --validate-tx ${BlockFrom} ${BlockTo}"
+                    sh "build/aida-vm --workers 20 --aida-db ${SubstateDB} --chainid ${ChainID} --vm-impl lfvm --validate-tx ${BlockFrom} ${BlockTo}"
                 }
             }
         }
