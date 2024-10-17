@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'db-small-nvme' }
+    agent { label 'dedicate' }
 
     options {
         timestamps ()

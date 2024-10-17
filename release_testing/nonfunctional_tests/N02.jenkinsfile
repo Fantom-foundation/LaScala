@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label "db-large-nvme" }
+    agent { node "dedicate" }
 
     options {
         timestamps ()
@@ -25,8 +25,6 @@ pipeline {
         string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
-        booleanParam(defaultValue: true, description: 'If checked, N02 stage will be executed', name: 'RunN02')
-        booleanParam(defaultValue: true, description: 'If checked, N04 stage will be executed', name: 'RunN04')
     }
 
     stages {
@@ -58,10 +56,10 @@ pipeline {
                         branches: [[name: "${ToscaVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
                     )
-                    
+
                     sh "git submodule update --recursive"
                 }
-                
+
                 dir('sonic') {
                     checkout scmGit(
                         branches: [[name: "${SonicVersion}"]],
@@ -75,19 +73,10 @@ pipeline {
         }
 
         stage('N02 stage') {
-            when {
-                expression {
-                    return params.RunN02;
-                }
-            }
             steps {
                 sh 'echo "Running N02 stage"'
 
-                sh "rm -f *_N02.cpuprofile *_N02.memprofile *.log"
-
-                sh 'echo "Removing old state db with archive"'
-
-                sh "rm -rf /mnt/tmp-disk/state_db_N02"
+                sh "rm -f *.cpuprofile *.memprofile *.log"
 
                 sh "mkdir -p ${RegisterRunPath}"
 
@@ -95,27 +84,22 @@ pipeline {
                     sh """build/aida-vm-sdb  substate \
                                              --db-impl carmen --db-variant go-file --carmen-schema 5 \
                                              --vm-impl lfvm \
-                                             --db-tmp /mnt/tmp-disk --keep-db --custom-db-name="state_db_N02"\
+                                             --db-tmp /mnt/tmp-disk \
                                              --aida-db /mnt/aida-db-mainnet/aida-db \
                                              --track-progress --no-heartbeat-logging \
                                              --archive --archive-variant s5 \
                                              --register-run ${RegisterRunPath} \
                                              --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N02' : RunId} \
-                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}_N02.cpuprofile --memory-profile ${BUILD_NUMBER}_N02.memprofile \
+                                             --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                              ${BlockFrom} ${BlockTo}"""
                 }
             }
         }
 
-        stage('Generate Report N02') {
-            when {
-                expression {
-                    return params.RunN02;
-                }
-            }
+        stage('Generate Report') {
             steps {
                 sh 'echo "Running report generation post-test"'
-		    
+
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                       ./scripts/analytics/rmd/knit.R \
                       ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N02' : RunId}.db \
@@ -123,49 +107,6 @@ pipeline {
                       ./scripts/analytics/rmd"""
 
                 sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_N02.html'
-            }
-        }
-
-        stage('N04 stage') {
-            when {
-                expression {
-                    return params.RunN04;
-                }
-            }
-            steps {
-                sh 'echo "Running N04 stage"'
-
-                sh "rm -f *_N04.cpuprofile *_N04.memprofile *_N04.log"
-
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh """build/aida-rpc --db-src /mnt/tmp-disk/state_db_N02/ \
-                                         --rpc-recording /mnt/aida-rpc-recordings/api-recording-2023-05-19_11-36.gz \
-                                         --vm-impl lfvm \
-                                         --workers ${Workers} \
-                                         --register-run ${RegisterRunPath} \
-                                         --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_N04' : RunId} \
-                                         --cpu-profile ${BUILD_NUMBER}_N04.cpuprofile --memory-profile ${BUILD_NUMBER}_N04.memprofile \
-                                         62663622 63216776"""
-                }
-            }
-        }
-
-        stage('Generate Report N04') {
-            when {
-                expression {
-                    return params.RunN04;
-                }
-            }
-            steps {
-                sh 'echo "Running report generation post-test"'
-		    
-                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
-                    ./scripts/analytics/rmd/knit.R \
-                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_N04' : RunId}.db \
-                    ./scripts/analytics/rmd/aida-rpc.rmd \
-                    ./scripts/analytics/rmd"""
-
-                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_N04.html'
             }
         }
 
