@@ -14,12 +14,36 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "first", description: '', name: 'BlockFrom')
-        string(defaultValue: "last", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "/mnt/aida-db-mainnet/aida-db", description: 'Path to a substate DB', name: 'SubstateDB')
-        string(defaultValue: "250", description: 'Path to a substate DB', name: 'ChainID')
+        string(
+            name: 'BlockFrom',
+            defaultValue: "first",
+            description: ''
+        )
+        string(
+            name: 'BlockTo',
+            defaultValue: "last",
+            description: ''
+        )
+        string(
+            name: 'AidaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Aida'
+        )
+        string(
+            name: 'ToscaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Tosca'
+        )
+        string(
+            name: 'SubstateDB',
+            defaultValue: "/mnt/aida-db-mainnet/aida-db",
+            description: 'Path to a substate DB'
+        )
+        string(
+            name: 'ChainID',
+            defaultValue: "250",
+            description: 'Chain ID of corresponding substate DB'
+        )
     }
 
     stages {
