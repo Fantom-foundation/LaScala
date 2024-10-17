@@ -3,7 +3,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout (time: 1, unit: 'HOURS') // ~ 40min
+        timeout (time: 3, unit: 'HOURS') // ~3h
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -15,9 +15,9 @@ pipeline {
     }
 
      parameters {
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: 'main', description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
+        string(name: 'AidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'CarmenVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'ToscaVersion', defaultValue: 'main', description: 'Can be either branch name or commit hash.')
     }
 
 
@@ -51,8 +51,10 @@ pipeline {
                 }
 
                 dir('eth-test-package') {
-                    sh "rm -rf ${env.WORKSPACE}/eth-test-package/tests"
-                    sh "git clone https://github.com/ethereum/tests"
+                    checkout scmGit(
+                        branches: [[name: "develop"]],
+                        userRemoteConfigs: [[url: 'https://github.com/ethereum/tests.git']]
+                    )
                 }
             }
         }
@@ -64,29 +66,24 @@ pipeline {
                 sh "make -j aida-vm-sdb"
             }
         }
-
-        stage('Start parallel stage execution') {
-            parallel {
-                stage('GethDB+GethVM') {
-                    steps {
-                        sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl geth --db-tmp  ${params.tmpDb} ${env.WORKSPACE}/eth-test-package/tests"
-                    }
-                }
-                stage('CarmenDB+GethVM') {
-                    steps {
-                        sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl geth --db-tmp  ${params.tmpDb} ${env.WORKSPACE}/eth-test-package/tests"
-                    }
-                }
-                stage('GethDB+LFVM') {
-                    steps {
-                        sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl lfvm --db-tmp  ${params.tmpDb} ${env.WORKSPACE}/eth-test-package/tests"
-                    }
-                }
-                stage('CarmenDB+LFVM') {
-                    steps {
-                         sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl lfvm --db-tmp  ${params.tmpDb} ${env.WORKSPACE}/eth-test-package/tests"
-                    }
-                }
+        stage('GethDB+GethVM') {
+            steps {
+                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+            }
+        }
+        stage('Carmen+GethVM') {
+            steps {
+                sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+            }
+        }
+        stage('GethDB+LFVM') {
+            steps {
+                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
+            }
+        }
+        stage('Carmen+LFVM') {
+            steps {
+                 sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package/tests"
             }
         }
     }
