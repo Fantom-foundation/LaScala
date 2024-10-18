@@ -15,12 +15,12 @@ pipeline {
     stages {
         stage('Start parallel stage execution') {
             parallel {
-                stage('F02 block processing (mainnet) 15m-30m') {
+                stage('F02 block processing (mainnet) 0-15m') {
                     steps {
                         build job: '/ReleaseTesting/Experimental/F02/F02', parameters: [
-                            string(name: 'BlockFrom', value: "15000001"),
-                            string(name: 'BlockTo', value: "30000000"),
-                            string(name: 'GenesisBlock', value: "15000000"),
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "15000000"),
+                            string(name: 'GenesisBlock', value: ""),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}"),
@@ -29,13 +29,12 @@ pipeline {
                     }
                 }
 
-                stage('F02 block processing (mainnet) 30m-50m') {
+                stage('F02 block processing (mainnet) 15m-30m') {
                     steps {
                         build job: '/ReleaseTesting/Experimental/F02/F02', parameters: [
-                            string(name: 'BlockFrom', value: "30000001"),
-                            string(name: 'BlockTo', value: "50000000"),
-                            string(name: 'GenesisBlock', value: "30000000"),
-                            string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
+                            string(name: 'BlockFrom', value: "15000001"),
+                            string(name: 'BlockTo', value: "30000000"),
+                            string(name: 'GenesisBlock', value: "15000000"),
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}"),
