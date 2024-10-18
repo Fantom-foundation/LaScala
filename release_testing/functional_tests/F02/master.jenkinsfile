@@ -17,7 +17,7 @@ pipeline {
             parallel {
                 stage('F02 block processing (mainnet) 0-15m') {
                     steps {
-                        build job: '/ReleaseTesting/Experimental/F02/F02', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "15000000"),
                             string(name: 'GenesisBlock', value: ""),
@@ -31,7 +31,7 @@ pipeline {
 
                 stage('F02 block processing (mainnet) 15m-30m') {
                     steps {
-                        build job: '/ReleaseTesting/Experimental/F02/F02', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
                             string(name: 'BlockFrom', value: "15000001"),
                             string(name: 'BlockTo', value: "30000000"),
                             string(name: 'GenesisBlock', value: "15000000"),
