@@ -24,6 +24,7 @@ pipeline {
         AIDA_VERSION = ''
         CARMEN_VERSION  = ''
         TOSCA_VERSION = ''
+        GOCACHE = '/mnt/tmp-disk/go-cache'
     }
 
     parameters {
@@ -59,7 +60,7 @@ pipeline {
         stage('Fuzzing') {
             parallel {
                 stage('FastMap') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -67,7 +68,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing NWays Cache') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -75,7 +76,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing LRU Cache') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -83,7 +84,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing Buffered File') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -91,7 +92,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing Buffered File - data') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -99,7 +100,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing Stack') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -107,7 +108,7 @@ pipeline {
                     }
                 }                
                 stage('Fuzzing Stock - file') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -115,7 +116,7 @@ pipeline {
                     }
                 }                  
                 stage('Fuzzing Stock - synced') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -123,7 +124,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing Live MPT - Accounts') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -131,7 +132,7 @@ pipeline {
                     }
                 }  
                 stage('Fuzzing Live MPT - Storage') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -139,7 +140,7 @@ pipeline {
                     }
                 }                  
                 stage('Fuzzing Archive MPT - Accounts') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
@@ -147,7 +148,7 @@ pipeline {
                     }
                 }
                 stage('Fuzzing Archive MPT - Storage') {
-                    agent {label 'quick'}
+                    agent {label 'fuzzing'}
                     steps {
                         deleteDir()
                         unstash 'source'
