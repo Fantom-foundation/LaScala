@@ -18,10 +18,10 @@ pipeline {
     parameters {
         string(defaultValue: "58108620", description: '', name: 'BlockFrom')
         string(defaultValue: "63216776", description: '', name: 'BlockTo')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "02b3875e2b5bfbca7fde57253284dce4162714f2", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
         string(defaultValue: "40", description: '', name: 'Workers')
         string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
         string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
