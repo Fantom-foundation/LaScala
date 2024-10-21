@@ -38,6 +38,9 @@ pipeline {
         booleanParam(defaultValue: true, description: 'If checked, F11 stage will be executed', name: 'RunF11')
         booleanParam(defaultValue: true, description: 'If checked, F12 stage will be executed', name: 'RunF12')
         booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
+        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF17')
+        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF18')
+        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF19')
         booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
         booleanParam(defaultValue: true, description: 'If checked, N02 stage will be executed', name: 'RunN02')
         booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
@@ -367,6 +370,62 @@ pipeline {
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F13', parameters: [
                             string(name: 'LachesisBaseSonicVersion', value: "${LACHESIS_BASE_SONIC_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('F17 Validate LFVM on testnet substate') {
+                    when {
+                        expression {
+                            return params.RunF17;
+                        }
+                    }
+                    steps {
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-db-testnet/aida-db"),
+                            string(name: 'ChainID', value: "4002")
+                        ]
+                    }
+                }
+
+                stage('F18 Validate LFVM on mainnet substate') {
+                    when {
+                        expression {
+                            return params.RunF18;
+                        }
+                    }
+                    steps {
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-db-mainnet/aida-db"),
+                            string(name: 'ChainID', value: "250")
+                        ]
+                    }
+                }
+
+                stage('F19 Validate LFVM on mainnet substate') {
+                    when {
+                        expression {
+                            return params.RunF19;
+                        }
+                    }
+                    steps {
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-ethereum-substate-db/ethereum-substate-db"),
+                            string(name: 'ChainID', value: "1"),
+                            string(name: 'EvmImplementation', value: "ethereum"),
+                            string(name: 'AgentLabel', value: "x86-16-64-s-ethereum-substate")
                         ]
                     }
                 }

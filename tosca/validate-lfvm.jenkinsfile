@@ -1,7 +1,7 @@
 // Validate Substate using the Tosca LFVM implementation
 
 pipeline {
-    agent { label 'x86-16-32-s' }
+    agent { label params.AgentLabel }
 
     options {
         timestamps ()
@@ -44,6 +44,16 @@ pipeline {
             defaultValue: "250",
             description: 'Chain ID of corresponding substate DB'
         )
+        string(
+            name: 'EvmImplementation',
+            defaultValue: "opera",
+            description: 'Path to a substate DB'
+        )
+        string(
+            name: "AgentLabel",
+            defaultValue: "x86-16-32-s",
+            description: 'Agent to build this job. Recommended are "x86-16-32-s" for mainnet or testnet substate and "x86-16-64-s-ethereum-substate" for ethereum substate'
+        )
     }
 
     stages {
@@ -77,7 +87,7 @@ pipeline {
         stage('validate') {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh "build/aida-vm --workers 20 --aida-db ${SubstateDB} --chainid ${ChainID} --vm-impl lfvm --validate-tx ${BlockFrom} ${BlockTo}"
+                    sh "build/aida-vm --workers 20 --aida-db ${SubstateDB} --chainid ${ChainID} --evm-impl ${EvmImplementation} --vm-impl lfvm --validate-tx ${BlockFrom} ${BlockTo}"
                 }
             }
         }
