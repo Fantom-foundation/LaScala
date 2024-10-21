@@ -10,7 +10,7 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
-	    TMPDB = '/mnt/tmp-disk'
+        TMPDB = '/mnt/tmp-disk'
     }
 
      parameters {
