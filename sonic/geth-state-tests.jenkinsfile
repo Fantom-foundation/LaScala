@@ -10,7 +10,6 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
-        AIDADB = '/mnt/aida-db-central/aida-db'
 	    TMPDB = '/mnt/tmp-disk'
     }
 
@@ -58,7 +57,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Build') {
             steps {
