@@ -374,7 +374,7 @@ pipeline {
                     }
                 }
 
-                stage('F17 Validate LFVM on testnet substate') {
+                stage('F17 Validate LFVM on opera testnet substate') {
                     when {
                         expression {
                             return params.RunF17;
@@ -392,7 +392,7 @@ pipeline {
                     }
                 }
 
-                stage('F18 Validate LFVM on mainnet substate') {
+                stage('F18 Validate LFVM on opera mainnet substate') {
                     when {
                         expression {
                             return params.RunF18;
@@ -410,7 +410,7 @@ pipeline {
                     }
                 }
 
-                stage('F19 Validate LFVM on mainnet substate') {
+                stage('F19 Validate LFVM on ethereum mainnet substate') {
                     when {
                         expression {
                             return params.RunF19;
