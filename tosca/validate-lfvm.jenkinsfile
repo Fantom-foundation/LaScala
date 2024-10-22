@@ -17,12 +17,12 @@ pipeline {
         string(
             name: 'BlockFrom',
             defaultValue: "first",
-            description: ''
+            description: 'Starting block'
         )
         string(
             name: 'BlockTo',
             defaultValue: "last",
-            description: ''
+            description: 'Ending block'
         )
         string(
             name: 'AidaVersion',
@@ -87,7 +87,7 @@ pipeline {
         stage('validate') {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh "build/aida-vm --workers 20 --aida-db ${SubstateDB} --chainid ${ChainID} --evm-impl ${EvmImplementation} --vm-impl lfvm --validate-tx ${BlockFrom} ${BlockTo}"
+                    sh "build/aida-vm --workers 20 --aida-db ${SubstateDB} --chainid ${ChainID} --evm-impl ${EvmImplementation} ${params.EvmImplementation == 'ethereum' ? '--substate-encoding pb' : ''} --vm-impl lfvm --validate-tx ${BlockFrom} ${BlockTo}"
                 }
             }
         }
