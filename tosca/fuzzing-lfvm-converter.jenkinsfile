@@ -29,18 +29,18 @@ pipeline {
         )
     }
 
-    stage('clean-cache') {
-        when {
-            expression { return params.CleanCache }
-        }
-        steps {
-            script {
-                sh "rm -rf $GOCACHE"
+    stages {
+        stage('clean-cache') {
+            when {
+                expression { return params.CleanCache }
+            }
+            steps {
+                script {
+                    sh "rm -rf $GOCACHE"
+                }
             }
         }
-    }
 
-    stages {
         stage('checkout') {
             steps {
                 script {
