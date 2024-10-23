@@ -6,7 +6,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'DAYS') // expected: 10 hours
+        timeout(time: 3, unit: 'DAYS') // expected: 24 hours
     }
 
     environment {
@@ -17,8 +17,8 @@ pipeline {
 
     parameters {
         string(defaultValue: "58108620", description: '', name: 'BlockFrom')
-        string(defaultValue: "63216776", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
+        string(defaultValue: "75000000", description: '', name: 'BlockTo')
+        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
         string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
