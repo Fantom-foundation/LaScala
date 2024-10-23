@@ -23,9 +23,21 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "", description: 'Name of the genesis file to download', name: 'Genesis')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
+        string(
+            name: 'Genesis',
+            defaultValue: "",
+            description: 'Name of the genesis file to download'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'LaScalaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for LaScala'
+        )
     }
 
     stages {
@@ -103,7 +115,7 @@ pipeline {
         stage('Create DB from genesis') {
            steps {
                // create db from a genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${genesis} "
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${genesis}"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }

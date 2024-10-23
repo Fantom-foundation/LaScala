@@ -20,7 +20,11 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
+        string(
+            name: 'SonicVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Sonic'
+        )
     }
 
     stages {

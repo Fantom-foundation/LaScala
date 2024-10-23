@@ -18,21 +18,81 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "first", description: '', name: 'BlockFrom')
-        string(defaultValue: "last", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
-        string(defaultValue: "40", description: '', name: 'Workers')
-        string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
-        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
-        string(defaultValue: "carmen-genesis-generator/74", description: "Genesis file URI.", name: "BucketPath")
-        string(defaultValue: "60000000", description: "Genesis start block number. Leave empty to skip this stage.", name: "GenesisBlock")
-        string(defaultValue: "", description: "Additional flags for aida-vm-sdb substate command", name: "CustomFlags")
-        string(defaultValue: "x86-8-64-m", description: "Agent to build this job. Recommended are 'x86-8-64-m' for shorter runs and 'x86-8-64-l' for longer ones", name: "AgentLabel")
-        booleanParam(defaultValue: true, description: 'Turn on/off transaction and state hash validation of aida-vm-sdb tool', name: 'Validate')
-        booleanParam(defaultValue: true, description: 'Turn on/off archive mode of aida-vm-sdb tool', name: 'Archive')
+        string(
+            name: 'BlockFrom',
+            defaultValue: 'first',
+            description: 'Starting block'
+        )
+        string(
+            name: 'BlockTo',
+            defaultValue: 'last',
+            description: 'Ending block'
+        )
+        string(
+            name: 'AidaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Aida'
+        )
+        string(
+            name: 'CarmenVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Carmen'
+        )
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Tosca'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: 'develop',
+            description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'Workers',
+            defaultValue: '40',
+            description: 'Number of workers'
+        )
+        string(
+            name: 'RegisterRunPath',
+            defaultValue: '/mnt/tmp-disk/register-run-db',
+            description: 'Path to register run db'
+        )
+        string(
+            name: 'RunId',
+            defaultValue: '',
+            description: 'Overrides name of the register run db'
+        )
+        string(
+            name: 'BucketPath',
+            defaultValue: 'carmen-genesis-generator/74',
+            description: 'Genesis file URI.'
+        )
+        string(
+            name: 'GenesisBlock',
+            defaultValue: '60000000',
+            description: 'Genesis start block number. Leave empty to skip this stage.'
+        )
+        string(
+            name: 'CustomFlags',
+            defaultValue: '',
+            description: 'Additional flags for aida-vm-sdb substate command'
+        )
+        string(
+            name: 'AgentLabel',
+            defaultValue: 'x86-8-64-m',
+            description: 'Agent to build this job. Recommended are "x86-8-64-m" for shorter runs and "x86-8-64-l" for longer ones'
+        )
+        booleanParam(
+            name: 'Validate',
+            defaultValue: true,
+            description: 'Turn on/off transaction and state hash validation of aida-vm-sdb tool'
+        )
+        booleanParam(
+            name: 'Archive',
+            defaultValue: true,
+            description: 'Turn on/off archive mode of aida-vm-sdb tool'
+        )
     }
 
     stages {
