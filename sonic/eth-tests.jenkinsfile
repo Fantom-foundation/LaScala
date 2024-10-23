@@ -38,7 +38,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh "go test ./tests -timeout 4h"  
+                sh "go test ./tests -timeout 2h"  
             }
         }        
     }
