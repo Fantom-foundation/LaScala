@@ -23,7 +23,7 @@ pipeline {
                     userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
                 )
 
-                dir('tests/test-data') {
+                dir('tests/testdata') {
                     checkout scmGit(
                         branches: [[name: "develop"]],
                         userRemoteConfigs: [[url: 'https://github.com/ethereum/tests.git']]
@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Tests') {
             steps {
                 sh "go test ./tests -timeout 2h"  
             }
