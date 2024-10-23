@@ -273,7 +273,7 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F07', parameters: [
+                        build job: '/Sonic/Aida-Geth-State-Tests', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
