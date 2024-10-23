@@ -1,6 +1,6 @@
 // Run unit tests with race detection
 pipeline {
-    agent { label 'x86-16-16-s' }
+    agent { label 'x86-4-16-s' }
 
     options {
         timestamps()
@@ -22,10 +22,6 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                script {
-                    currentBuild.description = "Building on ${env.NODE_NAME}"
-                }
-
                 checkout scmGit(
                     branches: [[name: params.ToscaVersion]],
                     userRemoteConfigs: [[
