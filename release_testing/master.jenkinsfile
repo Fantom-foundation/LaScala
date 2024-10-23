@@ -14,38 +14,181 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "first", description: '', name: 'BlockFrom')
-        string(defaultValue: "last", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'NormaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'GoEthereumSonicVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LachesisBaseSonicVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LaScalaVersion')
-        string(defaultValue: "mainnet-latest-validator.g", description: 'Name of the genesis file to download', name: 'Genesis')
-        booleanParam(defaultValue: true, description: 'If checked, F01 stage will be executed', name: 'RunF01')
-        booleanParam(defaultValue: true, description: 'If checked, F02 stage will be executed', name: 'RunF02')
-        booleanParam(defaultValue: true, description: 'If checked, F03 stage will be executed', name: 'RunF03')
-        booleanParam(defaultValue: true, description: 'If checked, F04 stage will be executed', name: 'RunF04')
-        booleanParam(defaultValue: true, description: 'If checked, F05 stage will be executed', name: 'RunF05')
-        booleanParam(defaultValue: true, description: 'If checked, F06 stage will be executed', name: 'RunF06')
-        booleanParam(defaultValue: true, description: 'If checked, F07 stage will be executed', name: 'RunF07')
-        booleanParam(defaultValue: true, description: 'If checked, F08 stage will be executed', name: 'RunF08')
-        booleanParam(defaultValue: true, description: 'If checked, F09 stage will be executed', name: 'RunF09')
-        booleanParam(defaultValue: true, description: 'If checked, F10 stage will be executed', name: 'RunF10')
-        booleanParam(defaultValue: true, description: 'If checked, F11 stage will be executed', name: 'RunF11')
-        booleanParam(defaultValue: true, description: 'If checked, F12 stage will be executed', name: 'RunF12')
-        booleanParam(defaultValue: true, description: 'If checked, F13 stage will be executed', name: 'RunF13')
-        booleanParam(defaultValue: true, description: 'If checked, N01 stage will be executed', name: 'RunN01')
-        booleanParam(defaultValue: true, description: 'If checked, N02 stage will be executed', name: 'RunN02')
-        booleanParam(defaultValue: false, description: 'If checked, N03 stage will be executed', name: 'RunN03')
-        booleanParam(defaultValue: true, description: 'If checked, N04 stage will be executed', name: 'RunN04')
-        booleanParam(defaultValue: true, description: 'If checked, P01 stage will be executed', name: 'RunP01')
-        booleanParam(defaultValue: true, description: 'If checked, P02 stage will be executed', name: 'RunP02')
-        booleanParam(defaultValue: true, description: 'If checked, P03 stage will be executed', name: 'RunP03')
-        booleanParam(defaultValue: true, description: 'If checked, P04 stage will be executed', name: 'RunP04')
+        string(
+            name: 'BlockFrom',
+            defaultValue: "first",
+            description: 'Starting block'
+        )
+        string(
+            name: 'BlockTo',
+            defaultValue: "last",
+            description: 'End block'
+        )
+        string(
+            name: 'AidaVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'CarmenVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'ToscaVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'NormaVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'GoEthereumSonicVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'LachesisBaseSonicVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'LaScalaVersion',
+            defaultValue: "main",
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'Genesis',
+            defaultValue: "mainnet-latest-validator.g",
+            description: 'Name of the genesis file to download'
+        )
+        booleanParam(
+            name: 'RunF01',
+            defaultValue: true,
+            description: 'If checked, F01 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF02',
+            defaultValue: true,
+            description: 'If checked, F02 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF03',
+            defaultValue: true,
+            description: 'If checked, F03 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF04',
+            defaultValue: true,
+            description: 'If checked, F04 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF05',
+            defaultValue: true,
+            description: 'If checked, F05 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF06',
+            defaultValue: true,
+            description: 'If checked, F06 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF07',
+            defaultValue: true,
+            description: 'If checked, F07 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF08',
+            defaultValue: true,
+            description: 'If checked, F08 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF09',
+            defaultValue: true,
+            description: 'If checked, F09 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF10',
+            defaultValue: true,
+            description: 'If checked, F10 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF11',
+            defaultValue: true,
+            description: 'If checked, F11 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF12',
+            defaultValue: true,
+            description: 'If checked, F12 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF13',
+            defaultValue: true,
+            description: 'If checked, F13 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF17',
+            defaultValue: true,
+            description: 'If checked, F17 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF18',
+            defaultValue: true,
+            description: 'If checked, F18 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF19',
+            defaultValue: true,
+            description: 'If checked, F19 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunN01',
+            defaultValue: true,
+            description: 'If checked, N01 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunN02',
+            defaultValue: true,
+            description: 'If checked, N02 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunN03',
+            defaultValue: false,
+            description: 'If checked, N03 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunN04',
+            defaultValue: true,
+            description: 'If checked, N04 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunP01',
+            defaultValue: true,
+            description: 'If checked, P01 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunP02',
+            defaultValue: true,
+            description: 'If checked, P02 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunP03',
+            defaultValue: true,
+            description: 'If checked, P03 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunP04',
+            defaultValue: true,
+            description: 'If checked, P04 stage will be executed'
+        )
     }
 
     stages {
@@ -367,6 +510,62 @@ pipeline {
                     steps {
                         build job: '/ReleaseTesting/FunctionalTests/F13', parameters: [
                             string(name: 'LachesisBaseSonicVersion', value: "${LACHESIS_BASE_SONIC_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('F17 Validate LFVM on opera testnet substate') {
+                    when {
+                        expression {
+                            return params.RunF17;
+                        }
+                    }
+                    steps {
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-db-testnet/aida-db"),
+                            string(name: 'ChainID', value: "4002")
+                        ]
+                    }
+                }
+
+                stage('F18 Validate LFVM on opera mainnet substate') {
+                    when {
+                        expression {
+                            return params.RunF18;
+                        }
+                    }
+                    steps {
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-db-mainnet/aida-db"),
+                            string(name: 'ChainID', value: "250")
+                        ]
+                    }
+                }
+
+                stage('F19 Validate LFVM on ethereum mainnet substate') {
+                    when {
+                        expression {
+                            return params.RunF19;
+                        }
+                    }
+                    steps {
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-ethereum-substate-db/ethereum-substate-db"),
+                            string(name: 'ChainID', value: "1"),
+                            string(name: 'EvmImplementation', value: "ethereum"),
+                            string(name: 'AgentLabel', value: "x86-16-64-s-ethereum-substate")
                         ]
                     }
                 }
