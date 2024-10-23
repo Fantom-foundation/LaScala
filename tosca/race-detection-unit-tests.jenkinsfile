@@ -1,0 +1,65 @@
+// Run unit tests with race detection
+pipeline {
+    agent { label 'x86-16-16-s' }
+
+    options {
+        timestamps()
+        timeout(time: 2, unit: 'HOURS')
+    }
+
+    environment {
+        GORACE = 'halt_on_error=1'
+    }
+
+    parameters {
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Can be either branch name or commit hash.'
+         )
+    }
+
+    stages {
+        stage('build') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: params.ToscaVersion]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Tosca.git'
+                    ]]
+                )
+                sh 'git submodule update --init --recursive --depth 1'
+
+                sh 'make'
+            }
+        }
+
+        stage('unit-tests') {
+            steps {
+                sh 'make test'
+            }
+        }
+
+        stage('go-tests-race-dectection') {
+            steps {
+                sh 'go test -race ./... -count 1 -timeout 10000s'
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: 'tosca')
+            ]
+        }
+    }
+}
