@@ -135,19 +135,24 @@ pipeline {
             description: 'If checked, F13 stage will be executed'
         )
         booleanParam(
+            name: 'RunF14',
+            defaultValue: true,
+            description: 'If checked, F14 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF15',
+            defaultValue: true,
+            description: 'If checked, F15 stage will be executed'
+        )
+        booleanParam(
+            name: 'RunF16',
+            defaultValue: true,
+            description: 'If checked, F16 stage will be executed'
+        )
+        booleanParam(
             name: 'RunF17',
             defaultValue: true,
             description: 'If checked, F17 stage will be executed'
-        )
-        booleanParam(
-            name: 'RunF18',
-            defaultValue: true,
-            description: 'If checked, F18 stage will be executed'
-        )
-        booleanParam(
-            name: 'RunF19',
-            defaultValue: true,
-            description: 'If checked, F19 stage will be executed'
         )
         booleanParam(
             name: 'RunN01',
@@ -514,7 +519,15 @@ pipeline {
                     }
                 }
 
-                stage('F17 Validate LFVM on opera testnet substate') {
+                stage('F14 - Tosca unit and race detection tests') {
+                    steps {
+                        build job: '/Tosca/Unit Tests Race Detection', parameters: [
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('F15 Validate LFVM on opera testnet substate') {
                     when {
                         expression {
                             return params.RunF17;
@@ -532,7 +545,7 @@ pipeline {
                     }
                 }
 
-                stage('F18 Validate LFVM on opera mainnet substate') {
+                stage('F16 Validate LFVM on opera mainnet substate') {
                     when {
                         expression {
                             return params.RunF18;
@@ -550,7 +563,7 @@ pipeline {
                     }
                 }
 
-                stage('F19 Validate LFVM on ethereum mainnet substate') {
+                stage('F17 Validate LFVM on ethereum mainnet substate') {
                     when {
                         expression {
                             return params.RunF19;
