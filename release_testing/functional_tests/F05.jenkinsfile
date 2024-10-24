@@ -16,16 +16,56 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "58108620", description: '', name: 'BlockFrom')
-        string(defaultValue: "75000000", description: '', name: 'BlockTo')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
-        string(defaultValue: "40", description: '', name: 'Workers')
-        string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
-        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
-        string(defaultValue: "", description: 'RPC recording file. Leave empty for whole directory iteration', name: 'RpcRecording')
+        string(
+            name: 'BlockFrom',
+            defaultValue: '58108620',
+            description: 'Starting block'
+        )
+        string(
+            name: 'BlockTo',
+            defaultValue: '75000000',
+            description: 'Ending block'
+        )
+        string(
+            name: 'AidaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Aida'
+        )
+        string(
+            name: 'CarmenVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Carmen'
+        )
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Tosca'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: 'develop',
+            description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'RegisterRunPath',
+            defaultValue: "/mnt/tmp-disk/register-run-db",
+            description: 'Path where the database will be created.'
+        )
+        string(
+            name: 'RunId',
+            defaultValue: "",
+            description: 'Forced name of the database'
+        )
+        string(
+            name: 'Workers',
+            defaultValue: '40',
+            description: 'Number of workers'
+        )
+        string(
+            name: 'RpcRecording',
+            defaultValue: "",
+            description: 'RPC recording file. Leave empty for whole directory iteration'
+        )
     }
 
     stages {

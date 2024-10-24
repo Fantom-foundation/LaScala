@@ -16,15 +16,51 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "first", description: '', name: 'BlockFrom')
-        string(defaultValue: "last", description: '', name: 'BlockTo')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'ToscaVersion')
-        string(defaultValue: "develop", description: 'Can be either branch name or commit hash.', name: 'SonicVersion')
-        string(defaultValue: "40", description: '', name: 'Workers')
-        string(defaultValue: "/mnt/tmp-disk/register-run-db", description: 'Path to register run db', name: 'RegisterRunPath')
-        string(defaultValue: "", description: 'Overrides name of the register run db', name: 'RunId')
+        string(
+            name: 'BlockFrom',
+            defaultValue: 'first',
+            description: 'Starting block'
+        )
+        string(
+            name: 'BlockTo',
+            defaultValue: 'last',
+            description: 'Ending block'
+        )
+        string(
+            name: 'AidaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Aida'
+        )
+        string(
+            name: 'CarmenVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Carmen'
+        )
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Tosca'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: 'develop',
+            description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'Workers',
+            defaultValue: '40',
+            description: 'Number of workers'
+        )
+        string(
+            name: 'RegisterRunPath',
+            defaultValue: '/mnt/tmp-disk/register-run-db',
+            description: 'Path to register run db'
+        )
+        string(
+            name: 'RunId',
+            defaultValue: '',
+            description: 'Overrides name of the register run db'
+        )
     }
 
     stages {

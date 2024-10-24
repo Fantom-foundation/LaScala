@@ -12,7 +12,11 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'LachesisBaseSonicVersion')
+        string(
+            name: 'LachesisBaseSonicVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Lachesis-base-sonic'
+    )
     }
 
     stages {

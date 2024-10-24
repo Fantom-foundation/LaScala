@@ -9,8 +9,16 @@ pipeline {
     }
 
     parameters {
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
-        string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
+        string(
+            name: 'AidaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Aida'
+        )
+        string(
+            name: 'CarmenVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Carmen'
+        )
     }
 
     stages {
