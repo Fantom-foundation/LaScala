@@ -1,0 +1,53 @@
+pipeline {
+    agent { label 'x86-4-32-s' }
+
+    options {
+        timestamps ()
+        timeout (time: 4, unit: 'HOURS') // ~2.5h
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+     parameters {
+        string(name: 'SonicVersion', defaultValue: "develop", description: 'Can be either branch name or commit hash.')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                )
+
+                dir('tests/testdata') {
+                    checkout scmGit(
+                        branches: [[name: "develop"]],
+                        userRemoteConfigs: [[url: 'https://github.com/ethereum/tests.git']]
+                    )
+                }
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                sh "go test ./tests -timeout 2h"  
+            }
+        }        
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "sonic")
+            ]
+        }
+    }
+}

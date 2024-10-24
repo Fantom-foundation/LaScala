@@ -1,0 +1,100 @@
+pipeline {
+    agent { label 'x86-4-32-s' }
+
+    options {
+        timestamps ()
+        timeout (time: 4, unit: 'HOURS') // ~2.5h
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+        TMPDB = '/mnt/tmp-disk'
+    }
+
+     parameters {
+        string(name: 'AidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'CarmenVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'ToscaVersion', defaultValue: 'main', description: 'Can be either branch name or commit hash.')
+    }
+
+
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Aida.git']]
+                )
+
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                    checkout scmGit(
+                        branches: [[name: "${CarmenVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                    )
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+                }
+
+                dir('eth-test-package') {
+                    checkout scmGit(
+                        branches: [[name: "develop"]],
+                        userRemoteConfigs: [[url: 'https://github.com/ethereum/tests.git']]
+                    )
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "go mod tidy"
+                sh "make aida-vm-sdb"
+            }
+        }
+        stage('GethDB+GethVM') {
+            steps {
+                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
+            }
+        }
+        stage('Carmen+GethVM') {
+            steps {
+                sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl geth --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
+            }
+        }
+        stage('GethDB+LFVM') {
+            steps {
+                sh "./build/aida-vm-sdb ethereum-test --db-impl geth --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
+            }
+        }
+        stage('Carmen+LFVM') {
+            steps {
+                 sh "./build/aida-vm-sdb ethereum-test --db-impl carmen --carmen-schema 5 --validate --evm-impl ethereum --vm-impl lfvm --db-tmp ${TMPDB} ${env.WORKSPACE}/eth-test-package"
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "sonic")
+            ]
+        }
+    }
+}

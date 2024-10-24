@@ -223,7 +223,7 @@ pipeline {
                 sh "mkdir -p ${RegisterRunPath}"
 
                 script {
-                    def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file"
+                    def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file --db-src-overwrite"
                     def validationFlags = "--validate-tx --validate-state-hash"
                     def archiveFlags = "--archive --archive-variant s5"
 
