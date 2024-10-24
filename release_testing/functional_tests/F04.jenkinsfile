@@ -56,31 +56,31 @@ pipeline {
             parallel {
                 stage('F02 block processing (mainnet) 0-15m') {
                     steps {
-                        runAidaVmSdb("first", 15000000)
+                        runAidaVmSdb("first", "15000000")
                     }
                 }
 
                 stage('F02 block processing (mainnet) 15m-30m') {
                     steps {
-                        runAidaVmSdb(15000001, 30000000)
+                        runAidaVmSdb("15000001", "30000000")
                     }
                 }
 
                 stage('F02 block processing (mainnet) 30m-50m') {
                     steps {
-                        runAidaVmSdb(30000001, 50000000)
+                        runAidaVmSdb("30000001", "50000000")
                     }
                 }
 
                 stage('F02 block processing (mainnet) 50m-65m') {
                     steps {
-                        runAidaVmSdb(50000001, 65000000)
+                        runAidaVmSdb("50000001", "65000000")
                     }
                 }
 
                 stage('F02 block processing (mainnet) 65m-70m') {
                     steps {
-                        runAidaVmSdb(65000001, 70000000)
+                        runAidaVmSdb("65000001", "70000000")
                     }
                 }
 
@@ -110,8 +110,8 @@ pipeline {
 // a function for running aida-vm-sdb job for a specific range of blocks.
 def runAidaVmSdb(first, last) {
     def genesisBlock = ""
-    if (first.isNumber() && first > 0) {
-        genesisBlock = first - 1
+    if (first.isNumber() && first.toInteger() > 0) {
+        genesisBlock = first.toInteger() - 1
     }
     build job: '/ReleaseTesting/FunctionalTests/F02/F02', parameters: [
         string(name: 'BlockFrom', value: "${first}"),
