@@ -521,7 +521,7 @@ pipeline {
 
                 stage('F14 - Tosca unit and race detection tests') {
                     steps {
-                        build job: '/Tosca/Unit Tests Race Detection', parameters: [
+                        build job: '/Tosca/Race Detection Unit Tests', parameters: [
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
@@ -530,7 +530,7 @@ pipeline {
                 stage('F15 Validate LFVM on opera testnet substate') {
                     when {
                         expression {
-                            return params.RunF17;
+                            return params.RunF15;
                         }
                     }
                     steps {
@@ -548,7 +548,7 @@ pipeline {
                 stage('F16 Validate LFVM on opera mainnet substate') {
                     when {
                         expression {
-                            return params.RunF18;
+                            return params.RunF16;
                         }
                     }
                     steps {
@@ -566,7 +566,7 @@ pipeline {
                 stage('F17 Validate LFVM on ethereum mainnet substate') {
                     when {
                         expression {
-                            return params.RunF19;
+                            return params.RunF17;
                         }
                     }
                     steps {
