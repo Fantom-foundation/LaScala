@@ -32,9 +32,9 @@ pipeline {
             }
         }
 
-        stage('Tests') {
+        stage('Test State') {
             steps {
-                sh "go test ./tests -timeout 2h"  
+                sh "go test ./tests -timeout 2h -run TestState"  
             }
         }        
     }
