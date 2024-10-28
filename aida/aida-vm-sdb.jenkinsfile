@@ -50,7 +50,7 @@ pipeline {
         )
         string(
             name: 'Workers',
-            defaultValue: '40',
+            defaultValue: '4',
             description: 'Number of workers'
         )
         string(
@@ -214,9 +214,9 @@ pipeline {
             }
         }
 
-        stage('F02 stage') {
+        stage('Aida-vm-sdb') {
             steps {
-                sh 'echo "Running F02 stage"'
+                sh 'echo "Running aida-vm-sdb substate command"'
 
                 sh "rm -f *.cpuprofile *.memprofile *.log"
 

@@ -1,3 +1,5 @@
+// F02 runs processes transaction with aida-vm-sdb in archive mode.
+// State and root hash is validated after each transaction.
 // F04 test processes transactions on live db and archive db concurently.
 pipeline {
     agent { label 'coordinator' }
@@ -38,16 +40,6 @@ pipeline {
             name: 'SonicVersion',
             defaultValue: 'develop',
             description: 'Can be either branch name or commit hash.'
-        )
-        string(
-            name: 'ArchiveQueryRate',
-            defaultValue: "200",
-            description: 'Rate of processing historical transactions on archive database'
-        )
-        string(
-            name: 'Workers',
-            defaultValue: "40",
-            description: 'Number of workers to process historical transactions on archive database'
         )
     }
 
@@ -116,7 +108,6 @@ def runAidaVmSdb(first, last) {
         string(name: 'BlockFrom', value: "${first}"),
         string(name: 'BlockTo', value: "${last}"),
         string(name: 'GenesisBlock', value: "${genesisBlock}"),
-        string(name: 'CustomFlags', value: "--archive-query-rate ${ArchiveQueryRate} --workers ${Workers}"),
         string(name: 'BucketPath', value: "carmen-genesis-generator/74"),
         string(name: 'AidaVersion', value: "$AidaVersion"),
         string(name: 'CarmenVersion', value: "$CarmenVersion"),

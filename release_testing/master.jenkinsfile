@@ -333,7 +333,7 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F02/master', parameters: [
+                        build job: '/ReleaseTesting/FunctionalTests/F02', parameters: [
                             string(name: 'BlockFrom', value: "${BlockFrom}"),
                             string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
