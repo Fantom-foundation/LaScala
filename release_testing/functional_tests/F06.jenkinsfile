@@ -17,14 +17,24 @@ pipeline {
 
     parameters {
         string(
-            name: 'BlockFrom',
-            defaultValue: 'london',
-            description: 'Starting block'
+            name: 'BlockTo',
+            defaultValue: '1000',
+            description: 'Ending block'
         )
         string(
-            name: 'BlockTo',
-            defaultValue: 'london+1500',
-            description: 'Ending block'
+            name: 'BlockLength',
+            defaultValue: "5000",
+            description: 'Length of the block.'
+        )
+        string(
+            name: 'RegisterRunPath',
+            defaultValue: "/mnt/tmp-disk/register-run-db",
+            description: 'Path where the database will be created.'
+        )
+        string(
+            name: 'RunId',
+            defaultValue: "",
+            description: 'Forced name of the database'
         )
         string(
             name: 'AidaVersion',
@@ -45,21 +55,6 @@ pipeline {
             name: 'SonicVersion',
             defaultValue: 'develop',
             description: 'Branch or commit hash for Sonic'
-        )
-        string(
-            name: 'BlockLength',
-            defaultValue: "5000",
-            description: 'Length of the block.'
-        )
-        string(
-            name: 'RegisterRunPath',
-            defaultValue: "/mnt/tmp-disk/register-run-db",
-            description: 'Path where the database will be created.'
-        )
-        string(
-            name: 'RunId',
-            defaultValue: "",
-            description: 'Forced name of the database'
         )
     }
 
@@ -108,7 +103,7 @@ pipeline {
             }
         }
 
-        stage('Test stage') {
+        stage('Test Mixed Transaction Types') {
             steps {
                 sh 'echo "Running mixed transaction types test stage"'
 
@@ -120,10 +115,11 @@ pipeline {
                                             --db-tmp /mnt/tmp-disk \
                                             --shadow-db --db-shadow-impl geth \
                                             --vm-impl lfvm \
+                                            --fork cancun \
                                             --tx-type all --block-length ${BlockLength} \
                                             --register-run ${RegisterRunPath} \
                                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
-                                            ${BlockFrom} ${BlockTo}"""
+                                            ${BlockTo}"""
                 }
             }
         }
