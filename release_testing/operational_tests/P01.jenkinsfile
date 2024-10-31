@@ -22,17 +22,61 @@ pipeline {
             defaultValue: "main",
             description: 'Branch or commit hash for Norma'
         )
-	booleanParam(defaultValue: true, description: 'If checked, dynamic stage will be executed', name: 'enableDynamic')
-	booleanParam(defaultValue: true, description: 'If checked, slope stage will be executed', name: 'enableSlope')
-	booleanParam(defaultValue: true, description: 'If checked, static stage will be executed', name: 'enableStatic')
-	booleanParam(defaultValue: false, description: 'If checked, A1 stage will be executed', name: 'enableA1')
-        booleanParam(defaultValue: false, description: 'If checked, A2 stage will be executed', name: 'enableA2')
-        booleanParam(defaultValue: true, description: 'If checked, B1 stage will be executed', name: 'enableB1')
-        booleanParam(defaultValue: true, description: 'If checked, B2 stage will be executed', name: 'enableB2')
-        booleanParam(defaultValue: false, description: 'If checked, B3 stage will be executed', name: 'enableB3')
-        booleanParam(defaultValue: false, description: 'If checked, B4 stage will be executed', name: 'enableB4')
-        booleanParam(defaultValue: false, description: 'If checked, B5 stage will be executed', name: 'enableB5')
-        booleanParam(defaultValue: false, description: 'If checked, C1 stage will be executed', name: 'enableC1')
+	booleanParam(
+	    defaultValue: true, 
+	    description: 'If checked, dynamic stage will be executed', 
+	    name: 'enableDynamic'
+	)
+	booleanParam(
+	    defaultValue: true, 
+	    description: 'If checked, slope stage will be executed', 
+	    name: 'enableSlope'
+	)
+	booleanParam(
+	    defaultValue: true, 
+	    description: 'If checked, static stage will be executed', 
+	    name: 'enableStatic'
+	)
+	booleanParam(
+	    defaultValue: false, 
+	    description: 'If checked, A1 stage will be executed', 
+	    name: 'enableA1'
+	)
+        booleanParam(
+	    defaultValue: false, 
+	    description: 'If checked, A2 stage will be executed', 
+	    name: 'enableA2'
+	)
+        booleanParam(
+	    defaultValue: true, 
+	    description: 'If checked, B1 stage will be executed', 
+	    name: 'enableB1'
+	)
+        booleanParam(
+	    defaultValue: true, 
+	    description: 'If checked, B2 stage will be executed', 
+	    name: 'enableB2'
+	)
+        booleanParam(
+	    defaultValue: false, 
+	    description: 'If checked, B3 stage will be executed', 
+	    name: 'enableB3'
+	)
+        booleanParam(
+	    defaultValue: false, 
+	    description: 'If checked, B4 stage will be executed', 
+	    name: 'enableB4'
+	)
+        booleanParam(
+	    defaultValue: false, 
+	    description: 'If checked, B5 stage will be executed', 
+	    name: 'enableB5'
+	)
+        booleanParam(
+	    defaultValue: false, 
+	    description: 'If checked, C1 stage will be executed', 
+	    name: 'enableC1'
+	)
     }
 
     stages {
