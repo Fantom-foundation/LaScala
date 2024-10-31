@@ -62,7 +62,7 @@ pipeline {
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s"
+                sh "./build/sonicd --datadir ${SONICSTATEDB} --cache 16047 --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
             }
         }
 
@@ -93,7 +93,8 @@ pipeline {
                                 --http.port=80 \
                                 --http.corsdomain="*" \
                                 --http.vhosts="*" \
-                                --http.api=eth,web3,net,ftm,txpool,abft,dag"""
+                                --http.api=eth,web3,net,ftm,txpool,abft,dag
+                                --lachesis.suppress-frame-panic"""
                         }
                     }
                 }

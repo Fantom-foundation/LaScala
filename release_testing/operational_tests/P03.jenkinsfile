@@ -115,15 +115,15 @@ pipeline {
         stage('Create DB from genesis') {
            steps {
                // create db from a genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${genesis}"
-                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis --experimental ${GENESISPATH}/${genesis}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
             }
         }
 
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.age 1s"
-                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --cache 16047 --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
+                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
             }
         }
     }
