@@ -8,12 +8,12 @@ pipeline {
         timestamps ()
         timeout(time: 12, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
-        // estimated 20-30 minutes
     }
 
     environment {
+	GOROOT = '/usr/local/go'
         GOGC = '50'
-        GOMEMLIMIT = '60GiB'
+        GOMEMLIMIT = '120GiB'
     }
 
     parameters {
@@ -22,68 +22,315 @@ pipeline {
             defaultValue: "main",
             description: 'Branch or commit hash for Norma'
         )
+	booleanParam(defaultValue: true, description: 'If checked, dynamic stage will be executed', name: 'enableDynamic')
+	booleanParam(defaultValue: true, description: 'If checked, slope stage will be executed', name: 'enableSlope')
+	booleanParam(defaultValue: true, description: 'If checked, static stage will be executed', name: 'enableStatic')
+	booleanParam(defaultValue: false, description: 'If checked, A1 stage will be executed', name: 'enableA1')
+        booleanParam(defaultValue: false, description: 'If checked, A2 stage will be executed', name: 'enableA2')
+        booleanParam(defaultValue: true, description: 'If checked, B1 stage will be executed', name: 'enableB1')
+        booleanParam(defaultValue: true, description: 'If checked, B2 stage will be executed', name: 'enableB2')
+        booleanParam(defaultValue: false, description: 'If checked, B3 stage will be executed', name: 'enableB3')
+        booleanParam(defaultValue: false, description: 'If checked, B4 stage will be executed', name: 'enableB4')
+        booleanParam(defaultValue: false, description: 'If checked, B5 stage will be executed', name: 'enableB5')
+        booleanParam(defaultValue: false, description: 'If checked, C1 stage will be executed', name: 'enableC1')
     }
 
     stages {
-        stage('Build') {
+        stage('Clone Norma') {
             steps {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
 
-                checkout scmGit(
-                    branches: [[name: "${NormaVersion}"]],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/Fantom-foundation/Norma.git'
-                    ]]
-                )
-                sh "git submodule update --init --recursive"
-
-                sh "go mod tidy"
-                sh "make -j"
+		dir('norma') {
+                    checkout scmGit(
+                        branches: [[name: "${NormaVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
+                    )
+ 		}
             }
         }
 
-        stage('Run dynamic scenario') {
+	stage('Check Norma Format') {
+	    steps {
+		dir('norma') {
+		    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+			sh 'diff=`${GOROOT}/bin/gofmt -l .`; echo "$diff"; test -z "$diff"'
+		    }
+		}
+	    }
+	}
+
+	stage('Build') {
+    	    steps {
+	        dir('norma') {
+    		    sh 'make clean'
+    		    sh 'git submodule update --init --recursive'
+    		    sh 'make -j'		   
+                }
+	    }
+	}
+
+	stage('Test Norma') {
+	    steps {
+		dir('norma') {
+		    sh 'make test'
+		}
+	    }
+	}
+
+	stage('Test - Dynamic') {
+	    when { expression { params.enableDynamic }}
+
             steps {
-                runScenario("dynamic")
+    	        sh 'echo "Running dynamic"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
+                        --label dynamic \
+                        ../norma/scenarios/demonet/dynamic.yml"""
+                }
+	    }
+            
+	    post {
+		always {
+		    dir('runs/norma_data_dynamic_latest') {
+    		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    	            }
+    	        }
             }
+	}
+
+	stage('Test - Slope') {
+	    when { expression { params.enableSlope }}
+
+            steps {
+    	        sh 'echo "Running slope"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
+                        --label slope \
+                        ../norma/scenarios/demonet/slope.yml"""
+                }
+	    }
+            
+	    post {
+		always {
+		    dir('runs/norma_data_slope_latest') {
+    		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    	            }
+    	        }
+            }
+	}
+
+	stage('Test - Static') {
+	    when { expression { params.enableStatic }}
+
+            steps {
+    	        sh 'echo "Running static"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
+                        --label static \
+                        ../norma/scenarios/demonet/static.yml"""
+                }
+	    }
+            
+	    post {
+		always {
+		    dir('runs/norma_data_static_latest') {
+    		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    	            }
+    	        }
+            }
+	}
+
+	stage('Test A1 - ValRpcObs') {
+	    when { expression { params.enableA1 }}
+
+            steps {
+    	        sh 'echo "Running A1"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
+                        --label a1 \
+                        ../norma/scenarios/release_testing/a1.ValRpcObs.yml"""
+                }
+	    }
+            
+	    post {
+		always {
+		    dir('runs/norma_data_a1_latest') {
+    		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    	            }
+    	        }
+            }
+	}
+
+	stage('Test A2 - MultSonicVer') {
+	    when { expression { params.enableA2 }}
+			
+	    steps {
+    		sh 'echo "Running A2"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label a2 \
+                        ../norma/scenarios/release_testing/a2.MultSonicVer.yml"""
+                }
+	    }
+
+	    post {
+		always {
+	            dir('runs/norma_data_a2_latest') {
+    	    	        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    		    }
+    	        }
+            }
+	}
+
+        stage('Test B1 - NewValMidRun') {
+	    when { expression { params.enableB1 }}
+			
+	    steps {
+    		sh 'echo "Running B1"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label b1 \
+                        ../norma/scenarios/release_testing/b1.NewValMidRun.yml"""
+                }
+	    }
 
             post {
-                always {
-                    uploadArtifacts(["*.csv", "*.log", "*.html"])
-                    sh "rm -f *.yml *.csv *.log *.html"
-                }
+		always {
+		    dir('runs/norma_data_b1_latest') {
+    			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    	     	    }
+    		}
             }
-        }
+	}
 
-        /*
-        stage('Run slope scenario') {
+	stage('Test B2 - EndValMidRun') {
+	    when { expression { params.enableB2 }}
+			
+	    steps {
+    		sh 'echo "Running B2"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label b2 \
+                        ../norma/scenarios/release_testing/b2.EndValMidRun.yml"""
+                }
+	    }
+
+	    post {
+	        always {
+		   dir('runs/norma_data_b2_latest') {
+    			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    		   }
+    		}
+            }
+	}
+
+	stage('Test B3 - RestartValMidRun') {
+	    when { expression { params.enableB3 }}
+
+	    steps {
+    	        sh 'echo "Running B3"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label b3 \
+                        ../norma/scenarios/release_testing/b3.RestartValMidRun.yml"""
+                }
+	    }
+
+	    post {
+		always {
+		     dir('runs/norma_data_b3_latest') {
+    			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    		     }
+    		}
+            }
+	}
+
+	stage('Test B4 - ValCheatMustSealEpoch') {
+	    when { expression { params.enableB4 }}
+
+	    steps {
+    		sh 'echo "Running B4"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label b4 \
+                        ../norma/scenarios/release_testing/b4.ValCheatMustSealEpoch.yml"""
+                }
+	    }
+
+	    post {
+		always {
+		    dir('runs/norma_data_b4_latest') {
+    			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    	      	    }
+    		}
+            }
+	}
+
+	stage('Test B5 - ValsBlackout') {
+	    when { expression { params.enableB5 }}
+
+	    steps {
+    		sh 'echo "Running B5"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label b5 \
+                        ../norma/scenarios/release_testing/b5.ValsBlackout.yml"""
+                }
+	    }
+		
+	    post {
+		always {
+		    dir('runs/norma_data_b5_latest') {
+    		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    		    }
+    		}
+            }
+	}
+
+	stage('Test C1 - RpcRequests') {
+	    when { expression { params.enableC1 }}
+
             steps {
-                runScenario("slope")
-            }
-
-            post {
-                always {
-                    uploadArtifacts(["*.csv", "*.log", "*.html"])
-                    sh "rm -f *.yml *.csv *.log *.html"
+    		sh 'echo "Running B5"'
+                dir('runs') {
+                    sh 'pwd'
+                    sh """../norma/build/norma run \
+                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
+                        --label b5 \
+                        ../norma/scenarios/release_testing/c1.RpcRequests.yml"""
                 }
-            }
-        }
-        */
+	    }
 
-        stage('Run static scenario') {
-            steps {
-                runScenario("static")
+	    post {
+		always {
+		    dir('runs/norma_data_c1_latest') {
+    			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
+    		    }
+    		}
             }
-
-            post {
-                always {
-                    uploadArtifacts(["*.csv", "*.log", "*.html"])
-                    sh "rm -f *.yml *.csv *.log *.html"
-                }
-            }
-        }
+	}
 
         stage('Teardown') {
             steps {
@@ -102,13 +349,5 @@ pipeline {
                 string(name: 'user', value: "aida")
             ]
         }
-    }
-}
-
-def runScenario(scenario) {
-    echo "Starting Norma demonet ${scenario} scenario"
-
-    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: "Test Suite had a failure during ${scenario} scenario") {
-        sh "build/norma run --label="${scenario}" -o . ./scenarios/demonet/${scenario}.yml"
     }
 }
