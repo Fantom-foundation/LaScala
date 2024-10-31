@@ -138,7 +138,7 @@ pipeline {
 	    }
             
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_dynamic_latest') {
     		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     	            }
@@ -161,7 +161,7 @@ pipeline {
 	    }
             
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_slope_latest') {
     		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     	            }
@@ -184,7 +184,7 @@ pipeline {
 	    }
             
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_static_latest') {
     		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     	            }
@@ -207,7 +207,7 @@ pipeline {
 	    }
             
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_a1_latest') {
     		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     	            }
@@ -230,7 +230,7 @@ pipeline {
 	    }
 
 	    post {
-		success {
+		failure {
 	            dir('runs/norma_data_a2_latest') {
     	    	        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     		    }
@@ -253,7 +253,7 @@ pipeline {
 	    }
 
             post {
-		success {
+		failure {
 		    dir('runs/norma_data_b1_latest') {
     			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     	     	    }
@@ -276,7 +276,7 @@ pipeline {
 	    }
 
 	    post {
-	        success {
+	        failure {
 		   dir('runs/norma_data_b2_latest') {
     			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     		   }
@@ -299,7 +299,7 @@ pipeline {
 	    }
 
 	    post {
-		success {
+		failure {
 		     dir('runs/norma_data_b3_latest') {
     			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     		     }
@@ -322,7 +322,7 @@ pipeline {
 	    }
 
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_b4_latest') {
     			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     	      	    }
@@ -345,7 +345,7 @@ pipeline {
 	    }
 		
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_b5_latest') {
     		        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     		    }
@@ -368,7 +368,7 @@ pipeline {
 	    }
 
 	    post {
-		success {
+		failure {
 		    dir('runs/norma_data_c1_latest') {
     			uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
     		    }
