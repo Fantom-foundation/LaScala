@@ -86,7 +86,7 @@ pipeline {
 
                 stage('F02 block processing (mainnet) 70m-last') {
                     steps {
-                        runAidaVmSdb(70000001, "last")
+                        runAidaVmSdb("70000001", "last")
                     }
                 }
             }
