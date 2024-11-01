@@ -16,7 +16,7 @@ pipeline {
             name: 'LachesisBaseSonicVersion',
             defaultValue: "main",
             description: 'Branch or commit hash for Lachesis-base-sonic'
-    )
+        )
     }
 
     stages {
