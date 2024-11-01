@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { node "dedicate" }
+    agent { label "dedicate" }
 
     options {
         timestamps ()
