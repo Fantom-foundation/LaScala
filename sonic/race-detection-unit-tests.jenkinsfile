@@ -44,7 +44,17 @@ pipeline {
 
         stage('go-tests-race-dectection') {
             steps {
-                sh 'go test -race ./... -count 1'
+                script {
+                    // Run unit tests for each subdirectory,
+                    // to prevent resources from modules leaking between tests.
+                    // Ignore hidden, demo, and build directories
+                    def directories = sh(script: 'find . -maxdepth 1 -type d -not -path "./demo" -not -path "./build" -not -path "./.*" -not -path "."', returnStdout: true).trim().split('\n')
+
+                    directories.each { dir ->
+                        echo "Running tests in ${dir}"
+                        sh "go test -race ${dir}/... -count 1"
+                    }
+                }
             }
         }
     }
