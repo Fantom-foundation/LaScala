@@ -62,13 +62,13 @@ pipeline {
         // cases is reduced by filtering for a subset of rules.
         stage('CT-race-detection') {
             steps {
-                sh "go run -race ./go/ct/driver run -f push ${params.FullMode ? "--full-mode" : ""} ${params.TargetInterpreter}"
+                sh "go run -race ./go/ct/driver run -f push ${params.FullMode ? '--full-mode' : ''} ${params.TargetInterpreter}"
             }
         }
 
         stage('compliance-tests') {
             steps {
-                sh "go run ./go/ct/driver run ${params.FullMode ? "--full-mode" : ""} ${params.TargetInterpreter}"
+                sh "go run ./go/ct/driver run ${params.FullMode ? '--full-mode' : ''} ${params.TargetInterpreter}"
             }
         }
     }
@@ -78,7 +78,7 @@ pipeline {
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'duration', value: "${currentBuild.durationString}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
                 string(name: 'user', value: 'tosca')
             ]
