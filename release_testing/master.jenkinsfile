@@ -194,6 +194,11 @@ pipeline {
             defaultValue: true,
             description: 'If checked, P04 stage will be executed'
         )
+        booleanParam(
+            name: 'RunP05',
+            defaultValue: true,
+            description: 'If checked, P05 stage will be executed'
+        )
     }
 
     stages {
@@ -708,6 +713,19 @@ pipeline {
                         build job: '/ReleaseTesting/OperationalTests/P04', parameters: [
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
                             string(name: 'LaScalaVersion', value: "${LASCALA_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('P05 Sonic Official Genesis Import Test') {
+                    when {
+                        expression {
+                            return params.RunP05;
+                        }
+                    }
+                    steps {
+                        build job: '/Sonic/Genesis-import', parameters: [
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
                         ]
                     }
                 }
