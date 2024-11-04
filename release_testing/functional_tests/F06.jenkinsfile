@@ -17,9 +17,14 @@ pipeline {
 
     parameters {
         string(
-            name: 'BlockTo',
+            name: 'Fork',
+            defaultValue: 'cancun',
+            description: 'Name of the fork block to start from'
+        )
+        string(
+            name: 'BlocksToProcess',
             defaultValue: '1000',
-            description: 'Ending block'
+            description: 'Number of blocks to process starting from fork'
         )
         string(
             name: 'BlockLength',
@@ -115,7 +120,7 @@ pipeline {
                                             --db-tmp /mnt/tmp-disk \
                                             --shadow-db --db-shadow-impl geth \
                                             --vm-impl lfvm \
-                                            --fork cancun \
+                                            --fork ${Fork} \
                                             --tx-type all --block-length ${BlockLength} \
                                             --register-run ${RegisterRunPath} \
                                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
