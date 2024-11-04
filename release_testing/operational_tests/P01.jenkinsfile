@@ -14,6 +14,7 @@ pipeline {
 	GOROOT = '/usr/local/go'
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
+	DOCKER_API_VERSION = 1.45
     }
 
     parameters {
