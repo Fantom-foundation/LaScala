@@ -259,7 +259,7 @@ pipeline {
             }
 
             post {
-		        failure {
+	            failure {
                     dir('runs/norma_data_b1_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -268,7 +268,7 @@ pipeline {
         }
 
         stage('Test B2 - EndValMidRun') {
-	        when { expression { params.enableB2 } }
+            when { expression { params.enableB2 } }
 
             steps {
     		    sh 'echo "Running B2"'
@@ -282,7 +282,7 @@ pipeline {
                 }
             }
 
-	        post {
+            post {
 	            failure {
                     dir('runs/norma_data_b2_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
@@ -307,7 +307,7 @@ pipeline {
             }
 
 	        post {
-		        failure {
+	            failure {
                     dir('runs/norma_data_b3_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -331,7 +331,7 @@ pipeline {
             }
 
 	        post {
-		        failure {
+	            failure {
                     dir('runs/norma_data_b4_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -355,7 +355,7 @@ pipeline {
             }
 
 	        post {
-		        failure {
+	            failure {
                     dir('runs/norma_data_b5_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -379,7 +379,7 @@ pipeline {
             }
 
 	        post {
-		        failure {
+	            failure {
                     dir('runs/norma_data_c1_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }

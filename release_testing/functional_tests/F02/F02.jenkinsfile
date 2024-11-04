@@ -209,7 +209,7 @@ pipeline {
 
                     writeJSON file: "${DATAROOTPATH}/state_db_carmen_go-file/statedb_info.json", json: fake_statedb_info
 
-                   sh "cat ${DATAROOTPATH}/state_db_carmen_go-file/statedb_info.json"
+                    sh "cat ${DATAROOTPATH}/state_db_carmen_go-file/statedb_info.json"
                 }
             }
         }
