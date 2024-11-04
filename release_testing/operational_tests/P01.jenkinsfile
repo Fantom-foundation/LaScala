@@ -96,7 +96,7 @@ pipeline {
         }
 
         stage('Check Norma Format') {
-	        steps {
+            steps {
                 dir('norma') {
                     catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                         sh 'diff=`${GOROOT}/bin/gofmt -l .`; echo "$diff"; test -z "$diff"'
@@ -108,15 +108,15 @@ pipeline {
         stage('Build') {
             steps {
                 dir('norma') {
-    		        sh 'make clean'
-    		        sh 'git submodule update --init --recursive'
-    		        sh 'make -j'
+                    sh 'make clean'
+                    sh 'git submodule update --init --recursive'
+                    sh 'make -j'
                 }
             }
         }
 
         stage('Test Norma') {
-	        steps {
+            steps {
                 dir('norma') {
                     sh 'make test'
                 }
@@ -124,7 +124,7 @@ pipeline {
         }
 
         stage('Test - Dynamic') {
-	        when { expression { params.enableDynamic } }
+            when { expression { params.enableDynamic } }
 
             steps {
                 sh 'echo "Running dynamic"'
@@ -140,18 +140,18 @@ pipeline {
 
             post {
                 failure {
-                        dir('runs/norma_data_dynamic_latest') {
-                            uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                        }
+                    dir('runs/norma_data_dynamic_latest') {
+                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
                 }
             }
+        }
 
         stage('Test - Slope') {
-	        when { expression { params.enableSlope } }
+            when { expression { params.enableSlope } }
 
             steps {
-    	        sh 'echo "Running slope"'
+                sh 'echo "Running slope"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -172,10 +172,10 @@ pipeline {
         }
 
         stage('Test - Static') {
-	        when { expression { params.enableStatic } }
+            when { expression { params.enableStatic } }
 
             steps {
-    	        sh 'echo "Running static"'
+                sh 'echo "Running static"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -186,8 +186,8 @@ pipeline {
                 }
             }
 
-	        post {
-		        failure {
+            post {
+                failure {
                     dir('runs/norma_data_static_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -196,10 +196,10 @@ pipeline {
         }
 
         stage('Test A1 - ValRpcObs') {
-	        when { expression { params.enableA1 } }
+            when { expression { params.enableA1 } }
 
             steps {
-    	        sh 'echo "Running A1"'
+                sh 'echo "Running A1"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -210,8 +210,8 @@ pipeline {
                 }
             }
 
-	        post {
-		        failure {
+            post {
+                failure {
                     dir('runs/norma_data_a1_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -234,8 +234,8 @@ pipeline {
                 }
             }
 
-	        post {
-		        failure {
+            post {
+                failure {
                     dir('runs/norma_data_a2_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -244,10 +244,10 @@ pipeline {
         }
 
         stage('Test B1 - NewValMidRun') {
-	        when { expression { params.enableB1 } }
+            when { expression { params.enableB1 } }
 
-	        steps {
-    		    sh 'echo "Running B1"'
+            steps {
+                sh 'echo "Running B1"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -259,7 +259,7 @@ pipeline {
             }
 
             post {
-	            failure {
+                failure {
                     dir('runs/norma_data_b1_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -271,7 +271,7 @@ pipeline {
             when { expression { params.enableB2 } }
 
             steps {
-    		    sh 'echo "Running B2"'
+                sh 'echo "Running B2"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -283,7 +283,7 @@ pipeline {
             }
 
             post {
-	            failure {
+                failure {
                     dir('runs/norma_data_b2_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -292,10 +292,10 @@ pipeline {
         }
 
         stage('Test B3 - RestartValMidRun') {
-	        when { expression { params.enableB3 } }
+            when { expression { params.enableB3 } }
 
-	        steps {
-    	        sh 'echo "Running B3"'
+            steps {
+                sh 'echo "Running B3"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -306,8 +306,8 @@ pipeline {
                 }
             }
 
-	        post {
-	            failure {
+            post {
+                failure {
                     dir('runs/norma_data_b3_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -316,10 +316,10 @@ pipeline {
         }
 
         stage('Test B4 - ValCheatMustSealEpoch') {
-	        when { expression { params.enableB4 } }
+            when { expression { params.enableB4 } }
 
-	        steps {
-    		    sh 'echo "Running B4"'
+            steps {
+                sh 'echo "Running B4"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -330,8 +330,8 @@ pipeline {
                 }
             }
 
-	        post {
-	            failure {
+            post {
+                failure {
                     dir('runs/norma_data_b4_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -340,10 +340,10 @@ pipeline {
         }
 
         stage('Test B5 - ValsBlackout') {
-	        when { expression { params.enableB5 } }
+            when { expression { params.enableB5 } }
 
-	        steps {
-    		    sh 'echo "Running B5"'
+            steps {
+                sh 'echo "Running B5"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -354,8 +354,8 @@ pipeline {
                 }
             }
 
-	        post {
-	            failure {
+            post {
+                failure {
                     dir('runs/norma_data_b5_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
@@ -364,10 +364,10 @@ pipeline {
         }
 
         stage('Test C1 - RpcRequests') {
-	        when { expression { params.enableC1 } }
+            when { expression { params.enableC1 } }
 
             steps {
-    		    sh 'echo "Running B5"'
+                sh 'echo "Running B5"'
 
                 dir('runs') {
                     sh 'pwd'
@@ -378,8 +378,8 @@ pipeline {
                 }
             }
 
-	        post {
-	            failure {
+            post {
+                failure {
                     dir('runs/norma_data_c1_latest') {
                         uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
                     }
