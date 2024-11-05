@@ -1,4 +1,4 @@
-// F04 test processes transactions on live db and archive db concurently.
+// F17 LFVM on Ethereum Substate dataset.
 pipeline {
     agent { label 'x86-16-64-s-ethereum-substate' }
 
@@ -39,7 +39,7 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Aida.git'
                     ]]
                 )
-                sh "git submodule update --init --recursive"
+                sh 'git submodule update --init --recursive'
 
                 dir('tosca') {
                	checkout scmGit(
@@ -49,51 +49,51 @@ pipeline {
                	sh "git submodule update --recursive --depth 1"
                 }
 
-                sh "go mod tidy"
-                sh "make aida-vm"
+                sh 'go mod tidy'
+                sh 'make aida-vm'
             }
         }
 
         // run in stages to avoid unprocessable blocks
         stage('first to 13.8M') {
             steps {
-                runAidaVm("first", "13803455")
+                runAidaVm('9069000', '13803455')
             }
         }
 
         stage('13.8M to 14.3M') {
             steps {
-                runAidaVm("13803457", "14340502")
+                runAidaVm('13803457', '14340502')
             }
         }
 
         stage('14.3M to 14.9M') {
             steps {
-                runAidaVm("14340504", "14953168")
+                runAidaVm('14340504', '14953168')
             }
         }
 
         stage('14.9M to 15M') {
             steps {
-                runAidaVm("14953170", "15025980")
+                runAidaVm('14953170', '15025980')
             }
         }
 
         stage('15M to 15.42M') {
             steps {
-                runAidaVm("15025982", "15427797")
+                runAidaVm('15025982', '15427797')
             }
         }
 
         stage('15.42M to 15.44M') {
             steps {
-                runAidaVm("15427799", "15445480")
+                runAidaVm('15427799', '15445480')
             }
         }
 
         stage('15.44M to last') {
             steps {
-                runAidaVm("15445482", "last")
+                runAidaVm('15445482', 'last')
             }
         }
     }
@@ -105,7 +105,7 @@ pipeline {
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: "aida")
+                string(name: 'user', value: 'aida')
             ]
         }
     }
