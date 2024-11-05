@@ -562,9 +562,13 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/FunctionalTests/F17', parameters: [
+                        build job: '/Tosca/Validate-LFVM', parameters: [
+                            string(name: 'BlockFrom', value: "${BlockFrom}"),
+                            string(name: 'BlockTo', value: "${BlockTo}"),
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SubstateDB', value: "/mnt/aida-db-mainnet/aida-db"),
+                            string(name: 'ChainID', value: "250")
                         ]
                     }
                 }
@@ -576,15 +580,9 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: '/Tosca/Validate-LFVM', parameters: [
-                            string(name: 'BlockFrom', value: "${BlockFrom}"),
-                            string(name: 'BlockTo', value: "${BlockTo}"),
+                        build job: '/Tosca/Validate-LFVM-Ethereum', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
-                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'SubstateDB', value: "/mnt/aida-ethereum-substate-db/ethereum-substate-db"),
-                            string(name: 'ChainID', value: "1"),
-                            string(name: 'EvmImplementation', value: "ethereum"),
-                            string(name: 'AgentLabel', value: "x86-16-64-s-ethereum-substate")
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
                         ]
                     }
                 }

@@ -105,7 +105,7 @@ pipeline {
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: 'aida')
+                string(name: 'user', value: 'tosca')
             ]
         }
     }
