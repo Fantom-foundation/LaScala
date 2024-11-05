@@ -111,7 +111,7 @@ pipeline {
     }
 }
 
-// a function for running aida-vm-sdb job for a specific range of blocks.
+// a function for running aida-vm job for a specific range of blocks.
 def runAidaVm(first, last) {
     sh """build/aida-vm \
         --workers 20 \
