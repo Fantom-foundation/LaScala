@@ -1,4 +1,4 @@
-// F17 LFVM on Ethereum Substate dataset.
+// F17 runs LFVM on Ethereum Substate dataset.
 pipeline {
     agent { label 'x86-16-64-s-ethereum-substate' }
 
