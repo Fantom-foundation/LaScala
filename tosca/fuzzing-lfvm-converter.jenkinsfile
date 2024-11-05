@@ -88,7 +88,7 @@ pipeline {
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'duration', value: "${currentBuild.durationString}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
                 string(name: 'user', value: 'tosca')
             ]
