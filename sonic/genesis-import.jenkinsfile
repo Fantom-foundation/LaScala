@@ -1,3 +1,4 @@
+// Test import and sychronization from official genesis file
 pipeline {
     agent {label 'x86-4-32-xl'}
 
@@ -12,8 +13,6 @@ pipeline {
         GOMEMLIMIT = '28GiB'
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
-        EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
-        GENESISDBPATH="${DATAROOTPATH}/sonic_from_genesis"
         GENESISPATH="/mnt/tmp-disk/genesis"
         GENESISURL="https://download.fantom.network/opera/mainnet"
         GENESISFILE="mainnet-311670-archive.g"
