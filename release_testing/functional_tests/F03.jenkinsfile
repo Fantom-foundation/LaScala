@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'x86-8-64-s' }
+    agent { label 'x86-8-64-m' }
 
     options {
         timestamps ()
