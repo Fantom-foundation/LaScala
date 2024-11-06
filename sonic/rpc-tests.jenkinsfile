@@ -1,0 +1,104 @@
+pipeline {
+    agent { node "x86-4-16-s" }
+
+    options {
+        timestamps ()
+        timeout(time: 1, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '14GiB'
+        SONICSTATEDB = './fakenet'
+    }
+
+    parameters {
+        string(name: 'SonicVersion', defaultValue: "develop", description: 'Can be either branch name or commit hash.')
+        string( name: 'RPCTestVersion', defaultValue: "master", description: 'Can be either branch name or commit hash.')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
+                    ]]
+                )
+
+                dir('rpcTest') {
+                    checkout scmGit(
+                        branches: [[name: "${RPCTestVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/jenikd/rpcGoTesting.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "make"
+            }
+        }
+
+        stage('Parallel execution') {
+            parallel {
+                stage('Start RPC node') {
+                    steps {
+                        sh "echo 'Start RPC node'"
+                        
+                        sh "rm -rf ${SONICSTATEDB}"
+                        
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} genesis fake 1"
+
+                        sh "touch ./config.toml"
+                        
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            sh """timeout 3m ./build/sonicd \
+                                --fakenet 1/1 \
+                                --datadir=${SONICSTATEDB} \
+                                --config=./config.toml \
+                                --port=0 \
+                                --cache=6144 \
+                                --maxpeers=0 \
+                                --nodiscover \
+                                --verbosity=3 \
+                                --metrics --pprof \
+                                --ws \
+                                --ws.addr=127.0.0.1 \
+                                --ws.port=18546 \
+                                --ws.origins="*" \
+                                --ws.api=eth,web3,net,ftm,txpool,abft,dag,debug,trace \
+                                --http \
+                                --http.addr=127.0.0.1 \
+                                --http.port=8545 \
+                                --http.corsdomain="*" \
+                                --http.vhosts="*" \
+                                --http.api=eth,web3,net,ftm,txpool,abft,dag,debug,trace"""
+                        }
+                    }
+                }
+
+                stage('Run RPC tests') {
+                    steps {
+                        sleep(time:30,unit:"SECONDS")
+
+                        sh 'echo "Start RPC tests"'
+
+                        dir('rpcTest') {
+                            sh 'cp .env.sample .env'
+                            sh 'go test -timeout 30s -run ^TestAllConfigs$ rpctesting/cmd/rpctesting -v -count=1'
+                        }
+                        
+                        sh 'echo "Stop fakenet"'
+                        sh 'pkill -f fakenet'
+                    }
+                }
+            }
+        }
+    }
+}
