@@ -1,0 +1,124 @@
+// Test import and sychronization from official genesis file
+pipeline {
+    agent {label 'x86-4-32-xl'}
+
+    options {
+        timestamps ()
+        timeout(time: 2, unit: 'DAYS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '28GiB'
+        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
+        DATADIRPATH="${DATAROOTPATH}/sonic"
+        GENESISPATH="/mnt/tmp-disk/genesis"
+        GENESISURL="https://download.fantom.network/opera/mainnet"
+        GENESISFILE="mainnet-311670-archive.g"
+    }
+
+    parameters {
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Branch or commit hash for Sonic'
+        )
+    }
+
+    stages {
+        stage('Checkout and build') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
+                    ]]
+                )
+
+                sh "make"
+            }
+        }
+
+        stage('Genesis download') {
+            steps {
+                // setup
+                sh "mkdir -p $GENESISPATH"
+
+                script {
+                    // remove old md5
+                    sh "rm -f ${GENESISPATH}/${GENESISFILE}.md5"
+
+                    // download genesis
+                    if (!fileExists("${GENESISPATH}/${GENESISFILE}")) {
+                        sh "wget ${GENESISURL}/${GENESISFILE} -O ${GENESISPATH}/${GENESISFILE} -nv"
+                    }
+
+                    // download MD5
+                    sh "wget ${GENESISURL}/${GENESISFILE}.md5 -O ${GENESISPATH}/${GENESISFILE}.md5 -nv"
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${GENESISFILE}.md5", returnStdout: true);
+
+                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
+
+                    // calculate MD5
+                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${GENESISFILE}", returnStdout: true);
+
+                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    sh "echo ${md5ExpectedHash}"
+                    sh "echo ${md5CalculatedHash}"
+
+                    // compare MD5
+                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                        sh "echo removing corrupted file ${GENESISPATH}/${GENESISFILE}"
+                        sh "rm ${GENESISPATH}/${GENESISFILE}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                    } else {
+                        sh "echo hash ${md5CalculatedHash} confirmed"
+                    }
+                }
+            }
+        }
+
+        stage('Create DB from genesis') {
+           steps {
+               // create db from a genesis file
+                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis --experimental ${GENESISPATH}/${GENESISFILE}"
+            }
+        }
+
+        stage('Validation') {
+            steps {
+                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check archive"
+            }
+        }
+
+        stage('Synchronize blockchain for 100 epochs') {
+            steps {
+                sh "./build/sonicd --datadir ${DATADIRPATH} --cache 16047 --verbosity 2 --exitwhensynced.epoch 311770 --lachesis.suppress-frame-panic"
+            }
+        }
+
+        stage('Teardown') {
+            // teardown
+            steps {
+                sh "make clean"
+                sh "rm -rf ${DATAROOTPATH}"
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "sonic")
+            ]
+        }
+    }
+}
