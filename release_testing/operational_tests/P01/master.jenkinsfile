@@ -2,117 +2,115 @@
 @Library('shared-library') _
 
 def baselineScenarios = [
-	'scenarios/test/baseline_check.yml'    
+    'scenarios/test/baseline_check.yml'
 ]
 
 pipeline {
-	agent { label 'norma' }
+    agent { label 'norma' }
 
-	options {
-		timestamps ()
-		timeout(time: 12, unit: 'HOURS')
-		disableConcurrentBuilds(abortPrevious: false)
-	}
+    options {
+        timestamps ()
+        timeout(time: 12, unit: 'HOURS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
 
-	environment {
-		GOROOT = '/usr/local/go'
-		GOGC = '50'
-		GOMEMLIMIT = '120GiB'
+    environment {
+        GOROOT = '/usr/local/go'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
 
-		// norma
-		DOCKER_API_VERSION = 1.45 // golang docker library
-	}
+        // norma
+        DOCKER_API_VERSION = 1.45 // golang docker library
+    }
 
-	parameters {
-		string(
-			name: 'NormaVersion',
-			defaultValue: "main",
-			description: 'Branch or commit hash for Norma'
-		)
-		string(
-			name: 'SonicVersion',
-			defaultValue: "develop",
-			description: 'Branch or commit hash for Sonic'
-		)
-		booleanParam(
-			name: 'enableBaselineTest',
-			defaultValue: 'true',
-			description: 'If checked, baseline scenarios will be executed',
-		)
-	}
+    parameters {
+        string(
+            name: 'NormaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Norma'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Branch or commit hash for Sonic'
+        )
+        booleanParam(
+            name: 'enableBaselineTest',
+            defaultValue: 'true',
+            description: 'If checked, baseline scenarios will be executed',
+        )
+    }
 
-	stages {
-		stage('Clone Norma') {
-			steps {
-				script {
-					currentBuild.description = "Building on ${env.NODE_NAME}"
-				}
-
-				dir('norma') {
-					checkout scmGit(
-						branches: [[name: "${NormaVersion}"]],
-						userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
-					)
-				}
-			}
-		}
-
-		stage('Check Norma Format') {
-			steps {
-				dir('norma') {
-					catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-						sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
-					}
-				}
-			}
-		}
-
-		stage('Build Norma') {
-			steps {
-				dir('norma') {
-					sh "make clean"
-					sh "git submodule update --init --recursive"
-        
-					dir('client') {
-						checkout scmGit(
-							branches: [[name: "${SonicVersion}"]],
-							userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
-						)
-					}
-    
-					sh "go mod tidy"
-					sh "make -j"		   
-				}
-			}
-
-	    }
-
-    	stage('Test Norma') {
-    	    steps {
-				dir('norma') {
-        		    sh 'make test'
-        		}
-    	    }
-    	}
-
-    	stage('Run Target Scenarios in parallel') {
-    	    when { expression { testSuccess }}
+    stages {
+        stage('Clone Norma') {
             steps {
                 script {
-					// currently we only have one baseline scenario, more to be added
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                dir('norma') {
+                    checkout scmGit(
+                        branches: [[name: "${NormaVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
+                    )
+                }
+            }
+        }
+
+        stage('Check Norma Format') {
+            steps {
+                dir('norma') {
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
+                    }
+                }
+            }
+        }
+
+        stage('Build Norma') {
+            steps {
+                dir('norma') {
+                    sh "make clean"
+                    sh "git submodule update --init --recursive"
+
+                    dir('client') {
+                        checkout scmGit(
+                            branches: [[name: "${SonicVersion}"]],
+                            userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                        )
+                    }
+
+                    sh "go mod tidy"
+                    sh "make -j"
+                }
+            }
+        }
+
+        stage('Test Norma') {
+            steps {
+                dir('norma') {
+                    sh 'make test'
+                }
+            }
+        }
+
+        stage('Run Target Scenarios in parallel') {
+            steps {
+                script {
+                    // currently we only have one baseline scenario, more to be added
                     parallel baselineScenarios.collectEntries { s -> [
-                          (s): {
-                              build job: '/Norma/Experimental/P01/P01',
-                              parameters: [ 
-                                  string(name: 'NormaVersion', value: "${NormaVersion}"),
-                                  string(name: 'SonicVersion', value: "${SonicVersion}"),
-                                  string(name: 'PathToScenario', value: "${s}"),
-                              ]
-                          }
+                        (s): {
+                            build job: '/Norma/Experimental/P01/P01',
+                            parameters: [ 
+                                string(name: 'NormaVersion', value: "${NormaVersion}"),
+                                string(name: 'SonicVersion', value: "${SonicVersion}"),
+                                string(name: 'PathToScenario', value: "${s}"),
+                            ]
+                        }
                     ]}
                 }
             }
-    	}
+        }
 
         stage('Teardown') {
             steps {
@@ -122,7 +120,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             build job: '/Notifications/slack-notification', parameters: [
