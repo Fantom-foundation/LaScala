@@ -1,7 +1,7 @@
 // Performs end-to-end test synchronizing to the current testnet head
 
 pipeline {
-    agent { node "x86-4-32-l" }
+    agent { label "x86-4-32-l" }
 
     options {
         timestamps ()
