@@ -6,12 +6,14 @@ pipeline {
 	options {
 		timestamps ()
 		timeout(time: 3, unit: 'HOURS')
-		disableConcurrentBuilds(abortPrevious: true)
+		disableConcurrentBuilds(abortPrevious: false)
 	}
 
 	environment {
 		GOROOT = '/usr/local/go'
-		DOCKER_API_VERSION = 1.45
+
+		// norma
+		DOCKER_API_VERSION = 1.45 // needed for golang docker library
 	}
 
 	parameters {
