@@ -18,11 +18,11 @@ pipeline {
 
 	parameters {
 		string(
-        	name: 'NormaVersion',
+		name: 'NormaVersion',
 			defaultValue: "main",
 			description: 'Branch or commit hash for Norma'
 		)
-	        string(
+		string(
 			name: 'SonicVersion',
 			defaultValue: "develop",
 			description: 'Branch or commit hash for Sonic'
