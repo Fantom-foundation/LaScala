@@ -100,7 +100,7 @@ pipeline {
                     // currently we only have one baseline scenario, more to be added
                     parallel baselineScenarios.collectEntries { s -> [
                         (s): {
-                            build job: '/Norma/Experimental/P01/P01',
+                            build job: '/Norma/RunSingleScenario',
                             parameters: [ 
                                 string(name: 'NormaVersion', value: "${NormaVersion}"),
                                 string(name: 'SonicVersion', value: "${SonicVersion}"),
