@@ -1,8 +1,5 @@
 // Norma CI test norma using "make test"
 
-def buildSuccess = false
-def testSuccess = false
-
 pipeline {
 	agent { label 'norma' }
 	
@@ -57,14 +54,6 @@ pipeline {
 				sh "go mod tidy"
 				sh "make -j"
 			}
-
-			post {
-				success {
-					script {
-						buildSuccess = true
-					}
-				}
-			}
 		}
 
 		stage('Check Norma Format') {
@@ -77,17 +66,7 @@ pipeline {
 
 		stage('Test Norma') {
 			steps {
-				when { expression { buildSuccess }}
-
 				sh 'make test'
-			}
-			
-			post {
-				success {
-					script {
-						testSuccess = true
-					}
-				}
 			}
 		}
 
