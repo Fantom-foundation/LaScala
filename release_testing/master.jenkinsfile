@@ -204,6 +204,11 @@ pipeline {
             defaultValue: true,
             description: 'If checked, P06 stage will be executed'
         )
+        booleanParam(
+            name: 'RunP07',
+            defaultValue: true,
+            description: 'If checked, P07 stage will be executed'
+        )
     }
 
     stages {
@@ -743,6 +748,19 @@ pipeline {
                     }
                     steps {
                         build job: '/Sonic/DB-Heal', parameters: [
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('P07 Sonic RPC tests') {
+                    when {
+                        expression {
+                            return params.RunP07;
+                        }
+                    }
+                    steps {
+                        build job: '/Sonic/RPC-tests', parameters: [
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
