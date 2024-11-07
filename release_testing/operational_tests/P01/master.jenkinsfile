@@ -1,0 +1,137 @@
+// Runs unit test of Carmen to secure that Carmen functions operates as intended
+@Library('shared-library') _
+
+def baselineScenarios = [
+	'scenarios/test/baseline_check.yml'    
+]
+
+pipeline {
+	agent { label 'norma' }
+
+	options {
+		timestamps ()
+		timeout(time: 12, unit: 'HOURS')
+		disableConcurrentBuilds(abortPrevious: false)
+	}
+
+	environment {
+		GOROOT = '/usr/local/go'
+		GOGC = '50'
+		GOMEMLIMIT = '120GiB'
+
+		// norma
+		DOCKER_API_VERSION = 1.45 // golang docker library
+	}
+
+	parameters {
+		string(
+			name: 'NormaVersion',
+			defaultValue: "main",
+			description: 'Branch or commit hash for Norma'
+		)
+		string(
+			name: 'SonicVersion',
+			defaultValue: "develop",
+			description: 'Branch or commit hash for Sonic'
+		)
+		booleanParam(
+			name: 'enableBaselineTest',
+			defaultValue: 'true',
+			description: 'If checked, baseline scenarios will be executed',
+		)
+	}
+
+	stages {
+		stage('Clone Norma') {
+			steps {
+				script {
+					currentBuild.description = "Building on ${env.NODE_NAME}"
+				}
+
+				dir('norma') {
+					checkout scmGit(
+						branches: [[name: "${NormaVersion}"]],
+						userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
+					)
+				}
+			}
+		}
+
+		stage('Check Norma Format') {
+			steps {
+				dir('norma') {
+					catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+						sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
+					}
+				}
+			}
+		}
+
+		stage('Build Norma') {
+			steps {
+				dir('norma') {
+					sh "make clean"
+					sh "git submodule update --init --recursive"
+        
+					dir('client') {
+						checkout scmGit(
+							branches: [[name: "${SonicVersion}"]],
+							userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+						)
+					}
+    
+					sh "go mod tidy"
+					sh "make -j"		   
+				}
+			}
+
+	    }
+
+    	stage('Test Norma') {
+    	    steps {
+				dir('norma') {
+        		    sh 'make test'
+        		}
+    	    }
+    	}
+
+    	stage('Run Target Scenarios in parallel') {
+    	    when { expression { testSuccess }}
+            steps {
+                script {
+					// currently we only have one baseline scenario, more to be added
+                    parallel baselineScenarios.collectEntries { s -> [
+                          (s): {
+                              build job: '/Norma/Experimental/P01/P01',
+                              parameters: [ 
+                                  string(name: 'NormaVersion', value: "${NormaVersion}"),
+                                  string(name: 'SonicVersion', value: "${SonicVersion}"),
+                                  string(name: 'PathToScenario', value: "${s}"),
+                              ]
+                          }
+                    ]}
+                }
+            }
+    	}
+
+        stage('Teardown') {
+            steps {
+                dir('norma') {
+                    sh "make clean"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}

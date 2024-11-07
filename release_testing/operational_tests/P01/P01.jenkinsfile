@@ -1,0 +1,90 @@
+// Runs unit test of Carmen to secure that Carmen functions operates as intended
+@Library('shared-library') _
+
+pipeline {
+    agent { label 'norma' }
+
+    options {
+        timestamps ()
+        timeout(time: 2, unit: 'HOURS')
+    }
+
+    environment {
+    	GOROOT = '/usr/local/go'
+        GOGC = '50'
+        GOMEMLIMIT = '120GiB'
+    	
+		// norma
+		DOCKER_API_VERSION = 1.45 // golang docker library
+    }
+
+    parameters {
+        string(
+            name: 'NormaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for Norma'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Branch or commit hash for Sonic'
+        )
+	    string(
+    	    name: 'PathToScenario',
+    	    defaultValue: "scenarios/test/baseline_check.yml", 
+    	    description: 'Scenario to run' 
+    	)
+    }
+
+    stages {
+        stage('Clone and Build Norma') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+        		dir('norma') {
+                    checkout scmGit(
+                        branches: [[name: "${params.NormaVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
+                    )
+
+        		    sh "make clean"
+        		    sh "git submodule update --init --recursive"
+    
+        		    dir('client') {
+        			    checkout scmGit(
+                            branches: [[name: "${params.SonicVersion}"]],
+                            userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                        )
+        		    }
+    
+                    sh "go mod tidy"
+                    sh "make -j"
+ 		        }
+            }
+        }
+
+	    stage('Run Scenario') {
+            steps {
+	            echo "Starting Norma scenario: ${params.PathToScenario}"
+                dir('runs') {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """../norma/build/norma run \
+                            -o ${pwd} \
+                            --label runs \
+                            ../norma/${params.PathToScenario}"""
+		            }
+                }
+	        }
+	    }
+
+        stage('Teardown') {
+            steps {
+                dir('norma') {
+                    sh "make clean"
+                }
+            }
+        }
+    }
+}
