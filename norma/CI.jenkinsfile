@@ -5,13 +5,11 @@ pipeline {
     
     options {
         timestamps ()
-        timeout(time: 3, unit: 'HOURS')
+        timeout(time: 30, unit: 'MINUTES')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
     environment {
-        GOROOT = '/usr/local/go'
-
         // norma
         DOCKER_API_VERSION = 1.45 // needed for golang docker library
     }
@@ -30,20 +28,17 @@ pipeline {
     }
 
     stages {
-        stage('Clone and Build Norma') {
+        stage('Clone Norma') {
             steps {
                 script {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
-            }
 
-            dir('norma') {
                 checkout scmGit(
                     branches: [[name: "${NormaVersion}"]],
                     userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
                 )
 
-                sh "make clean"
                 sh "git submodule update --init --recursive"
 
                 dir('client') {
@@ -54,31 +49,24 @@ pipeline {
                 }
 
                 sh "go mod tidy"
+            }
+        }
+
+        stage('Build Norma') {
+            steps {
                 sh "make -j"
             }
         }
 
         stage('Test Norma') {
             steps {
-                dir('norma') {
-                    sh 'make test'
-                }
+                sh 'make test'
             }
         }
 
         stage('Test Baseline Scenarios') {
             steps {
-                dir('norma') {
-                    sh "build/norma run scenarios/test/baseline_check.yml"
-                }
-            }
-        }
-
-        stage('Teardown') {
-            steps {
-                dir('norma') {
-                    sh 'make clean'
-                }
+                sh "build/norma run scenarios/test/baseline_check.yml"
             }
         }
     }
