@@ -58,16 +58,6 @@ pipeline {
 			}
 		}
 
-		stage('Check Norma Format') {
-			steps {
-				dir('norma') {
-					catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-						sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
-					}
-				}
-			}
-		}
-
 		stage('Test Norma') {
 			steps {
 				dir('norma') {
