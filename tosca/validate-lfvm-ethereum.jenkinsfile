@@ -1,6 +1,6 @@
 // F17 runs LFVM on Ethereum Substate dataset.
 pipeline {
-    agent { label 'x86-16-64-s-ethereum-substate' }
+    agent { label 'coordinator' }
 
     environment {
         GOGC = '50'
@@ -27,73 +27,50 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
-            steps {
-                script {
-                    currentBuild.description = "Building on ${env.NODE_NAME}"
+        stage ('run parallel') {
+            parallel {
+                // run in stages to avoid unprocessable blocks
+                stage('first to 13.8M') {
+                    steps {
+                        runAidaVm('9069000', '13803455')
+                    }
                 }
 
-                checkout scmGit(
-                    branches: [[name: "${AidaVersion}"]],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/Fantom-foundation/Aida.git'
-                    ]]
-                )
-                sh 'git submodule update --init --recursive'
-
-                dir('tosca') {
-               	checkout scmGit(
-              		branches: [[name: "${ToscaVersion}"]],
-              		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
-               	)
-               	sh "git submodule update --recursive --depth 1"
+                stage('13.8M to 14.3M') {
+                    steps {
+                        runAidaVm('13803457', '14340502')
+                    }
                 }
 
-                sh 'go mod tidy'
-                sh 'make aida-vm'
-            }
-        }
+                stage('14.3M to 14.9M') {
+                    steps {
+                        runAidaVm('14340504', '14953168')
+                    }
+                }
 
-        // run in stages to avoid unprocessable blocks
-        stage('first to 13.8M') {
-            steps {
-                runAidaVm('9069000', '13803455')
-            }
-        }
+                stage('14.9M to 15M') {
+                    steps {
+                        runAidaVm('14953170', '15025980')
+                    }
+                }
 
-        stage('13.8M to 14.3M') {
-            steps {
-                runAidaVm('13803457', '14340502')
-            }
-        }
+                stage('15M to 15.42M') {
+                    steps {
+                        runAidaVm('15025982', '15427797')
+                    }
+                }
 
-        stage('14.3M to 14.9M') {
-            steps {
-                runAidaVm('14340504', '14953168')
-            }
-        }
+                stage('15.42M to 15.44M') {
+                    steps {
+                        runAidaVm('15427799', '15445480')
+                    }
+                }
 
-        stage('14.9M to 15M') {
-            steps {
-                runAidaVm('14953170', '15025980')
-            }
-        }
-
-        stage('15M to 15.42M') {
-            steps {
-                runAidaVm('15025982', '15427797')
-            }
-        }
-
-        stage('15.42M to 15.44M') {
-            steps {
-                runAidaVm('15427799', '15445480')
-            }
-        }
-
-        stage('15.44M to last') {
-            steps {
-                runAidaVm('15445482', 'last')
+                stage('15.44M to last') {
+                    steps {
+                        runAidaVm('15445482', 'last')
+                    }
+                }
             }
         }
     }
@@ -113,13 +90,14 @@ pipeline {
 
 // a function for running aida-vm job for a specific range of blocks.
 def runAidaVm(first, last) {
-    sh """build/aida-vm \
-        --workers 20 \
-        --aida-db /mnt/aida-ethereum-substate-db/ethereum-substate-db \
-        --chainid 1 \
-        --evm-impl ethereum \
-        --substate-encoding pb \
-        --vm-impl lfvm \
-        --validate-tx \
-        ${first} ${last}"""
+    build job: '/Tosca/Validate-LFVM', parameters: [
+        string(name: 'BlockFrom', value: "${first}"),
+        string(name: 'BlockTo', value: "${last}"),
+        string(name: 'AidaVersion', value: "${AidaVersion}"),
+        string(name: 'ToscaVersion', value: "${ToscaVersion}"),
+        string(name: 'SubstateDB', value: "/mnt/aida-ethereum-substate-db/ethereum-substate-db"),
+        string(name: 'ChainID', value: "1"),
+        string(name: 'EvmImplementation', value: "ethereum"),
+        string(name: 'AgentLabel', value: "x86-16-64-s-ethereum-substate")
+    ]
 }
