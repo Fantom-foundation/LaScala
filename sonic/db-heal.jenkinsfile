@@ -1,0 +1,130 @@
+// Sonic DB Healing pipeline aims to test the functionality of DB healing tool.
+// This test intentionally kills an archive node in the middle of the synchronization process
+// and then restarts the node with the DB healing tool. The test is considered successful
+// if the node can validate via check tool.
+
+pipeline {
+    agent { node "x86-4-32-archive" }
+
+    options {
+        timestamps ()
+        timeout(time: 3, unit: 'DAYS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '28GiB'
+        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
+    }
+
+    parameters {
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Branch or commit hash for Sonic'
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
+                    ]]
+                )
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "make"
+            }
+        }
+
+        stage('Kill on sync') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    // send SIGKILL after 180s to terminate the node and make DBs dirty
+                    sh "timeout -s 9 20m ./build/sonicd --datadir ${SONICSTATEDB} --cache 16047 --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
+                }
+            }
+        }
+
+        stage('Check corrupted DBs') {
+            steps {
+                script{
+                    def liveCheckPass = true
+                    def archiveCheckPass = true
+                    try {
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check live"
+                    } catch (Exception e) {
+                        echo "Exception: ${e}"
+                        echo 'Live DB check failed as expected'
+                        liveCheckPass = false
+                    }
+
+                    try {
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check archive"
+                    } catch (Exception e) {
+                        echo "Exception: ${e}"
+                        echo 'Archive DB check failed as expected'
+                        archiveCheckPass = false
+                    }
+                    // set build result to failure if any of the checks passed.
+                    if (liveCheckPass || archiveCheckPass) {
+                        error 'DB check passed, but expected corrupted DBs.'
+                    }
+                }
+            }
+        }
+
+        stage('Heal corrupted DBs') {
+            steps {
+                script {
+                    sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 heal"
+                }
+            }
+        }
+
+        stage('Check healed DBs') {
+            steps {
+                script{
+                    def liveCheckPass = true
+                    def archiveCheckPass = true
+                    try {
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check live"
+                    } catch (Exception e) {
+                        echo "Unexpected exception: ${e}"
+                        liveCheckPass = false
+                    }
+
+                    try {
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check archive"
+                    } catch (Exception e) {
+                        echo "Unexpected exception: ${e}"
+                        archiveCheckPass = false
+                    }
+                    //set build result to failure if any of the checks failed
+                    if (!liveCheckPass || !archiveCheckPass) {
+                        error 'DB check failed after healing'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}
