@@ -58,23 +58,35 @@ pipeline {
 
 		stage('Check Norma Format') {
 			steps {
-				catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-					sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
+				dir('norma') {
+					catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+						sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
+					}
 				}
 			}
 		}
 
 		stage('Test Norma') {
 			steps {
-				sh 'make test'
+				dir('norma') {
+					sh 'make test'
+				}
 			}
 		}
 
 		stage('Test Baseline Scenarios') {
 			steps {
-				when { expression { testSuccess }}
-					
-				sh "build/norma run scenarios/test/baseline_check.yml"
+				dir('norma') {
+					sh "build/norma run scenarios/test/baseline_check.yml"
+				}
+			}
+		}
+
+		stage('Teardown') {
+			steps {
+				dir('norma') {
+					sh 'make clean'
+				}
 			}
 		}
 	}
