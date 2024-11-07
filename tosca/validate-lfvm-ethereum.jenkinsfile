@@ -2,11 +2,6 @@
 pipeline {
     agent { label 'coordinator' }
 
-    environment {
-        GOGC = '50'
-        GOMEMLIMIT = '28GiB'
-    }
-
     options {
         timestamps ()
         timeout(time: 2, unit: 'DAYS')
