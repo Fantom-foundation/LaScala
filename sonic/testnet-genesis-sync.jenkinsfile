@@ -1,10 +1,11 @@
-// Test import and sychronization from official genesis file
+// Performs end-to-end test synchronizing to the current testnet head
+
 pipeline {
-    agent {label 'x86-4-32-xl'}
+    agent { label "x86-4-32-l" }
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'DAYS')
+        timeout(time: 4, unit: 'DAYS')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -14,15 +15,24 @@ pipeline {
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
-        GENESISURL="https://download.fantom.network/opera/mainnet"
-        GENESISFILE="mainnet-311670-archive.g"
+        GENESISURL="https://download.fantom.network/builders"
     }
 
     parameters {
         string(
+            name: 'TestnetGenesis',
+            defaultValue: "builders-36960.g",
+            description: 'Name of the testnet genesis file to download'
+        )
+        string(
             name: 'SonicVersion',
             defaultValue: "develop",
             description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'LaScalaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for LaScala'
         )
     }
 
@@ -36,32 +46,41 @@ pipeline {
                     ]]
                 )
 
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
+
                 sh "make"
             }
         }
 
-        stage('Genesis download') {
+        stage('Preparation') {
             steps {
                 // setup
                 sh "mkdir -p $GENESISPATH"
 
                 script {
                     // remove old md5
-                    sh "rm -f ${GENESISPATH}/${GENESISFILE}.md5"
+                    sh "rm -f ${GENESISPATH}/${TestnetGenesis}.md5"
 
                     // download genesis
-                    if (!fileExists("${GENESISPATH}/${GENESISFILE}")) {
-                        sh "wget ${GENESISURL}/${GENESISFILE} -O ${GENESISPATH}/${GENESISFILE} -nv"
+                    if (!fileExists("${GENESISPATH}/${TestnetGenesis}")) {
+                        sh "wget ${GENESISURL}/${TestnetGenesis} -O ${GENESISPATH}/${TestnetGenesis} -nv"
                     }
 
                     // download MD5
-                    sh "wget ${GENESISURL}/${GENESISFILE}.md5 -O ${GENESISPATH}/${GENESISFILE}.md5 -nv"
-                    def md5Expected = sh(script: "cat ${GENESISPATH}/${GENESISFILE}.md5", returnStdout: true);
+                    sh "wget ${GENESISURL}/${TestnetGenesis}.md5 -O ${GENESISPATH}/${TestnetGenesis}.md5 -nv"
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${TestnetGenesis}.md5", returnStdout: true);
 
                     String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
 
                     // calculate MD5
-                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${GENESISFILE}", returnStdout: true);
+                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${TestnetGenesis}", returnStdout: true);
 
                     String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
 
@@ -70,8 +89,8 @@ pipeline {
 
                     // compare MD5
                     if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
-                        sh "echo removing corrupted file ${GENESISPATH}/${GENESISFILE}"
-                        sh "rm ${GENESISPATH}/${GENESISFILE}"
+                        sh "echo removing corrupted file ${GENESISPATH}/${TestnetGenesis}"
+                        sh "rm ${GENESISPATH}/${TestnetGenesis}"
                         currentBuild.result = 'FAILURE'
                         error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
                     } else {
@@ -83,26 +102,25 @@ pipeline {
 
         stage('Create DB from genesis') {
            steps {
-               // create db from a genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis --experimental ${GENESISPATH}/${GENESISFILE}"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    // create db from a genesis file
+                    sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis --experimental ${GENESISPATH}/${TestnetGenesis}"
+                    sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+                }
             }
         }
 
-        stage('Validation') {
+        stage('Synchronization') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check archive"
-            }
-        }
-
-        stage('Synchronize blockchain for 100 epochs') {
-            steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --cache 16047 --verbosity 2 --exitwhensynced.epoch 311770 --lachesis.suppress-frame-panic"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    // snychronization to network head
+                    sh "./build/sonicd --datadir ${DATADIRPATH} --cache 16047 --exitwhensynced.age 1s --lachesis.suppress-frame-panic --config lascala/utils/sonic-config-testnet.toml"
+                    sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+                }
             }
         }
 
         stage('Teardown') {
-            // teardown
             steps {
                 sh "make clean"
                 sh "rm -rf ${DATAROOTPATH}"
