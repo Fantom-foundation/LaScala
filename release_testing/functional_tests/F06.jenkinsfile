@@ -124,7 +124,7 @@ pipeline {
                                             --tx-type all --block-length ${BlockLength} \
                                             --register-run ${RegisterRunPath} \
                                             --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_'+JOB_BASE_NAME : RunId} \
-                                            ${BlockTo}"""
+                                            ${BlocksToProcess}"""
                 }
             }
         }
