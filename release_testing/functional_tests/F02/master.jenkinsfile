@@ -89,7 +89,8 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}"),
-                            string(name: 'SonicVersion', value: "${SonicVersion}")
+                            string(name: 'SonicVersion', value: "${SonicVersion}"),
+                            string(name: 'AgentLabel', value: "x86-8-64-l")
                         ]
                     }
                 }
@@ -104,7 +105,8 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AidaVersion}"),
                             string(name: 'CarmenVersion', value: "${CarmenVersion}"),
                             string(name: 'ToscaVersion', value: "${ToscaVersion}"),
-                            string(name: 'SonicVersion', value: "${SonicVersion}")
+                            string(name: 'SonicVersion', value: "${SonicVersion}"),
+                            string(name: 'AgentLabel', value: "x86-8-64-l")
                         ]
                     }
                 }
@@ -119,7 +121,8 @@ pipeline {
                             string(name: 'AidaVersion', value: "$AidaVersion"),
                             string(name: 'CarmenVersion', value: "$CarmenVersion"),
                             string(name: 'ToscaVersion', value: "$ToscaVersion"),
-                            string(name: 'SonicVersion', value: "$SonicVersion")
+                            string(name: 'SonicVersion', value: "$SonicVersion"),
+                            string(name: 'AgentLabel', value: "x86-8-64-l")
                         ]
                     }
                 }
