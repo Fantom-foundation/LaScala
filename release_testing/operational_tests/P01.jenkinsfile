@@ -1,11 +1,15 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 @Library('shared-library') _
 
+def baselineScenarios = [
+    'scenarios/test/baseline_check.yml'
+]
+
 pipeline {
     agent { label 'norma' }
 
     options {
-        timestamps()
+        timestamps ()
         timeout(time: 12, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
     }
@@ -14,6 +18,9 @@ pipeline {
         GOROOT = '/usr/local/go'
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
+
+        // norma
+        DOCKER_API_VERSION = 1.45 // golang docker library
     }
 
     parameters {
@@ -22,60 +29,15 @@ pipeline {
             defaultValue: "main",
             description: 'Branch or commit hash for Norma'
         )
-        booleanParam(
-            name: 'enableDynamic',
-            defaultValue: true,
-            description: 'If checked, dynamic stage will be executed'
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Branch or commit hash for Sonic'
         )
         booleanParam(
-            name: 'enableSlope',
-            defaultValue: true,
-            description: 'If checked, slope stage will be executed'
-        )
-        booleanParam(
-            name: 'enableStatic',
-            defaultValue: true,
-            description: 'If checked, static stage will be executed'
-        )
-        booleanParam(
-            name: 'enableA1',
-            defaultValue: false,
-            description: 'If checked, A1 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableA2',
-            defaultValue: false,
-            description: 'If checked, A2 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableB1',
-            defaultValue: true,
-            description: 'If checked, B1 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableB2',
-            defaultValue: true,
-            description: 'If checked, B2 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableB3',
-            defaultValue: false,
-            description: 'If checked, B3 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableB4',
-            defaultValue: false,
-            description: 'If checked, B4 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableB5',
-            defaultValue: false,
-            description: 'If checked, B5 stage will be executed'
-        )
-        booleanParam(
-            name: 'enableC1',
-            defaultValue: false,
-            description: 'If checked, C1 stage will be executed'
+            name: 'enableBaselineTest',
+            defaultValue: 'true',
+            description: 'If checked, baseline scenarios will be executed',
         )
     }
 
@@ -99,18 +61,27 @@ pipeline {
             steps {
                 dir('norma') {
                     catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                        sh 'diff=`${GOROOT}/bin/gofmt -l .`; echo "$diff"; test -z "$diff"'
+                        sh 'diff=`${GOROOT}/bin/gofmt -l \$(find . -type f -name "*.go"| grep -v "/client/")`; echo "$diff"; test -z "$diff"'
                     }
                 }
             }
         }
 
-        stage('Build') {
+        stage('Build Norma') {
             steps {
                 dir('norma') {
-                    sh 'make clean'
-                    sh 'git submodule update --init --recursive'
-                    sh 'make -j'
+                    sh "make clean"
+                    sh "git submodule update --init --recursive"
+
+                    dir('client') {
+                        checkout scmGit(
+                            branches: [[name: "${SonicVersion}"]],
+                            userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                        )
+                    }
+
+                    sh "go mod tidy"
+                    sh "make -j"
                 }
             }
         }
@@ -123,273 +94,29 @@ pipeline {
             }
         }
 
-        stage('Test - Dynamic') {
-            when { expression { params.enableDynamic } }
-
+        stage('Run Target Scenarios in parallel') {
             steps {
-                sh 'echo "Running dynamic"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
-                        --label dynamic \
-                        ../norma/scenarios/demonet/dynamic.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_dynamic_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test - Slope') {
-            when { expression { params.enableSlope } }
-
-            steps {
-                sh 'echo "Running slope"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
-                        --label slope \
-                        ../norma/scenarios/demonet/slope.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_slope_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test - Static') {
-            when { expression { params.enableStatic } }
-
-            steps {
-                sh 'echo "Running static"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
-                        --label static \
-                        ../norma/scenarios/demonet/static.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_static_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test A1 - ValRpcObs') {
-            when { expression { params.enableA1 } }
-
-            steps {
-                sh 'echo "Running A1"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/OperationalTests/P01/runs \
-                        --label a1 \
-                        ../norma/scenarios/release_testing/a1.ValRpcObs.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_a1_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test A2 - MultSonicVer') {
-            when { expression { params.enableA2 } }
-
-            steps {
-                sh 'echo "Running A2"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label a2 \
-                        ../norma/scenarios/release_testing/a2.MultSonicVer.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_a2_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test B1 - NewValMidRun') {
-            when { expression { params.enableB1 } }
-
-            steps {
-                sh 'echo "Running B1"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label b1 \
-                        ../norma/scenarios/release_testing/b1.NewValMidRun.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_b1_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test B2 - EndValMidRun') {
-            when { expression { params.enableB2 } }
-
-            steps {
-                sh 'echo "Running B2"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label b2 \
-                        ../norma/scenarios/release_testing/b2.EndValMidRun.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_b2_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test B3 - RestartValMidRun') {
-            when { expression { params.enableB3 } }
-
-            steps {
-                sh 'echo "Running B3"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label b3 \
-                        ../norma/scenarios/release_testing/b3.RestartValMidRun.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_b3_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test B4 - ValCheatMustSealEpoch') {
-            when { expression { params.enableB4 } }
-
-            steps {
-                sh 'echo "Running B4"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label b4 \
-                        ../norma/scenarios/release_testing/b4.ValCheatMustSealEpoch.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_b4_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test B5 - ValsBlackout') {
-            when { expression { params.enableB5 } }
-
-            steps {
-                sh 'echo "Running B5"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label b5 \
-                        ../norma/scenarios/release_testing/b5.ValsBlackout.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_b5_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
-                }
-            }
-        }
-
-        stage('Test C1 - RpcRequests') {
-            when { expression { params.enableC1 } }
-
-            steps {
-                sh 'echo "Running B5"'
-
-                dir('runs') {
-                    sh 'pwd'
-                    sh """../norma/build/norma run \
-                        -o /tmp/workspace/ReleaseTesting/Experimental/P01/runs \
-                        --label b5 \
-                        ../norma/scenarios/release_testing/c1.RpcRequests.yml"""
-                }
-            }
-
-            post {
-                failure {
-                    dir('runs/norma_data_c1_latest') {
-                        uploadArtifacts(["*.yml", "*.csv", "node_logs/*.log", "*.html"])
-                    }
+                script {
+                    // currently we only have one baseline scenario, more to be added
+                    parallel baselineScenarios.collectEntries { s -> [
+                        (s): {
+                            build job: '/Norma/RunSingleScenario',
+                            parameters: [ 
+                                string(name: 'NormaVersion', value: "${NormaVersion}"),
+                                string(name: 'SonicVersion', value: "${SonicVersion}"),
+                                string(name: 'PathToScenario', value: "${s}"),
+                            ]
+                        }
+                    ]}
                 }
             }
         }
 
         stage('Teardown') {
             steps {
-                sh "make clean"
+                dir('norma') {
+                    sh "make clean"
+                }
             }
         }
     }
