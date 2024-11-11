@@ -1,4 +1,4 @@
-// Master job for running release candidate tests in parallel
+// Master job for running Aida-vm-sdb-Ethereum-Substate
 
 pipeline {
     agent { label 'coordinator' }
