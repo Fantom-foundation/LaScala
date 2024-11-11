@@ -155,6 +155,11 @@ pipeline {
             description: 'If checked, F17 stage will be executed'
         )
         booleanParam(
+            name: 'RunF18',
+            defaultValue: true,
+            description: 'If checked, F18 stage will be executed'
+        )
+        booleanParam(
             name: 'RunN01',
             defaultValue: true,
             description: 'If checked, N01 stage will be executed'
@@ -589,6 +594,22 @@ pipeline {
                         build job: '/Tosca/Validate-LFVM-Ethereum', parameters: [
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}")
+                        ]
+                    }
+                }
+
+                stage('F18 Ethereum block processing') {
+                    when {
+                        expression {
+                            return params.RunF18;
+                        }
+                    }
+                    steps {
+                        build job: '/ReleaseTesting/FunctionalTests/F18', parameters: [
+                            string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
+                            string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
+                            string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
