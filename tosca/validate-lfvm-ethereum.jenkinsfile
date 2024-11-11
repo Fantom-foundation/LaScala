@@ -4,7 +4,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 2, unit: 'DAYS')
+        timeout(time: 24, unit: 'HOURS')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -57,7 +57,13 @@ pipeline {
 
                 stage('15.42M to 15.44M') {
                     steps {
-                        runAidaVm('15427799', '15445480')
+                        runAidaVm('15427799', '15445160')
+                    }
+                }
+
+                stage('15.44M to 15.44M') {
+                    steps {
+                        runAidaVm('15445162', '15445480')
                     }
                 }
 
