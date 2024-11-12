@@ -236,8 +236,8 @@ pipeline {
                                                  --aida-db /mnt/aida-ethereum-substate-db/ethereum-substate-db \
                                                  ${GenesisBlock.isEmpty() ? '' : srcDb} \
                                                  ${params.Archive ? archiveFlags : ''} \
-                                                 --chainid 1
-                                                 --evm-impl ethereum
+                                                 --chainid 1 \
+                                                 --evm-impl ethereum \
                                                  --track-progress --no-heartbeat-logging \
                                                  --register-run ${RegisterRunPath} \
                                                  --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02Eth' : RunId} \
