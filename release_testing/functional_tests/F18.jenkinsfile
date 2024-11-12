@@ -6,7 +6,7 @@ pipeline {
     parameters {
         string(
             name: 'BlockFrom',
-            defaultValue: '9068999',
+            defaultValue: '9069000',
             description: 'Starting block')
         string(
             name: 'BlockTo',
@@ -35,7 +35,7 @@ pipeline {
     stages {
         stage('Start parallel stage execution') {
             parallel {
-                stage('Ethereum block processing 9068999-10m') {
+                stage('Ethereum block processing 9069000-10m') {
                     steps {
                         runAidaVmSdb("${BlockFrom}", "10000000", "x86-8-64-m")
                     }
