@@ -37,7 +37,7 @@ pipeline {
             parallel {
                 stage('Ethereum block processing 9068999-10m') {
                     steps {
-                        runAidaVmSdb("9068999", "10000000", "x86-8-64-m")
+                        runAidaVmSdb("${BlockFrom}", "10000000", "x86-8-64-m")
                     }
                 }
 
@@ -73,7 +73,7 @@ pipeline {
 
                 stage('Ethereum block processing 19m-20m') {
                     steps {
-                        runAidaVmSdb("19000001", "20000000", "x86-8-64-m")
+                        runAidaVmSdb("19000001", "${BlockTo}", "x86-8-64-m")
                     }
                 }
             }
