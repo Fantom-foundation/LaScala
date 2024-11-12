@@ -248,7 +248,7 @@ pipeline {
                 }
             }
         }
-/*
+
         stage('Generate Report F02') {
             steps {
                 sh 'echo "Running report generation F02"'
@@ -262,7 +262,7 @@ pipeline {
                 sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
             }
         }
-*/
+
         stage('Teardown') {
             steps {
                 sh 'echo "Running teardown stage"'
