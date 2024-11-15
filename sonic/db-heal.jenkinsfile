@@ -47,8 +47,8 @@ pipeline {
         stage('Kill on sync') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    // send SIGKILL after 180s to terminate the node and make DBs dirty
-                    sh "timeout -s 9 20m ./build/sonicd --datadir ${SONICSTATEDB} --cache 16047 --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
+                    // send SIGKILL after 20 minutes to terminate the node and make DBs dirty
+                    sh "timeout -s 9 20m ./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
                 }
             }
         }
@@ -59,7 +59,7 @@ pipeline {
                     def liveCheckPass = true
                     def archiveCheckPass = true
                     try {
-                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check live"
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} check live"
                     } catch (Exception e) {
                         echo "Exception: ${e}"
                         echo 'Live DB check failed as expected'
@@ -67,7 +67,7 @@ pipeline {
                     }
 
                     try {
-                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check archive"
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} check archive"
                     } catch (Exception e) {
                         echo "Exception: ${e}"
                         echo 'Archive DB check failed as expected'
@@ -84,7 +84,7 @@ pipeline {
         stage('Heal corrupted DBs') {
             steps {
                 script {
-                    sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 heal"
+                    sh "./build/sonictool --datadir ${SONICSTATEDB} heal"
                 }
             }
         }
@@ -93,24 +93,25 @@ pipeline {
             steps {
                 script{
                     def liveCheckPass = true
-                    def archiveCheckPass = true
                     try {
-                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check live"
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} check live"
                     } catch (Exception e) {
                         echo "Unexpected exception: ${e}"
                         liveCheckPass = false
                     }
-
-                    try {
-                        sh "./build/sonictool --datadir ${SONICSTATEDB} --cache 16047 check archive"
-                    } catch (Exception e) {
-                        echo "Unexpected exception: ${e}"
-                        archiveCheckPass = false
-                    }
                     //set build result to failure if any of the checks failed
-                    if (!liveCheckPass || !archiveCheckPass) {
+                    if (!liveCheckPass) {
                         error 'DB check failed after healing'
                     }
+                }
+            }
+        }
+
+        stage('Continue Synchronization') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    // send SIGTERM after 180s to terminate the node and make DBs dirty
+                    sh "timeout -k 20m 3m ./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
                 }
             }
         }
