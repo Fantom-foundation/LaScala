@@ -1,0 +1,288 @@
+// Test functional correctness of live-db using ethereum mainnet and aida-rpc tool
+
+@Library('shared-library') _
+
+pipeline {
+    agent { label "${AgentLabel}" }
+
+    options {
+        timestamps ()
+        timeout(time: 5, unit: 'DAYS') // expected: 10 days
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '60GiB'
+        DATAROOTPATH='/mnt/tmp-disk'
+        GENESISPATH='/mnt/tmp-disk/genesis'
+        BUCKETURLPREFIX='gs://aida-jenkins-genesis'
+    }
+
+    parameters {
+        string(
+            name: 'BlockFrom',
+            defaultValue: '9069000',
+            description: 'Starting block'
+        )
+        string(
+            name: 'BlockTo',
+            defaultValue: 'last',
+            description: 'Ending block'
+        )
+        string(
+            name: 'AidaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Aida'
+        )
+        string(
+            name: 'CarmenVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Carmen'
+        )
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Branch or commit hash for Tosca'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: 'develop',
+            description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'Workers',
+            defaultValue: '40',
+            description: 'Number of workers'
+        )
+        string(
+            name: 'RegisterRunPath',
+            defaultValue: '/mnt/tmp-disk/register-run-db',
+            description: 'Path to register run db'
+        )
+        string(
+            name: 'RunId',
+            defaultValue: '',
+            description: 'Overrides name of the register run db'
+        )
+        string(
+            name: 'BucketPath',
+            defaultValue: 'ethereum-datadirs',
+            description: 'Genesis file URI.'
+        )
+        string(
+            name: 'GenesisBlock',
+            defaultValue: '9068999',
+            description: 'Genesis start block number.'
+        )
+        string(
+            name: 'CustomFlags',
+            defaultValue: '',
+            description: 'Additional flags for aida-vm-sdb substate command'
+        )
+        string(
+            name: 'AgentLabel',
+            defaultValue: 'x86-8-64-m',
+            description: 'Agent to build this job. Recommended are "x86-8-64-m" for shorter runs and "x86-8-64-l" for longer ones'
+        )
+        booleanParam(
+            name: 'Validate',
+            defaultValue: true,
+            description: 'Turn on/off transaction and state hash validation of aida-vm-sdb tool'
+        )
+        booleanParam(
+            name: 'Archive',
+            defaultValue: true,
+            description: 'Turn on/off archive mode of aida-vm-sdb tool'
+        )
+    }
+
+    stages {
+        stage('Build and preparation') {
+            steps {
+                script {
+                    currentBuild.description = "Building on ${env.NODE_NAME}"
+                }
+
+                checkout scmGit(
+                    branches: [[name: "${AidaVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Aida.git'
+                    ]]
+                )
+                sh "git submodule update --init --recursive"
+
+                dir('carmen') {
+                	checkout scmGit(
+                		branches: [[name: "${CarmenVersion}"]],
+                		userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
+                	)
+
+                	sh "git submodule update --recursive"
+                }
+
+                dir('tosca') {
+                    checkout scmGit(
+                        branches: [[name: "${ToscaVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Tosca.git']]
+                    )
+
+                    sh "git submodule update --recursive"
+                }
+
+                dir('sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${SonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                    )
+                }
+
+                sh "go mod tidy"
+                sh "make all"
+            }
+        }
+
+        stage('Download genesis from bucket') {
+            when {
+                expression {
+                    return !GenesisBlock.isEmpty();
+                }
+            }
+            steps {
+                sh "mkdir -p $GENESISPATH"
+
+                step([
+                    $class: 'DownloadStep',
+                    credentialsId: 'aida-jenkins-service-account',
+                    bucketUri: "${BUCKETURLPREFIX}/${BucketPath}/carmen-live-${GenesisBlock}.g",
+                    localDirectory: "$GENESISPATH"
+                ])
+            }
+        }
+
+        stage('Create stateDB from genesis') {
+            when {
+                expression {
+                    return !GenesisBlock.isEmpty();
+                }
+            }
+            steps {
+                sh "rm -rf ${DATAROOTPATH}/state_db_carmen_go-file"
+
+                dir('carmen/go') {
+                    sh "go run ./database/mpt/tool import-live-db ${GENESISPATH}/${BucketPath}/carmen-live-${GenesisBlock}.g ${DATAROOTPATH}/state_db_carmen_go-file/live"
+                    sh "go run ./database/mpt/tool init-archive ${GENESISPATH}/${BucketPath}/carmen-live-${GenesisBlock}.g ${DATAROOTPATH}/state_db_carmen_go-file/archive"
+                    }
+            }
+        }
+
+        stage('Verify imported DB') {
+            when {
+                expression {
+                    return !GenesisBlock.isEmpty();
+                }
+            }
+            steps {
+                dir('carmen/go') {
+                    sh 'go run ./database/mpt/tool verify ${DATAROOTPATH}/state_db_carmen_go-file/live'
+                }
+            }
+        }
+
+        stage('Create fake stateddb_info.json') {
+            when {
+                expression {
+                    return !GenesisBlock.isEmpty();
+                }
+            }
+            steps {
+                script {
+                    // <implementation-default>
+                    def fake_statedb_info = [ "dbImpl": "carmen",
+                                              "dbVariant": "go-file",
+                                              "archiveMode": true,
+                                              "archiveVariant": "s5",
+                                              "schema": 5,
+                                              "block": GenesisBlock.toInteger(),
+                                              "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
+                                              "gitCommit": "f5a5facf651ea08abf38c18ebd1d3a99b5ec5e8f",
+                                              "createTimeUTC": "Wed Aug 14 06:14:05 UTC 2024"
+                                            ]
+
+                    writeJSON file: "${DATAROOTPATH}/state_db_carmen_go-file/statedb_info.json", json: fake_statedb_info
+
+                    sh "cat ${DATAROOTPATH}/state_db_carmen_go-file/statedb_info.json"
+                }
+            }
+        }
+
+        stage('Test stage') {
+            steps {
+                sh 'echo "Running test stage"'
+
+                sh "rm -f *.cpuprofile *.memprofile *.log"
+
+                sh "mkdir -p ${RegisterRunPath}"
+
+                script {
+                    def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file --db-src-overwrite"
+                    def validationFlags = "--validate-tx --validate-state-hash"
+                    def archiveFlags = "--archive --archive-variant s5"
+
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """build/aida-vm-sdb  substate ${params.Validate ? validationFlags : ''} \
+                                                 --db-impl carmen --db-variant go-file --carmen-schema 5 \
+                                                 --vm-impl lfvm \
+                                                 --db-tmp /mnt/tmp-disk \
+                                                 --aida-db /mnt/aida-ethereum-substate-db/ethereum-substate-db \
+                                                 ${GenesisBlock.isEmpty() ? '' : srcDb} \
+                                                 ${params.Archive ? archiveFlags : ''} \
+                                                 --chainid 1 \
+                                                 --evm-impl ethereum \
+                                                 --track-progress --no-heartbeat-logging \
+                                                 --register-run ${RegisterRunPath} \
+                                                 --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02Eth' : RunId} \
+                                                 --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
+                                                 ${CustomFlags.isEmpty() ? '' : CustomFlags} \
+                                                 ${BlockFrom} ${BlockTo}"""
+                    }
+                }
+            }
+        }
+
+        stage('Generate Report F02') {
+            steps {
+                sh 'echo "Running report generation F02"'
+
+                sh """./scripts/analytics/rmd/gen_processing_reports.sh \
+                    ./scripts/analytics/rmd/knit.R \
+                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F02' : RunId}.db \
+                    ./scripts/analytics/rmd/f1.rmd \
+                    ./scripts/analytics/rmd"""
+
+                sh 'mv scripts/analytics/rmd/f1.html ./${BUILD_NUMBER}_${JOB_BASE_NAME}.html'
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh 'echo "Running teardown stage"'
+
+                sh "make clean"
+            }
+        }
+    }
+
+    post {
+        always {
+            uploadArtifacts(["*.cpuprofile", "*.memprofile", "*.log", "*.html"])
+
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}

@@ -1,0 +1,112 @@
+// Master job for running Aida-vm-sdb-Ethereum-Substate
+
+pipeline {
+    agent { label 'coordinator' }
+
+    parameters {
+        string(
+            name: 'BlockFrom',
+            defaultValue: '9069000',
+            description: 'Starting block')
+        string(
+            name: 'BlockTo',
+            defaultValue: '20000000',
+            description: 'Ending block')
+        string(
+            name: 'AidaVersion',
+            defaultValue: 'main',
+            description: 'Can be either branch name or commit hash.')
+        string(
+            name: 'CarmenVersion',
+            defaultValue: 'main',
+            description: 'Can be either branch name or commit hash.')
+        string(
+            name: 'ToscaVersion',
+            defaultValue: 'main',
+            description: 'Can be either branch name or commit hash.'
+        )
+        string(
+            name: 'SonicVersion',
+            defaultValue: 'develop',
+            description: 'Can be either branch name or commit hash.'
+        )
+    }
+
+    stages {
+        stage('Start parallel stage execution') {
+            parallel {
+                stage('Ethereum block processing 9069000-10m') {
+                    steps {
+                        runAidaVmSdb("${BlockFrom}", "10000000", "x86-8-64-m")
+                    }
+                }
+
+                stage('Ethereum block processing 10m-12m') {
+                    steps {
+                        runAidaVmSdb("10000001", "12000000", "x86-8-64-m")
+                    }
+                }
+
+                stage('Ethereum block processing 12m-14m') {
+                    steps {
+                        runAidaVmSdb("12000001", "14000000", "x86-8-64-m")
+                    }
+                }
+
+                stage('Ethereum block processing 14m-16m') {
+                    steps {
+                        runAidaVmSdb("14000001", "16000000", "x86-8-64-m")
+                    }
+                }
+
+                stage('Ethereum block processing 16m-18m') {
+                    steps {
+                        runAidaVmSdb("16000001", "18000000", "x86-8-64-m")
+                    }
+                }
+
+                stage('Ethereum block processing 18m-19m') {
+                    steps {
+                        runAidaVmSdb("18000001", "19000000", "x86-8-64-m")
+                    }
+                }
+
+                stage('Ethereum block processing 19m-20m') {
+                    steps {
+                        runAidaVmSdb("19000001", "${BlockTo}", "x86-8-64-m")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "aida")
+            ]
+        }
+    }
+}
+
+// a function for running aida-vm-sdb job for a specific range of blocks.
+def runAidaVmSdb(first, last, agent) {
+    def genesisBlock = ""
+    if (first.isNumber() && first.toInteger() > 0) {
+        genesisBlock = first.toInteger() - 1
+    }
+    build job: '/Aida/Aida-vm-sdb-Ethereum-Substate', parameters: [
+        string(name: 'BlockFrom', value: "${first}"),
+        string(name: 'BlockTo', value: "${last}"),
+        string(name: 'GenesisBlock', value: "${genesisBlock}"),
+        string(name: 'AidaVersion', value: "$AidaVersion"),
+        string(name: 'CarmenVersion', value: "$CarmenVersion"),
+        string(name: 'ToscaVersion', value: "$ToscaVersion"),
+        string(name: 'SonicVersion', value: "$SonicVersion"),
+        string(name: 'AgentLabel', value: "$agent")
+    ]
+}
