@@ -54,7 +54,7 @@ pipeline {
 
         stage('Build Norma') {
             steps {
-                sh "make -j"
+                sh "make"
             }
         }
 
@@ -64,9 +64,9 @@ pipeline {
             }
         }
 
-        stage('Test Baseline Scenarios') {
+        stage('Test Scenarios') {
             steps {
-                sh "build/norma run scenarios/test/baseline_check.yml"
+                sh "build/norma run scenarios/test/"
             }
         }
     }
