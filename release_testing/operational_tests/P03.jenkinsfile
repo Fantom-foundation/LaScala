@@ -110,7 +110,7 @@ pipeline {
             }
         }
 
-        stage('Preparation') {
+        stage('Genesis download and verification') {
             steps {
                 script {
                     // download genesis
@@ -153,7 +153,7 @@ pipeline {
             }
         }
 
-        stage('Synchronization') {
+        stage('Synchronization and check') {
             steps {
                 sh """./build/sonicd \
                             --datadir ${DATADIRPATH} \
