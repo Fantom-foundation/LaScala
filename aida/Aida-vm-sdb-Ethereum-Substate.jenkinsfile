@@ -81,8 +81,8 @@ pipeline {
         )
         string(
             name: 'AgentLabel',
-            defaultValue: 'x86-8-64-m',
-            description: 'Agent to build this job. Recommended are "x86-8-64-m" for shorter runs and "x86-8-64-l" for longer ones'
+            defaultValue: 'x86-8-64-m-ethereum-substate',
+            description: 'Agent to build this job. Agent must have ethereum substate db connected'
         )
         booleanParam(
             name: 'Validate',
