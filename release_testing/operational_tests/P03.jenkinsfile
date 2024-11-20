@@ -1,7 +1,10 @@
-// P03 performs end-to-end test synchronizing from the first opera block to the current head
+// P03 performs end-to-end test synchronizing from the first block to the current head on chosen network
 
-def genesisUrl
+// Global variables
 def genesis
+def genesisUrl
+def configFile
+def additionalFlags
 
 pipeline {
     agent { node "x86-4-32-m" }
@@ -18,25 +21,30 @@ pipeline {
         DATAROOTPATH="/mnt/tmp-disk/tooltmp"
         DATADIRPATH="${DATAROOTPATH}/sonic"
         GENESISPATH="/mnt/tmp-disk/genesis"
-        GENESISURL="https://download.fantom.network"
-        GENESISDEFAULT="mainnet-latest-validator.g"
+        GENESISMAINNETURL="https://download.fantom.network"
+        GENESISMAINNET="mainnet-latest-validator.g"
+        GENESISTESTNETURL="https://download.fantom.network/builders"
+        GENESISTESTNET="builders-36960.g"
+        GENESISDEVNETURL="https://storage.googleapis.com/sonic-snapshots/devnet"
+        GENESISDEVNET="genesis.json"
+        DEVNETCONFIGURL="https://storage.googleapis.com/sonic-snapshots/devnet/config.toml"
     }
 
     parameters {
         string(
-            name: 'Genesis',
-            defaultValue: "",
-            description: 'Name of the genesis file to download'
-        )
-        string(
             name: 'SonicVersion',
-            defaultValue: "main",
+            defaultValue: "develop",
             description: 'Branch or commit hash for Sonic'
         )
         string(
             name: 'LaScalaVersion',
             defaultValue: "main",
             description: 'Branch or commit hash for LaScala'
+        )
+        choice(
+            name: 'Network',
+            choices: ['Devnet', 'Opera mainnet', 'Opera testnet'],
+            description: 'Blockchain network to test on'
         )
     }
 
@@ -63,50 +71,76 @@ pipeline {
             }
         }
 
-        stage('Preparation') {
+        stage('Network setup and preparation') {
             steps {
-                // setup
+                sh "rm -rf $GENESISPATH"
                 sh "mkdir -p $GENESISPATH"
+                sh "mkdir -p $DATAROOTPATH"
 
                 script {
-                    genesisUrl = GENESISURL
-                    genesis = GENESISDEFAULT
+                    switch(params.Network) {
+                      case 'Opera mainnet':
+                        genesis = GENESISMAINNET
+                        genesisUrl = GENESISMAINNETURL
+                        configFile = ''
+                        additionalFlags = '--lachesis.suppress-frame-panic'
+                        break
+                      case 'Opera testnet':
+                        genesis = GENESISTESTNET
+                        genesisUrl = GENESISTESTNETURL
+                        configFile = '--config lascala/utils/sonic-config-testnet.toml'
+                        additionalFlags = '--lachesis.suppress-frame-panic'
+                        break
+                      case 'Devnet':
+                        genesis = GENESISDEVNET
+                        genesisUrl = GENESISDEVNETURL
+                        configFile = "--config $DATAROOTPATH/sonic-devnet.toml"
+                        additionalFlags = ''
 
-                    if (!params.Genesis.isEmpty() && params.Genesis != GENESISDEFAULT) {
-                        genesisUrl = GENESISURL + "/opera/mainnet"
-                        genesis = params.Genesis
+                        // download devnet config
+                        sh "wget $DEVNETCONFIGURL -O $DATAROOTPATH/sonic-devnet.toml -nv"
+                        break
+                      default:
+                        genesis = GENESISMAINNET
+                        genesisUrl = GENESISMAINNETURL
+                        configFile = ''
+                        additionalFlags = '--lachesis.suppress-frame-panic'
+                        break
                     }
+                }
+            }
+        }
 
-                    // remove old md5
-                    sh "rm -f ${GENESISPATH}/${genesis}.md5"
-
+        stage('Genesis download and verification') {
+            steps {
+                script {
                     // download genesis
-                    if (!fileExists("${GENESISPATH}/${genesis}")) {
-                        sh "wget ${genesisUrl}/${genesis} -O ${GENESISPATH}/${genesis} -nv"
-                    }
+                    sh "wget ${genesisUrl}/${genesis} -O ${GENESISPATH}/${genesis} -nv"
 
-                    // download MD5
-                    sh "wget ${genesisUrl}/${genesis}.md5 -O ${GENESISPATH}/${genesis}.md5 -nv"
-                    def md5Expected = sh(script: "cat ${GENESISPATH}/${genesis}.md5", returnStdout: true);
+                    if (params.Network != "Devnet") {
+                        // download MD5
+                        sh "wget ${genesisUrl}/${genesis}.md5 -O ${GENESISPATH}/${genesis}.md5 -nv"
+                        def md5Expected = sh(script: "cat ${GENESISPATH}/${genesis}.md5", returnStdout: true);
 
-                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
+                        String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
 
-                    // calculate MD5
-                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${genesis}", returnStdout: true);
+                        // calculate MD5
+                        def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${genesis}", returnStdout: true);
 
-                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+                        String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
 
-                    sh "echo ${md5ExpectedHash}"
-                    sh "echo ${md5CalculatedHash}"
+                        sh "echo ${md5ExpectedHash}"
+                        sh "echo ${md5CalculatedHash}"
 
-                    // compare MD5
-                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
-                        sh "echo removing corrupted file ${GENESISPATH}/${genesis}"
-                        sh "rm ${GENESISPATH}/${genesis}"
-                        currentBuild.result = 'FAILURE'
-                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
-                    } else {
-                        sh "echo hash ${md5CalculatedHash} confirmed"
+                        // compare MD5
+                        if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                            sh "echo removing corrupted file ${GENESISPATH}/${genesis}"
+                            sh "rm ${GENESISPATH}/${genesis}"
+                            currentBuild.result = 'FAILURE'
+                            error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                        } else {
+                            sh "echo hash ${md5CalculatedHash} confirmed"
+                        }
                     }
                 }
             }
@@ -115,15 +149,27 @@ pipeline {
         stage('Create DB from genesis') {
            steps {
                // create db from a genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis --experimental ${GENESISPATH}/${genesis}"
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis ${params.Network == 'Devnet' ? 'json' : ''} --experimental ${GENESISPATH}/${genesis}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
 
-        stage('Synchronization') {
+        stage('Synchronization and check') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --cache 16047 --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
+                sh """./build/sonicd \
+                            --datadir ${DATADIRPATH} \
+                            --verbosity 2 \
+                            --exitwhensynced.age 1s \
+                            ${additionalFlags} \
+                            ${configFile}"""
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh "make clean"
+                sh "rm -rf ${DATAROOTPATH}"
             }
         }
     }
