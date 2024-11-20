@@ -1,5 +1,6 @@
 // P03 performs end-to-end test synchronizing from the first block to the current head on chosen network
 
+// Global variables
 def genesis
 def genesisUrl
 def configFile
@@ -42,7 +43,7 @@ pipeline {
         )
         choice(
             name: 'Network',
-            choices: ['Opera mainnet', 'Opera testnet', 'Devnet'],
+            choices: ['Devnet', 'Opera mainnet', 'Opera testnet'],
             description: 'Blockchain network to test on'
         )
     }
