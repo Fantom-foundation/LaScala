@@ -1,7 +1,7 @@
 // P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests adn compare block receipts
 
 pipeline {
-    agent { node "x86-4-32-archive" }
+    agent { node "${params.Agent}" }
 
     options {
         timestamps ()
@@ -12,7 +12,8 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '28GiB'
-        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
+        SONICSTATEDB = ''
+        OPTIONS = ''
     }
 
     parameters {
@@ -30,6 +31,17 @@ pipeline {
             name: 'ReferentialUrl',
             defaultValue: "http://10.128.0.10",
             description: 'URL address of referential Sonic node'
+        )
+        string(
+            //default agent for devnet. For mainnet, use x86-4-32-archive
+            name: 'Agent',
+            defaultValue: 'x86-4-32-m',
+            description: 'Agent label to run the job. For Opera mainnet, use x86-4-32-archive.'
+        )
+        choice(
+            name: 'Network',
+            choices: ['Sonic devnet', 'Opera mainnet'],
+            description: 'Network to test'
         )
     }
 
@@ -54,15 +66,44 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Confugure & Build') {
             steps {
-                sh "make"
+                sh 'make'
+
+                script {
+                    // resume from an existing statedb
+                    if ("${Network}" == 'Opera mainnet') {
+                        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
+                        OPTIONS = '--lachesis.suppress-frame-panic'
+                    // needs genesis and config files
+                    } else if ("${Network}" == 'Sonic devnet') {
+                        // variables
+                        def tmppath = '/mnt/tmp-disk/'
+                        def genesispath = "${tmppath}/genesis.json"
+                        def tomlpath = "${tmppath}/sonic-devnet.toml"
+
+                        SONICSTATEDB = "${tmppath}/sonic"
+                        OPTIONS = "--config ${tomlpath}"
+
+                        // download genesis and config files
+                        sh "wget -O ${genesispath} https://storage.googleapis.com/sonic-snapshots/devnet/genesis.json"
+                        sh "wget -O ${tomlpath} https://storage.googleapis.com/sonic-snapshots/devnet/config.toml"
+
+                        // prepare stateDb from genesis
+                        sh """./build/sonictool --datadir ${SONICSTATEDB} \
+                            genesis json ${genesispath} \
+                            --experimental --mode rpc"""
+                    } else {
+                        error 'Invalid network'
+                    }
+                }
             }
         }
 
+
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${SONICSTATEDB} --cache 16047 --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
+                sh "./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s ${OPTIONS}"
             }
         }
 
@@ -93,8 +134,8 @@ pipeline {
                                 --http.port=80 \
                                 --http.corsdomain="*" \
                                 --http.vhosts="*" \
-                                --http.api=eth,web3,net,ftm,txpool,abft,dag
-                                --lachesis.suppress-frame-panic"""
+                                --http.api=eth,web3,net,ftm,txpool,abft,dag \
+                                ${OPTIONS}"""
                         }
                     }
                 }
