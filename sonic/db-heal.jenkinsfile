@@ -4,7 +4,7 @@
 // if the node can validate via check tool.
 
 pipeline {
-    agent { node "x86-4-32-archive" }
+    agent { node "${params.Agent}" }
 
     options {
         timestamps ()
@@ -15,7 +15,8 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '28GiB'
-        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
+        SONICSTATEDB = ''
+        OPTIONS = ''
     }
 
     parameters {
@@ -23,6 +24,17 @@ pipeline {
             name: 'SonicVersion',
             defaultValue: "develop",
             description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            //default agent for devnet. For mainnet, use x86-4-32-archive
+            name: 'Agent',
+            defaultValue: 'x86-4-32-m',
+            description: 'Agent label to run the job. For Opera mainnet, use x86-4-32-archive.'
+        )
+        choice(
+            name: 'Network',
+            choices: ['Sonic devnet', 'Opera mainnet'],
+            description: 'Network to test'
         )
     }
 
@@ -38,9 +50,38 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Confugure & Build') {
             steps {
-                sh "make"
+                sh 'make clean'
+                sh 'make'
+
+                script {
+                    // resume from an existing statedb
+                    if ("${Network}" == 'Opera mainnet') {
+                        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
+                        OPTIONS = '--lachesis.suppress-frame-panic'
+                    // needs genesis and config files
+                    } else if ("${Network}" == 'Sonic devnet') {
+                        // variables
+                        def tmppath = '/mnt/tmp-disk/'
+                        def genesispath = "${tmppath}/genesis.json"
+                        def tomlpath = "${tmppath}/sonic-devnet.toml"
+
+                        SONICSTATEDB = "${tmppath}/sonic"
+                        OPTIONS = "--config ${tomlpath}"
+
+                        // download genesis and config files
+                        sh "wget -O ${genesispath} https://storage.googleapis.com/sonic-snapshots/devnet/genesis.json"
+                        sh "wget -O ${tomlpath} https://storage.googleapis.com/sonic-snapshots/devnet/config.toml"
+
+                        // prepare stateDb from genesis
+                        sh """./build/sonictool --datadir ${SONICSTATEDB} \
+                            genesis json ${genesispath} \
+                            --experimental --mode rpc"""
+                    } else {
+                        error 'Invalid network'
+                    }
+                }
             }
         }
 
@@ -48,7 +89,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     // send SIGKILL after 20 minutes to terminate the node and make DBs dirty
-                    sh "timeout -s 9 20m ./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
+                    sh "timeout -s 9 20m ./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 ${OPTIONS}"
                 }
             }
         }
@@ -93,25 +134,24 @@ pipeline {
             steps {
                 script{
                     def liveCheckPass = true
+                    def archiveCheckPass = true
                     try {
                         sh "./build/sonictool --datadir ${SONICSTATEDB} check live"
                     } catch (Exception e) {
                         echo "Unexpected exception: ${e}"
                         liveCheckPass = false
                     }
+
+                    try {
+                        sh "./build/sonictool --datadir ${SONICSTATEDB} check archive"
+                    } catch (Exception e) {
+                        echo "Unexpected exception: ${e}"
+                        archiveCheckPass = false
+                    }
                     //set build result to failure if any of the checks failed
-                    if (!liveCheckPass) {
+                    if (!liveCheckPass || !archiveCheckPass) {
                         error 'DB check failed after healing'
                     }
-                }
-            }
-        }
-
-        stage('Continue Synchronization') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    // send SIGTERM after 180s to terminate the node and make DBs dirty
-                    sh "timeout -k 20m 3m ./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s --lachesis.suppress-frame-panic"
                 }
             }
         }
@@ -124,7 +164,7 @@ pipeline {
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.duration}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: "aida")
+                string(name: 'user', value: "sonic")
             ]
         }
     }
