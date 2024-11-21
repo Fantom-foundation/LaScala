@@ -50,11 +50,6 @@ pipeline {
             description: 'Branch or commit hash for Sonic'
         )
         string(
-            name: 'Workers',
-            defaultValue: '40',
-            description: 'Number of workers'
-        )
-        string(
             name: 'RegisterRunPath',
             defaultValue: '/mnt/tmp-disk/register-run-db',
             description: 'Path to register run db'
