@@ -30,6 +30,11 @@ pipeline {
             defaultValue: 'develop',
             description: 'Can be either branch name or commit hash.'
         )
+        booleanParam(
+            name: 'Archive',
+            defaultValue: false,
+            description: 'Turn on/off archive mode of aida-vm-sdb tool'
+        )
     }
 
     stages {
@@ -108,6 +113,6 @@ def runAidaVmSdb(first, last, agent) {
         string(name: 'ToscaVersion', value: "$ToscaVersion"),
         string(name: 'SonicVersion', value: "$SonicVersion"),
         string(name: 'AgentLabel', value: "$agent"),
-        string(name: 'Archive', value: "false")
+        booleanParam(name: 'Archive', value: params.Archive)
     ]
 }
