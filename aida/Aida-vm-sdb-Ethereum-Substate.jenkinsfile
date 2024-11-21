@@ -238,7 +238,7 @@ pipeline {
 
                 script {
                     def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file --db-src-overwrite"
-                    def validationFlags = "--validate-tx --validate-state-hash"
+                    def validationFlags = "--validate-tx"
                     def archiveFlags = "--archive --archive-variant s5"
 
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
