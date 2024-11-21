@@ -10,20 +10,35 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '12GiB'
-        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
-        DATADIRPATH="${DATAROOTPATH}/sonic"
-        EVENTDBPATH="${DATAROOTPATH}/sonic_from_events"
-        GENESISDBPATH="${DATAROOTPATH}/sonic_from_genesis"
-        GENESISPATH="/mnt/tmp-disk/genesis"
-        GENESISURL="https://download.fantom.network/opera/mainnet"
-        GENESISFILE="mainnet-5577-archive.g"
+
+        // local files
+        DATAROOTPATH = '/mnt/tmp-disk'
+        DATADIRPATH = "${DATAROOTPATH}/sonic"
+        EVENTDBPATH = "${DATAROOTPATH}/sonic_from_events"
+        GENESISDBPATH = "${DATAROOTPATH}/sonic_from_genesis"
+        GENESISPATH = "${DATAROOTPATH}/genesis"
+        TOMLPATH = "${DATAROOTPATH}/sonic-devnet.toml"
+
+        // genesis download url
+        GENESISURL = ''
+        TOMLURL = ''
+        GENESISFILE = 'genesis.g'
+
+        // client additional options
+        OPTIONS = ''
+        EPOCH = 0
     }
 
     parameters {
         string(
             name: 'SonicVersion',
-            defaultValue: "main",
+            defaultValue: 'develop',
             description: 'Branch or commit hash for Sonic'
+        )
+        choice(
+            name: 'Network',
+            choices: ['Devnet', 'Opera Mainnet'],
+            description: 'Network to test'
         )
     }
 
@@ -39,6 +54,27 @@ pipeline {
             }
         }
 
+        // This stage sets genesis download url for the chosen network,
+        // and also download the configuration file if needed.
+        // Set addtional options for the network here.
+        stage('Configure Network Parameters') {
+            steps{
+                script {
+                    if ("${Network}" == "Opera Mainnet") {
+                        GENESISURL = 'https://download.fantom.network/opera/mainnet/mainnet-5577-archive.g'
+                        TOMLURL = ''
+                        OPTIONS = '--lachesis.suppress-frame-panic'
+                        EPOCH = 5577
+                    } else if ("${Network}" == "Devnet") {
+                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/devnet/genesis.json'
+                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/devnet/config.toml'
+                        OPTIONS = "--config ${TOMLPATH}"
+                        EPOCH = 0
+                    }
+                }
+            }
+        }
+
         stage('Preparation and build') {
             steps {
                 // setup
@@ -47,63 +83,74 @@ pipeline {
 
                 // download genesis
                 script {
-                    if (!fileExists("${GENESISPATH}/${GENESISFILE}")) {
-                        sh "curl -o ${GENESISPATH}/${GENESISFILE} ${GENESISURL}/${GENESISFILE}"
-                    }
+                    sh "wget -O ${GENESISPATH}/${GENESISFILE} ${GENESISURL} -nv"
+                    sh "wget -O ${TOMLPATH} ${TOMLURL} -nv"
+
                 }
             }
         }
 
         stage('Create DB from genesis') {
            steps {
+               sh "rm -fr ${DATADIRPATH}"
                // create db from a genesis file
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis --experimental ${GENESISPATH}/${GENESISFILE}"
+                sh """./build/sonictool --datadir ${DATADIRPATH} genesis \
+                    ${params.Network == 'Devnet' ? 'json' : ''} \
+                    --experimental ${GENESISPATH}/${GENESISFILE}"""
 
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
 
                 // copy db for import events
                 sh "cp -r ${DATADIRPATH} ${EVENTDBPATH}"
             }
         }
 
-        stage('Synchronize blockchain for 100 epoches') {
+        stage('Synchronize blockchain for 10 epoches') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --cache 16047 --verbosity 2 --exitwhensynced.epoch 5677 --lachesis.suppress-frame-panic"
+                script {
+                    EPOCH = EPOCH + 10 // update target epoch
+                    sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                }
             }
         }
 
         stage('Export & import events') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 events export ${DATAROOTPATH}/sonic.events"
-                sh "./build/sonictool --datadir ${EVENTDBPATH} --cache 16047 events import ${DATAROOTPATH}/sonic.events"
-                sh "./build/sonictool --datadir ${EVENTDBPATH} --cache 16047 check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} events export ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonictool --datadir ${EVENTDBPATH} events import ${DATAROOTPATH}/sonic.events"
+                sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
             }
         }
 
         stage('Continue synchronize event-imported DB') {
             steps {
-                sh "./build/sonicd --datadir ${EVENTDBPATH} --cache 16047 --verbosity 2 --exitwhensynced.epoch 5777 --lachesis.suppress-frame-panic"
-                sh "./build/sonictool --datadir ${EVENTDBPATH} --cache 16047 check live"
+                script {
+                    EPOCH = EPOCH + 10 // update target epoch
+                    sh "./build/sonicd --datadir ${EVENTDBPATH} --verbosity 2 --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
+                }
             }
         }
 
         stage('Export & import genesis') {
             steps {
-                sh "./build/sonictool --datadir ${DATADIRPATH} --cache 16047 genesis export ${DATAROOTPATH}/sonic.g"
-                sh "./build/sonictool --datadir ${GENESISDBPATH} --cache 16047 genesis --experimental ${DATAROOTPATH}/sonic.g"
-                sh "./build/sonictool --datadir ${GENESISDBPATH} --cache 16047 check live"
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis export ${DATAROOTPATH}/sonic.g"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} genesis --experimental ${DATAROOTPATH}/sonic.g"
+                sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
             }
         }
 
         stage('Continue synchronize genesis-imported DB') {
             steps {
-                sh "./build/sonicd --datadir ${GENESISDBPATH} --cache 16047 --verbosity 2 --exitwhensynced.epoch 5877 --lachesis.suppress-frame-panic"
-                sh "./build/sonictool --datadir ${GENESISDBPATH} --cache 16047 check live"
+                script {
+                    EPOCH = EPOCH + 10 // update target epoch
+                    sh "./build/sonicd --datadir ${GENESISDBPATH} --verbosity 2 --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
+                }
             }
         }
 
         stage('Teardown') {
-            // teardown
             steps {
                 sh "make clean"
                 sh "rm -rf ${DATAROOTPATH}"
@@ -116,7 +163,7 @@ pipeline {
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'duration', value: "${currentBuild.durationString}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
                 string(name: 'user', value: "aida")
             ]
