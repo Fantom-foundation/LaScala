@@ -254,7 +254,7 @@ pipeline {
                                                  --substate-encoding pb \
                                                  --track-progress --no-heartbeat-logging \
                                                  --register-run ${RegisterRunPath} \
-                                                 --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02Eth' : RunId} \
+                                                 --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_AidaVmSdb' : RunId} \
                                                  --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                                  ${CustomFlags.isEmpty() ? '' : CustomFlags} \
                                                  ${BlockFrom} ${BlockTo}"""
@@ -269,7 +269,7 @@ pipeline {
 
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                     ./scripts/analytics/rmd/knit.R \
-                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F02' : RunId}.db \
+                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_AidaVmSdb' : RunId}.db \
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
 
@@ -293,7 +293,7 @@ pipeline {
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'duration', value: "${currentBuild.durationString}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
                 string(name: 'user', value: "aida")
             ]
