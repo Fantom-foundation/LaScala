@@ -51,7 +51,7 @@ pipeline {
         )
         string(
             name: 'GoEthereumSonicVersion',
-            defaultValue: "main",
+            defaultValue: "eth1.14.8",
             description: 'Can be either branch name or commit hash.'
         )
         string(
