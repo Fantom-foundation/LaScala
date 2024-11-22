@@ -39,10 +39,10 @@ while [ "${RANGE}" -ge 0 ]; do
     MY_ROOT=$(echo "${MY_HEAD}" | jq -r ".result.stateRoot")
 
     if [ "${ROOT_HASH}" != "${MY_ROOT}" ]; then
-        echo "Error: block hash not matched; ${ROOT_HASH} expected; ${MY_ROOT} received)"
+        echo "Error: storage root hash not matched; ${ROOT_HASH} expected; ${MY_ROOT} received)"
         exit 1
     else
-        echo "  block hash confirmed; ${ROOT_HASH}"
+        echo "  storage root hash confirmed; ${ROOT_HASH}"
     fi
 
     BLK_RECEIPTS=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getBlockReceipts","params":["'${BLK16}'"],"id":1,"jsonrpc":"2.0"}' ${TESTED_API})
