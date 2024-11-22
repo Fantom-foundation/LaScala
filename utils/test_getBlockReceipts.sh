@@ -30,19 +30,19 @@ while [ "${RANGE}" -ge 0 ]; do
     BLK16=$(printf '0x%x' ${BLK})
 
     BLK_HEAD=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getBlockByNumber","params":["'${BLK16}'",false],"id":1,"jsonrpc":"2.0"}' ${REF_API})
-    ROOT_HASH=$(echo "${BLK_HEAD}" | jq -r ".result.stateRoot")
+    BLK_HASH=$(echo "${BLK_HEAD}" | jq -r ".result.hash")
     BLK_TXCOUNT=$(echo "${BLK_HEAD}" | jq -r ".result.transactions | length")
 
     echo "Testing block #${BLK}"
 
     MY_HEAD=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getHeaderByNumber","params":["'${BLK16}'"],"id":1,"jsonrpc":"2.0"}' ${TESTED_API})
-    MY_ROOT=$(echo "${MY_HEAD}" | jq -r ".result.stateRoot")
+    MY_HASH=$(echo "${MY_HEAD}" | jq -r ".result.hash")
 
-    if [ "${ROOT_HASH}" != "${MY_ROOT}" ]; then
-        echo "Error: storage root hash not matched; ${ROOT_HASH} expected; ${MY_ROOT} received)"
+    if [ "${BLK_HASH}" != "${MY_HASH}" ]; then
+        echo "Error: block hash not matched; ${BLK_HASH} expected; ${MY_HASH} received)"
         exit 1
     else
-        echo "  storage root hash confirmed; ${ROOT_HASH}"
+        echo "  block hash confirmed; ${BLK_HASH}"
     fi
 
     BLK_RECEIPTS=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getBlockReceipts","params":["'${BLK16}'"],"id":1,"jsonrpc":"2.0"}' ${TESTED_API})
