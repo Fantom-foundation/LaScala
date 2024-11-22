@@ -37,7 +37,7 @@ pipeline {
         )
         choice(
             name: 'Network',
-            choices: ['Devnet', 'Opera Mainnet'],
+            choices: ['Sonic devnet', 'Opera mainnet'],
             description: 'Network to test'
         )
     }
@@ -60,12 +60,14 @@ pipeline {
         stage('Configure Network Parameters') {
             steps{
                 script {
-                    if ("${Network}" == "Opera Mainnet") {
+                    if ("${Network}" == "Opera mainnet") {
+                        echo 'Target network: Opera mainnet'
                         GENESISURL = 'https://download.fantom.network/opera/mainnet/mainnet-5577-archive.g'
                         TOMLURL = ''
                         OPTIONS = '--lachesis.suppress-frame-panic'
                         EPOCH = 5577
-                    } else if ("${Network}" == "Devnet") {
+                    } else if ("${Network}" == "Sonic devnet") {
+                        echo 'Target network: Sonic devnet'
                         GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/devnet/genesis.json'
                         TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/devnet/config.toml'
                         OPTIONS = "--config ${TOMLPATH}"
@@ -95,7 +97,7 @@ pipeline {
                sh "rm -fr ${DATADIRPATH}"
                // create db from a genesis file
                 sh """./build/sonictool --datadir ${DATADIRPATH} genesis \
-                    ${params.Network == 'Devnet' ? 'json' : ''} \
+                    ${params.Network == 'Sonic devnet' ? 'json' : ''} \
                     --experimental ${GENESISPATH}/${GENESISFILE}"""
 
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
@@ -105,11 +107,11 @@ pipeline {
             }
         }
 
-        stage('Synchronize blockchain for 10 epoches') {
+        stage('Synchronize blockchain for 5 epoches') {
             steps {
                 script {
-                    EPOCH = EPOCH + 10 // update target epoch
-                    sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    EPOCH = EPOCH + 5 // update target epoch
+                    sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
                 }
             }
         }
@@ -125,8 +127,8 @@ pipeline {
         stage('Continue synchronize event-imported DB') {
             steps {
                 script {
-                    EPOCH = EPOCH + 10 // update target epoch
-                    sh "./build/sonicd --datadir ${EVENTDBPATH} --verbosity 2 --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    EPOCH = EPOCH + 5 // update target epoch
+                    sh "./build/sonicd --datadir ${EVENTDBPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
                     sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
                 }
             }
@@ -143,8 +145,8 @@ pipeline {
         stage('Continue synchronize genesis-imported DB') {
             steps {
                 script {
-                    EPOCH = EPOCH + 10 // update target epoch
-                    sh "./build/sonicd --datadir ${GENESISDBPATH} --verbosity 2 --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    EPOCH = EPOCH + 5 // update target epoch
+                    sh "./build/sonicd --datadir ${GENESISDBPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
                     sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
                 }
             }
@@ -165,7 +167,7 @@ pipeline {
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
                 string(name: 'duration', value: "${currentBuild.durationString}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
-                string(name: 'user', value: "aida")
+                string(name: 'user', value: "sonic")
             ]
         }
     }
