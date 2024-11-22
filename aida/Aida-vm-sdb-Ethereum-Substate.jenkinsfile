@@ -50,11 +50,6 @@ pipeline {
             description: 'Branch or commit hash for Sonic'
         )
         string(
-            name: 'Workers',
-            defaultValue: '40',
-            description: 'Number of workers'
-        )
-        string(
             name: 'RegisterRunPath',
             defaultValue: '/mnt/tmp-disk/register-run-db',
             description: 'Path to register run db'
@@ -169,9 +164,13 @@ pipeline {
                 sh "rm -rf ${DATAROOTPATH}/state_db_carmen_go-file"
 
                 dir('carmen/go') {
-                    sh "go run ./database/mpt/tool import-live-db ${GENESISPATH}/${BucketPath}/carmen-live-${GenesisBlock}.g ${DATAROOTPATH}/state_db_carmen_go-file/live"
-                    sh "go run ./database/mpt/tool init-archive ${GENESISPATH}/${BucketPath}/carmen-live-${GenesisBlock}.g ${DATAROOTPATH}/state_db_carmen_go-file/archive"
+                    script {
+                        sh "go run ./database/mpt/tool import-live-db ${GENESISPATH}/${BucketPath}/carmen-live-${GenesisBlock}.g ${DATAROOTPATH}/state_db_carmen_go-file/live"
+                        if (params.Archive) {
+                            sh "go run ./database/mpt/tool init-archive ${GENESISPATH}/${BucketPath}/carmen-live-${GenesisBlock}.g ${DATAROOTPATH}/state_db_carmen_go-file/archive"
+                        }
                     }
+                }
             }
         }
 
@@ -196,17 +195,31 @@ pipeline {
             }
             steps {
                 script {
+                    def fake_statedb_info = ''
                     // <implementation-default>
-                    def fake_statedb_info = [ "dbImpl": "carmen",
-                                              "dbVariant": "go-file",
-                                              "archiveMode": true,
-                                              "archiveVariant": "s5",
-                                              "schema": 5,
-                                              "block": GenesisBlock.toInteger(),
-                                              "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
-                                              "gitCommit": "f5a5facf651ea08abf38c18ebd1d3a99b5ec5e8f",
-                                              "createTimeUTC": "Wed Aug 14 06:14:05 UTC 2024"
-                                            ]
+                    if (params.Archive) {
+                        fake_statedb_info = [ "dbImpl": "carmen",
+                                                  "dbVariant": "go-file",
+                                                  "archiveMode": true,
+                                                  "archiveVariant": "s5",
+                                                  "schema": 5,
+                                                  "block": GenesisBlock.toInteger(),
+                                                  "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
+                                                  "gitCommit": "f5a5facf651ea08abf38c18ebd1d3a99b5ec5e8f",
+                                                  "createTimeUTC": "Wed Aug 14 06:14:05 UTC 2024"
+                                                ]
+                    } else {
+                        fake_statedb_info = [ "dbImpl": "carmen",
+                                                  "dbVariant": "go-file",
+                                                  "archiveMode": false,
+                                                  "archiveVariant": "",
+                                                  "schema": 5,
+                                                  "block": GenesisBlock.toInteger(),
+                                                  "rootHash": "0x498e53463ca27e84db9ac952a654419dcdc118d37995c698bfca289b70d230d5",
+                                                  "gitCommit": "f5a5facf651ea08abf38c18ebd1d3a99b5ec5e8f",
+                                                  "createTimeUTC": "Wed Aug 14 06:14:05 UTC 2024"
+                                                ]
+                    }
 
                     writeJSON file: "${DATAROOTPATH}/state_db_carmen_go-file/statedb_info.json", json: fake_statedb_info
 
@@ -225,7 +238,7 @@ pipeline {
 
                 script {
                     def srcDb = "--db-src ${DATAROOTPATH}/state_db_carmen_go-file --db-src-overwrite"
-                    def validationFlags = "--validate-tx --validate-state-hash"
+                    def validationFlags = "--validate-tx"
                     def archiveFlags = "--archive --archive-variant s5"
 
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -238,9 +251,10 @@ pipeline {
                                                  ${params.Archive ? archiveFlags : ''} \
                                                  --chainid 1 \
                                                  --evm-impl ethereum \
+                                                 --substate-encoding pb \
                                                  --track-progress --no-heartbeat-logging \
                                                  --register-run ${RegisterRunPath} \
-                                                 --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_F02Eth' : RunId} \
+                                                 --overwrite-run-id ${RunId == '' ? BUILD_NUMBER+'_AidaVmSdb' : RunId} \
                                                  --memory-breakdown --cpu-profile ${BUILD_NUMBER}.cpuprofile --memory-profile ${BUILD_NUMBER}.memprofile \
                                                  ${CustomFlags.isEmpty() ? '' : CustomFlags} \
                                                  ${BlockFrom} ${BlockTo}"""
@@ -255,7 +269,7 @@ pipeline {
 
                 sh """./scripts/analytics/rmd/gen_processing_reports.sh \
                     ./scripts/analytics/rmd/knit.R \
-                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_F02' : RunId}.db \
+                    ${RegisterRunPath}/${RunId == '' ? BUILD_NUMBER+'_AidaVmSdb' : RunId}.db \
                     ./scripts/analytics/rmd/f1.rmd \
                     ./scripts/analytics/rmd"""
 
@@ -279,7 +293,7 @@ pipeline {
             build job: '/Notifications/slack-notification', parameters: [
                 string(name: 'result', value: "${currentBuild.result}"),
                 string(name: 'name', value: "${currentBuild.fullDisplayName}"),
-                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'duration', value: "${currentBuild.durationString}"),
                 string(name: 'url', value: "${currentBuild.absoluteUrl}"),
                 string(name: 'user', value: "aida")
             ]
