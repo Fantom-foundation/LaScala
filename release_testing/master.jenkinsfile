@@ -160,6 +160,11 @@ pipeline {
             description: 'If checked, F18 stage will be executed'
         )
         booleanParam(
+            name: 'RunF19',
+            defaultValue: true,
+            description: 'If checked, F19 stage will be executed'
+        )
+        booleanParam(
             name: 'RunN01',
             defaultValue: true,
             description: 'If checked, N01 stage will be executed'
@@ -615,6 +620,11 @@ pipeline {
                 }
 
                 stage('F19 - Tosca LFVM conformance tests') {
+                    when {
+                        expression {
+                            return params.RunF19;
+                        }
+                    }
                     steps {
                         build job: '/Tosca/Conformance Tests lfvm', parameters: [
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
