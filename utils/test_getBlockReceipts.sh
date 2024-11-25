@@ -31,12 +31,22 @@ while [ "${RANGE}" -ge 0 ]; do
 
     BLK_HEAD=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getBlockByNumber","params":["'${BLK16}'",false],"id":1,"jsonrpc":"2.0"}' ${REF_API})
     BLK_HASH=$(echo "${BLK_HEAD}" | jq -r ".result.hash")
+    if [ -z "${BLK_HASH}" ]; then
+        echo "Warning: block #${BLK} not found by eth_getBlockByNumber; retrying..."
+        sleep 5
+        BLK_HEAD=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getBlockByNumber","params":["'${BLK16}'",false],"id":1,"jsonrpc":"2.0"}' ${REF_API})
+    fi
     BLK_TXCOUNT=$(echo "${BLK_HEAD}" | jq -r ".result.transactions | length")
 
     echo "Testing block #${BLK}"
 
     MY_HEAD=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getHeaderByNumber","params":["'${BLK16}'"],"id":1,"jsonrpc":"2.0"}' ${TESTED_API})
     MY_HASH=$(echo "${MY_HEAD}" | jq -r ".result.hash")
+    if [ -z "${MY_HASH}" ]; then
+        echo "Warning: block #${BLK} not found by eth_getHeaderByNumber; retrying..."
+        sleep 5
+        MY_HEAD=$(curl -s -X POST -H "Content-Type: application/json" --data '{"method":"eth_getHeaderByNumber","params":["'${BLK16}'"],"id":1,"jsonrpc":"2.0"}' ${TESTED_API})
+    fi
 
     if [ "${BLK_HASH}" != "${MY_HASH}" ]; then
         echo "Error: block hash not matched; ${BLK_HASH} expected; ${MY_HASH} received)"

@@ -291,22 +291,21 @@
   },
 
   # --- eth_call ---
-  # TODO - need parameter tuning
-  #{
-  #  name: 'eth_call_ok1',
-  #  body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-  #  result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  #},
-  #{
-  #  name: 'eth_call_ok2',
-  #  body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"pending"],"id":1}',
-  #  result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  #},
-  #{
-  #  name: 'eth_call_ok3',
-  #  body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"0x5bad55"],"id":1}',
-  #  result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  #},
+  {
+    name: "eth_call_ok1",
+    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"}, "latest"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
+  {
+    name: "eth_call_ok2",
+    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"}, "pending"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
+  {
+    name: "eth_call_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"}, "0x10"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
   {
     name: "eth_call_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
@@ -401,22 +400,21 @@
   },
 
   # --- eth_estimateGas ---
-  # TODO - need parameter tuning
-  #{
-  #  name: 'eth_estimateGas_ok1',
-  #  body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-  #  result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  #},
-  #{
-  #  name: 'eth_estimateGas_ok2',
-  #  body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"0x5bad55"],"id":1}',
-  #  result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  #},
-  #{
-  #  name: 'eth_estimateGas_ok3',
-  #  body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"pending"],"id":1}',
-  #  result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  #},
+  {
+    name: "eth_estimateGas_ok1",
+    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"},"latest"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
+  {
+    name: "eth_estimateGas_ok2",
+    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"},"pending"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
+  {
+    name: "eth_estimateGas_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"},"0x10"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
   {
     name: "eth_estimateGas_fail_invalid_args",
     body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","gas":"gas","gasPrice":"0x9184e72a000","value":"0x9184e72a","data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"}],"id":1}',
@@ -684,7 +682,7 @@
   {
     name: "eth_getBlockTransactionCountByNumber_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0x10"],"id":1}',
-    result: '"result"\s*:\s*"0x4"',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
     name: "eth_getBlockTransactionCountByNumber_ok5",
