@@ -50,7 +50,7 @@ pipeline {
             }
         }
 
-        stage('Confugure & Build') {
+        stage('Configure & Build') {
             steps {
                 sh 'make clean'
                 sh 'make'
