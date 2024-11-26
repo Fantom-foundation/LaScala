@@ -70,7 +70,7 @@ pipeline {
                             SONICSTATEDB = "${tmppath}/fakenet"
                             sh "rm -rf ${SONICSTATEDB}"
                             sh """./build/sonictool --datadir ${SONICSTATEDB} \
-                                fakenet genesis fake --mode rpc 1"""
+                                genesis fake --mode rpc 1"""
                         }
                     }
                 }
