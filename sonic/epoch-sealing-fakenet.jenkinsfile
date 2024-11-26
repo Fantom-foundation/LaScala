@@ -84,7 +84,7 @@ pipeline {
                         sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
 
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            sh """timeout 20m ./build/sonicd \
+                            sh """timeout 60m ./build/sonicd \
                                 --mode=rpc \
                                 --fakenet 1/1 \
                                 --datadir=${SONICSTATEDB} \
@@ -97,8 +97,8 @@ pipeline {
 
                 stage('Validate fakenet') {
                     steps {
-                        // wait 18 minutes then 2 minutes for validation
-                        sleep(time:1080,unit:"SECONDS")
+                        // wait 59 minutes then 1 minutes for validation is enough
+                        sleep(time:3540,unit:"SECONDS")
 
                         dir('lascala/utils') {
                             sh 'python3 validate-epoch-sealing.py 2 last http://127.0.0.1:80'
