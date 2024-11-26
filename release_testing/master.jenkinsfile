@@ -629,7 +629,7 @@ pipeline {
                         build job: '/Tosca/Conformance Tests lfvm', parameters: [
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
                             string(name: 'TargetInterpreter', value: "lfvm"),
-                            string(name: 'FullMode', value: true)
+                            booleanParam(name: 'FullMode', value: true)
                         ]
                     }
                 }
