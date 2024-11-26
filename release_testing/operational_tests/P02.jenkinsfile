@@ -12,7 +12,7 @@ pipeline {
         GOMEMLIMIT = '12GiB'
 
         // local files
-        DATAROOTPATH = '/mnt/tmp-disk'
+        DATAROOTPATH = '/mnt/tmp-disk/tooltest'
         DATADIRPATH = "${DATAROOTPATH}/sonic"
         EVENTDBPATH = "${DATAROOTPATH}/sonic_from_events"
         GENESISDBPATH = "${DATAROOTPATH}/sonic_from_genesis"
@@ -22,7 +22,7 @@ pipeline {
         // genesis download url
         GENESISURL = ''
         TOMLURL = ''
-        GENESISFILE = 'genesis.g'
+        GENESISFILE = 'genesis.json'
 
         // client additional options
         OPTIONS = ''
@@ -110,8 +110,9 @@ pipeline {
         stage('Synchronize blockchain for 5 epoches') {
             steps {
                 script {
-                    EPOCH = EPOCH + 5 // update target epoch
+                    EPOCH = EPOCH + 5 // target epoch for exporting events and genesis
                     sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    EPOCH = EPOCH + 5 // target epoch for synchronization
                 }
             }
         }
@@ -127,7 +128,6 @@ pipeline {
         stage('Continue synchronize event-imported DB') {
             steps {
                 script {
-                    EPOCH = EPOCH + 5 // update target epoch
                     sh "./build/sonicd --datadir ${EVENTDBPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
                     sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
                 }
