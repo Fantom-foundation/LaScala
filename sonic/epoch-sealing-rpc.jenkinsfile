@@ -22,8 +22,23 @@ pipeline {
     parameters {
         string(
             name: 'RPC',
-            defaultValue: "34.56.203.77:80",
+            defaultValue: "http://34.56.203.77:80",
             description: 'RPC endpoint.'
+        )
+        string(
+            name: 'LaScalaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for LaScala'
+        )
+        string(
+            name: 'FirstBLock',
+            defaultValue: "2",
+            description: 'First block to check.'
+        )
+        string(
+            name: 'LastBlock',
+            defaultValue: "last",
+            description: 'Last block to check.'
         )
         string(
             //default agent for devnet. For mainnet, use x86-4-32-archive
@@ -34,10 +49,23 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
         stage('RPC 2-last') {
             steps {
                 dir('lascala/utils') {
-                    sh 'python3 validate-epoch-sealing.py 2 last ${RPC}'
+                    sh 'python3 validate-epoch-sealing.py ${FirstBLock} ${LastBlock} ${RPC}'
                 }
             }
         }

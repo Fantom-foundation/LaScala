@@ -93,16 +93,15 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
     expected_nonce = get_zero_addr_nonce_at_block(web3, first_block)
     i = load_epoch(web3, first_block)
     last_epoch = load_epoch(web3, last_block)
-    validate_last_block_nonce = False
 
     # check if the last block isn't the last of an epoch
-    il = load_epoch(web3, last_block)
     rf = load_block_range(web3, i)
-    rl = load_block_range(web3, il)
-    if last_block != rl[1]:
-        # last block will be checked separately
-        validate_last_block_nonce = True
-        last_epoch -= 1
+    rl = load_block_range(web3, last_epoch)
+    if latest_block['result']['number'] != rl[1]:
+        # last epoch can be checked only if we know for sure that the last block is really epoch seal
+        # this needs to be done because running node doesn't know
+        # if the latest block is or isn't epoch seal from load_block_range call
+        last_epoch += 1
     if first_block == rf[1]:
         # the first checked block is epoch seal block so expected nonce is decremented by 2
         # (state before SealEpochStats and SealEpochValidators calls)
@@ -110,7 +109,7 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
         print(f"Block {first_block} is epoch seal block, so block {first_block-1} needs to be checked for nonce as well")
 
     #  check nonces of all epochs within the range
-    while i <= last_epoch:
+    while i < last_epoch:
         r = load_block_range(web3, i)
         ln = get_zero_addr_nonce_at_block(web3, r[1])
 
@@ -127,12 +126,6 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
             print(
                 f"Progress: {round((r[1] - first_block) / (last_block - first_block) * 100, 2)}% - epoch {i} - block {r[1]}")
         i += 1
-
-    if validate_last_block_nonce:
-        last_block_nonce = get_zero_addr_nonce_at_block(web3, last_block)
-        if last_block_nonce != expected_nonce:
-            raise Exception(f"Error: block {last_block} nonce expected: {expected_nonce} got: {last_block_nonce}")
-
 
 async def main():
     fb = int(sys.argv[1])
