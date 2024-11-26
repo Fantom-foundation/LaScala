@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        stage('RPC 2-last') {
+        stage('RPC block range validation') {
             steps {
                 dir('lascala/utils') {
                     sh 'python3 validate-epoch-sealing.py ${FirstBLock} ${LastBlock} ${RPC}'
@@ -70,7 +70,7 @@ pipeline {
             }
         }
     }
-/**
+
     post {
         always {
             build job: '/Notifications/slack-notification', parameters: [
@@ -82,5 +82,4 @@ pipeline {
             ]
         }
     }
-    */
 }

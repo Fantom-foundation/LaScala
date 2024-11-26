@@ -1,0 +1,123 @@
+// Sonic DB Healing pipeline aims to test the functionality of DB healing tool.
+// This test intentionally kills an archive node in the middle of the synchronization process
+// and then restarts the node with the DB healing tool. The test is considered successful
+// if the node can validate via check tool.
+
+pipeline {
+    agent { node "${params.Agent}" }
+
+    options {
+        timestamps ()
+        timeout(time: 3, unit: 'DAYS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '28GiB'
+        SONICSTATEDB = ''
+        OPTIONS = ''
+    }
+
+    parameters {
+        string(
+            name: 'SonicVersion',
+            defaultValue: "develop",
+            description: 'Branch or commit hash for Sonic'
+        )
+        string(
+            name: 'LaScalaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for LaScala'
+        )
+        string(
+            //default agent for devnet. For mainnet, use x86-4-32-archive
+            name: 'Agent',
+            defaultValue: 'x86-4-32-m',
+            description: 'Agent label to run the job. For Opera mainnet, use x86-4-32-archive.'
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: "${SonicVersion}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Fantom-foundation/Sonic.git'
+                    ]]
+                )
+
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
+        stage('Configure & Build') {
+                    steps {
+                        sh 'make'
+
+                        script {
+                            def tmppath = '/mnt/tmp-disk/'
+                            def genesispath = "${tmppath}/genesis.json"
+
+                            SONICSTATEDB = "${tmppath}/fakenet"
+                            sh "rm -rf ${SONICSTATEDB}"
+                            sh """./build/sonictool --datadir ${SONICSTATEDB} \
+                                fakenet genesis fake --mode rpc 1"""
+                        }
+                    }
+                }
+
+        stage('Fakenet validation') {
+            parallel {
+                stage('Start fakenet node') {
+                    steps {
+                        sh "echo 'Start Fakenet node'"
+
+                        sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
+
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            sh """timeout 20m ./build/sonicd \
+                                --mode=rpc \
+                                --fakenet 1/1 \
+                                --datadir=${SONICSTATEDB} \
+                                --http \
+                                --http.addr=127.0.0.1 \
+                                --http.port=80"""
+                        }
+                    }
+                }
+
+                stage('Validate fakenet') {
+                    steps {
+                        // wait 18 minutes then 2 minutes for validation
+                        sleep(time:1080,unit:"SECONDS")
+
+                        dir('lascala/utils') {
+                            sh 'python3 validate-epoch-sealing.py 2 last http://127.0.0.1:80'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "sonic")
+            ]
+        }
+    }
+}
