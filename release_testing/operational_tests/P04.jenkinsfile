@@ -142,7 +142,7 @@ pipeline {
 
                 stage('Iterate RPC requests') {
                     steps {
-                        sleep(time:120,unit:"SECONDS")
+                        sleep(time:180,unit:"SECONDS")
 
                         sh 'echo "Start RPC request iteration"'
 
@@ -154,7 +154,7 @@ pipeline {
 
                 stage('Compare block receipts') {
                     steps {
-                        sleep(time:300,unit:"SECONDS")
+                        sleep(time:180,unit:"SECONDS")
 
                         sh 'echo "Start comparing block receipts"'
 
