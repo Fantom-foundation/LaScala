@@ -1515,7 +1515,7 @@
   {
     name: "txpool_status_ok",
     body: '{"jsonrpc":"2.0","method":"txpool_status","params":[],"id":1}',
-    result: '"result"\s*:\s*{\s*"pending"\s*:\s*\"0x[0-9a-fA-F]+",\s*"queued"\s*:\s*\"0x[0-9a-fA-F]+"',
+    result: '"result"\s*:\s*{\s*"pending"\s*:\s*\"0x[0-9a-fA-F{}]+",\s*"queued"\s*:\s*\"0x[0-9a-fA-F{}]+"',
   },
   {
     name: "txpool_status_fail_too_many_args",
