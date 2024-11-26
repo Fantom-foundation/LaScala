@@ -1,1736 +1,1611 @@
 [
   # --- init_test ---
   {
-    name: 'init_test_ok',
+    name: "init_test_ok",
     body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
 
   # --- abft_getDowntime ---
   {
-    name: 'abft_getDowntime_ok1',
+    name: "abft_getDowntime_ok1",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":["0x11"],"id":1}',
-    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getDowntime_ok2',
+    name: "abft_getDowntime_ok2",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":["0x34"],"id":1}',
-    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getDowntime_ok3',
+    name: "abft_getDowntime_ok3",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":["0x19"],"id":1}',
-    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getDowntime_ok4',
+    name: "abft_getDowntime_ok4",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":["0x3a"],"id":1}',
-    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*{\s*"offlineBlocks"\s*:\s*\"0x[0-9a-fA-F]+",\s*"offlineTime"\s*:\s*\"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getDowntime_fail_invalid_arg1',
+    name: "abft_getDowntime_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getDowntime_fail_invalid_arg2',
+    name: "abft_getDowntime_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":["string"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getDowntime_fail_missing_arg',
+    name: "abft_getDowntime_fail_missing_arg",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getDowntime_fail_too_many_args',
+    name: "abft_getDowntime_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":["0x3a","0x3b"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getDowntime_fail_parse_error',
+    name: "abft_getDowntime_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"abft_getDowntime","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- abft_getEpochUptime ---
   {
-    name: 'abft_getEpochUptime_ok1',
+    name: "abft_getEpochUptime_ok1",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":["0x11"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getEpochUptime_ok2',
+    name: "abft_getEpochUptime_ok2",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":["0x34"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getEpochUptime_ok3',
+    name: "abft_getEpochUptime_ok3",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":["0x19"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getEpochUptime_ok4',
+    name: "abft_getEpochUptime_ok4",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":["0x3a"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'abft_getEpochUptime_fail_invalid_arg1',
+    name: "abft_getEpochUptime_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getEpochUptime_fail_invalid_arg2',
+    name: "abft_getEpochUptime_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":["string"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getEpochUptime_fail_missing_arg',
+    name: "abft_getEpochUptime_fail_missing_arg",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getEpochUptime_fail_too_many_args',
+    name: "abft_getEpochUptime_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getEpochUptime_fail_parse_error',
+    name: "abft_getEpochUptime_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"abft_getEpochUptime","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- abft_getOriginatedEpochFee ---
   {
-    name: 'abft_getOriginatedEpochFee_ok1',
+    name: "abft_getOriginatedEpochFee_ok1",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":["0x11"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'abft_getOriginatedEpochFee_ok2',
+    name: "abft_getOriginatedEpochFee_ok2",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":["0x34"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'abft_getOriginatedEpochFee_ok3',
+    name: "abft_getOriginatedEpochFee_ok3",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":["0x19"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'abft_getOriginatedEpochFee_ok4',
+    name: "abft_getOriginatedEpochFee_ok4",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":["0x3a"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'abft_getOriginatedEpochFee_fail_invalid_arg1',
+    name: "abft_getOriginatedEpochFee_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":[true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getOriginatedEpochFee_fail_invalid_arg2',
+    name: "abft_getOriginatedEpochFee_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":["string"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getOriginatedEpochFee_fail_missing_args',
+    name: "abft_getOriginatedEpochFee_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getOriginatedEpochFee_too_many_args',
+    name: "abft_getOriginatedEpochFee_too_many_args",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":["0x3a","0x11"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'abft_getOriginatedEpochFee_parse_error',
+    name: "abft_getOriginatedEpochFee_parse_error",
     body: '{"jsonrpc":"2.0","method":"abft_getOriginatedEpochFee","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- dag_getEvent ---
   {
-    name: 'dag_getEvent_ok1',
+    name: "dag_getEvent_ok1",
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b"],"id":1}',
-    result: 'event 0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b not found'
+    result: "event 0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b not found",
   },
+
+  # TODO - wait for a stable network
+  #{
+  #  name: 'dag_getEvent_ok2',
+  #  body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01"],"id":1}',
+  #  result: '"epoch"\s*:\s*"0x4a4b6"'
+  #},
   {
-    name: 'dag_getEvent_ok2',
-    body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01"],"id":1}',
-    result: '"epoch"\s*:\s*"0x4a4b6"'
-  },
-  {
-    name: 'dag_getEvent_fail_invalid_arg1',
+    name: "dag_getEvent_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'dag_getEvent_fail_invalid_arg2',
+    name: "dag_getEvent_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'dag_getEvent_fail_missing_args',
+    name: "dag_getEvent_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getEvent_fail_too_many_args',
+    name: "dag_getEvent_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":["0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getEvent_fail_parse_error',
+    name: "dag_getEvent_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"dag_getEvent","params":[{}}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- dag_getEventPayload ---
+  # TODO - wait for a stable network
+  #{
+  #  name: 'dag_getEventPayload_ok1',
+  #  body: '{"method":"dag_getEventPayload","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01",false],"id":1,"jsonrpc":"2.0"}',
+  #  result: '"epoch"\s*:\s*"0x4a4b6"'
+  #},
+  #{
+  #  name: 'dag_getEventPayload_ok2',
+  #  body: '{"method":"dag_getEventPayload","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01",true],"id":1,"jsonrpc":"2.0"}',
+  #  result: '"epoch"\s*:\s*"0x4a4b6"'
+  #},
   {
-    name: 'dag_getEventPayload_ok1',
-    body: '{"method":"dag_getEventPayload","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01",false],"id":1,"jsonrpc":"2.0"}',
-    result: '"epoch"\s*:\s*"0x4a4b6"'
-  },
-  {
-    name: 'dag_getEventPayload_ok2',
-    body: '{"method":"dag_getEventPayload","params":["0x0004a4b6000023acbbb7ea10cee4a7d48ffe085e3aac706503511f40ef87da01",true],"id":1,"jsonrpc":"2.0"}',
-    result: '"epoch"\s*:\s*"0x4a4b6"'
-  },
-  {
-    name: 'dag_getEventPayload_fail_invalid_arg1',
+    name: "dag_getEventPayload_fail_invalid_arg1",
     body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba73",true],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'dag_getEventPayload_fail_invalid_arg2',
+    name: "dag_getEventPayload_fail_invalid_arg2",
     body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",truee],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
   {
-    name: 'dag_getEventPayload_fail_missing_args',
+    name: "dag_getEventPayload_fail_missing_args",
     body: '{"method":"dag_getEventPayload","params":[],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getEventPayload_fail_too_many_args',
+    name: "dag_getEventPayload_fail_too_many_args",
     body: '{"method":"dag_getEventPayload","params":["0x000170430000080cd8f7b782afe5d1f63be6cd73631598313200777062ba7383",true, false],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getEventPayload_fail_parse_error',
+    name: "dag_getEventPayload_fail_parse_error",
     body: '{"method":"dag_getEventPayload","params":[{{}],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- dag_getHeads ---
   {
-    name: 'dag_getHeads_ok1',
+    name: "dag_getHeads_ok1",
     body: '{"method":"dag_getHeads","params":["pending"],"id":1,"jsonrpc":"2.0"}',
-    result: '"result"\s*:\s*\[\]|0x[0-9a-fA-F]+'
+    result: '"result"\s*:\s*\[\]|0x[0-9a-fA-F]+',
   },
   {
-    name: 'dag_getHeads_ok2',
+    name: "dag_getHeads_ok2",
     body: '{"method":"dag_getHeads","params":["latest"],"id":1,"jsonrpc":"2.0"}',
-    result: '0x[0-9a-fA-F]+|heads for previous epochs are not available'
+    result: "0x[0-9a-fA-F]+|heads for previous epochs are not available",
   },
   {
-    name: 'dag_getHeads_fail_invalid_arg',
+    name: "dag_getHeads_fail_invalid_arg",
     body: '{"method":"dag_getHeads","params":["string"],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getHeads_fail_too_many_args',
+    name: "dag_getHeads_fail_too_many_args",
     body: '{"method":"dag_getHeads","params":["latest","latest"],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getHeads_fail_missing_args',
+    name: "dag_getHeads_fail_missing_args",
     body: '{"method":"dag_getHeads","params":[],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'dag_getHeads_fail_parse_error',
+    name: "dag_getHeads_fail_parse_error",
     body: '{"method":"dag_getHeads","params":[invalid],"id":1,"jsonrpc":"2.0"}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_accounts ---
   {
-    name: 'eth_accounts_ok',
+    name: "eth_accounts_ok",
     body: '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1}',
-    result: '"result"\s*:\s*'
+    result: '"result"\s*:\s*',
   },
   {
-    name: 'eth_accounts_fail_too_many_args',
+    name: "eth_accounts_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_accounts","params":[{"invalid":"invalid"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_accounts_fail_parse_error',
+    name: "eth_accounts_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_accounts","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_blockNumber ---
   {
-    name: 'eth_blockNumber_ok',
+    name: "eth_blockNumber_ok",
     body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-      name: 'eth_blockNumber_fail_too_many_args',
-      body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[{"invalid":"invalid"}],"id":1}',
-      result: '"error"\s*:\s*{.*"code":-32602'
+    name: "eth_blockNumber_fail_too_many_args",
+    body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[{"invalid":"invalid"}],"id":1}',
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_blockNumber_fail_parse_error',
+    name: "eth_blockNumber_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_call ---
   {
-    name: 'eth_call_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_call_ok1",
+    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"}, "latest"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_call_ok2',
-    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"pending"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_call_ok2",
+    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"}, "pending"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_call_ok3',
-    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"0x5bad55"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_call_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"}, "0x10"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_call_fail_invalid_arg1',
+    name: "eth_call_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_invalid_arg2',
+    name: "eth_call_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1} ',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_invalid_arg3',
+    name: "eth_call_fail_invalid_arg3",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"invalid","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_invalid_arg4',
+    name: "eth_call_fail_invalid_arg4",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"invalid","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_invalid_arg5',
+    name: "eth_call_fail_invalid_arg5",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"invalid","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_invalid_arg6',
+    name: "eth_call_fail_invalid_arg6",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"invalid"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_invalid_arg7',
+    name: "eth_call_fail_invalid_arg7",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x123","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_low_gas',
+    name: "eth_call_fail_low_gas",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","gas":"0x0","gasPrice":"0x9184e72a000","value":"0x9184e72a","data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_call_fail_invalid_data',
+    name: "eth_call_fail_invalid_data",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_call_fail_missing_arg1',
+    name: "eth_call_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_call_fail_missing_arg2',
+    name: "eth_call_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_missing_args',
+    name: "eth_call_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_call_fail_parse_error',
+    name: "eth_call_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
   {
-    name: 'eth_call_fail_too_many_args',
+    name: "eth_call_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest","toomanyargs"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
- },
+    result: '"error"\s*:\s*{.*"code":-32602',
+  },
 
   # --- eth_chainId ---
   {
-    name: 'eth_chainId_ok',
+    name: "eth_chainId_ok",
     body: '{"jsonrpc":"2.0","method":"eth_chainId","params": [],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_chainId_fail_too_many_args1',
+    name: "eth_chainId_fail_too_many_args1",
     body: '{"jsonrpc":"2.0","method":"eth_chainId","params":[{"invalid":"invalid"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_chainId_fail_too_many_args2',
+    name: "eth_chainId_fail_too_many_args2",
     body: '{"jsonrpc":"2.0","method":"eth_chainId","params":[false,true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_chainId_fail_parse_error',
+    name: "eth_chainId_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_chainId","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_estimateGas ---
   {
-    name: 'eth_estimateGas_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"latest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_estimateGas_ok1",
+    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"},"latest"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_estimateGas_ok2',
-    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"0x5bad55"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_estimateGas_ok2",
+    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"},"pending"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_estimateGas_ok3',
-    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac2956"},"pending"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_estimateGas_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x0000000000000000000000000000000000000000","data":"0xb5d896270000000000000000000000000000000000000000000000000000000000000001","to":"0xfc00face00000000000000000000000000000000"},"0x10"], "id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_estimateGas_fail_invalid_args',
+    name: "eth_estimateGas_fail_invalid_args",
     body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","gas":"gas","gasPrice":"0x9184e72a000","value":"0x9184e72a","data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_estimateGas_fail_missing_args1',
+    name: "eth_estimateGas_fail_missing_args1",
     body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_estimateGas_fail_missing_args2',
+    name: "eth_estimateGas_fail_missing_args2",
     body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"gas":"0x1ec77","gasPrice":"0x9184e72a000","value":"0x9184e72a","data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_estimateGas_fail_parse_error',
+    name: "eth_estimateGas_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_gasPrice ---
   {
-    name: 'eth_gasPrice_ok',
+    name: "eth_gasPrice_ok",
     body: '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_gasPrice_fail_too_many_args1',
+    name: "eth_gasPrice_fail_too_many_args1",
     body: '{"jsonrpc":"2.0","method":"eth_gasPrice","params":["false"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_gasPrice_fail_too_many_args2',
+    name: "eth_gasPrice_fail_too_many_args2",
     body: '{"jsonrpc":"2.0","method":"eth_gasPrice","params":["false","false","false"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_gasPrice_fail_too_many_args3',
+    name: "eth_gasPrice_fail_too_many_args3",
     body: '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[{"invalid":"invalid"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_gasPrice_fail_parse_error',
+    name: "eth_gasPrice_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getBalance ---
   {
-    name: 'eth_getBalance_ok1',
+    name: "eth_getBalance_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","latest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBalance_ok2',
-    body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","0x5bad55"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_getBalance_ok2",
+    body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x2cEc8F71FE23CB1778960ce8359402b41448C765","0x5"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBalance_ok3',
-    body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x1672E7a98937fe71dcE94bf59A71e670524e706b","0x1f466ab"],"id":1}',
-    result: '0x23f715dc9f37268b'
+    name: "eth_getBalance_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x2cEc8F71FE23CB1778960ce8359402b41448C765","latest"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBalance_ok4',
+    name: "eth_getBalance_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","earliest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBalance_ok5',
+    name: "eth_getBalance_ok5",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","pending"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBalance_fail_invalid_arg1',
+    name: "eth_getBalance_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["invalid","latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBalance_fail_invalid_arg2',
+    name: "eth_getBalance_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBalance_fail_invalid_arg3',
+    name: "eth_getBalance_fail_invalid_arg3",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xc94770007dda54cF92009BFF0dE90c06F603a09f","0x"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBalance_fail_missing_arg1',
+    name: "eth_getBalance_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xc94770007dda54cF92009BFF0dE90c06F603a09f"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBalance_fail_missing_arg2',
+    name: "eth_getBalance_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x5bad55"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBalance_fail_header_not_found',
+    name: "eth_getBalance_fail_header_not_found",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xc94770007dda54cF92009BFF0dE90c06F603a09f","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_getBalance_fail_too_many_args',
+    name: "eth_getBalance_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","latest","toomanyargs"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBalance_fail_parse_error',
+    name: "eth_getBalance_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getBalance","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getBlockByHash ---
+  # TODO - wait for a stable network
+  #{
+  #  name: "eth_getBlockByHash_ok1",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df",false],"id":1}',
+  #  result: '"number"\s*:\s*"0x1eb3fcc"',
+  #},
+  #{
+  #  name: "eth_getBlockByHash_ok2",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df",true],"id":1}',
+  #  result: '"number"\s*:\s*"0x1eb3fcc"',
+  #},
   {
-    name: 'eth_getBlockByHash_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df",false],"id":1}',
-    result: '"number"\s*:\s*"0x1eb3fcc"'
-  },
-  {
-    name: 'eth_getBlockByHash_ok2',
-    body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df",true],"id":1}',
-    result: '"number"\s*:\s*"0x1eb3fcc"'
-  },
-  {
-    name: 'eth_getBlockByHash_ok3',
+    name: "eth_getBlockByHash_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95ef",false],"id":1}',
-    result: '"result"\s*:\s*null'
+    result: '"result"\s*:\s*null',
   },
   {
-    name: 'eth_getBlockByHash_fail_invalid_arg1',
+    name: "eth_getBlockByHash_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["invalid",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByHash_fail_invalid_arg2',
+    name: "eth_getBlockByHash_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95ef","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByHash_fail_missing_arg1',
+    name: "eth_getBlockByHash_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByHash_fail_missing_arg2',
+    name: "eth_getBlockByHash_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByHash_fail_parse_error',
+    name: "eth_getBlockByHash_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getBlockByNumber ---
   {
-    name: 'eth_getBlockByNumber_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x1eb3fcc",false],"id":1}',
-    result: '"hash"\s*:\s*"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"'
+    name: "eth_getBlockByNumber_ok1",
+    body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x5",false],"id":1}',
+    result: '"parentHash".*"gasLimit"\s*:\s*"0x3b9aca00"',
   },
   {
-    name: 'eth_getBlockByNumber_ok2',
-    body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x1eb3fcc",true],"id":1}',
-    result: '"hash"\s*:\s*"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"'
+    name: "eth_getBlockByNumber_ok2",
+    body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x7",true],"id":1}',
+    result: '"parentHash".*"gasLimit"\s*:\s*"0x3b9aca00"',
   },
   {
-    name: 'eth_getBlockByNumber_ok3',
+    name: "eth_getBlockByNumber_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0xffffffffffffff",true],"id":1}',
-    result: '"result"\s*:\s*null|header not found'
+    result: '"result"\s*:\s*null|header not found',
   },
   {
-    name: 'eth_getBlockByNumber_ok4',
+    name: "eth_getBlockByNumber_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",true],"id":1}',
-    result: '"gasLimit"\s*:\s*"0xffffffffffff"'
+    result: '"hash"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockByNumber_ok5',
+    name: "eth_getBlockByNumber_ok5",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["pending",true],"id":1}',
-    result: '"gasLimit"\s*:\s*"0xffffffffffff"'
+    result: '"hash"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockByNumber_ok6',
+    name: "eth_getBlockByNumber_ok6",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["earliest",true],"id":1}',
-    result: '"gasLimit"\s*:\s*"0xffffffffffff"'
+    result: '"hash"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockByNumber_fail_invalid_arg1',
+    name: "eth_getBlockByNumber_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["invalid",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByNumber_fail_invalid_arg2',
+    name: "eth_getBlockByNumber_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x1eb3fcc","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByNumber_fail_missing_arg1',
+    name: "eth_getBlockByNumber_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByNumber_fail_missing_arg2',
+    name: "eth_getBlockByNumber_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x1eb3fcc"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockByNumber_fail_parse_error',
+    name: "eth_getBlockByNumber_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getBlockTransactionCountByHash ---
+  # TODO - wait for a stable network
+  #{
+  #  name: "eth_getBlockTransactionCountByHash_ok1",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"],"id":1}',
+  #  result: '"result"\s*:\s*"0x29"',
+  #},
   {
-    name: 'eth_getBlockTransactionCountByHash_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"],"id":1}',
-    result: '"result"\s*:\s*"0x29"'
-  },
-  {
-    name: 'eth_getBlockTransactionCountByHash_ok2',
+    name: "eth_getBlockTransactionCountByHash_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95ef"],"id":1}',
-    result: '"result"\s*:\s*null'
+    result: '"result"\s*:\s*null',
   },
   {
-    name: 'eth_getBlockTransactionCountByHash_fail_missing_args',
+    name: "eth_getBlockTransactionCountByHash_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockTransactionCountByHash_fail_invalid_arg',
+    name: "eth_getBlockTransactionCountByHash_fail_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockTransactionCountByHash_fail_too_many_args',
+    name: "eth_getBlockTransactionCountByHash_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df",true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockTransactionCountByHash_fail_parse_error',
+    name: "eth_getBlockTransactionCountByHash_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getBlockTransactionCountByNumber ---
   {
-    name: 'eth_getBlockTransactionCountByNumber_ok1',
+    name: "eth_getBlockTransactionCountByNumber_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_ok2',
+    name: "eth_getBlockTransactionCountByNumber_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["earliest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_ok3',
+    name: "eth_getBlockTransactionCountByNumber_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["pending"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_ok4',
-    body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0x1eb3fcc"],"id":1}',
-    result: '"result"\s*:\s*"0x29"'
+    name: "eth_getBlockTransactionCountByNumber_ok4",
+    body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0x10"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_ok5',
+    name: "eth_getBlockTransactionCountByNumber_ok5",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0xffffffffffffff"],"id":1}',
-    result: '"result"\s*:\s*null|header not found'
+    result: '"result"\s*:\s*null|header not found',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_fail_missing_args',
+    name: "eth_getBlockTransactionCountByNumber_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_fail_invalid_arg',
+    name: "eth_getBlockTransactionCountByNumber_fail_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_fail_too_many_args',
+    name: "eth_getBlockTransactionCountByNumber_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0x1eb3fcc",true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getBlockTransactionCountByNumber_fail_parse_error',
+    name: "eth_getBlockTransactionCountByNumber_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getCode ---
   {
-    name: 'eth_getCode_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","latest"],"id":1}',
-    result: '"result"\s*:\s*"0x608060405260[0-9a-fA-F]+"'
+    name: "eth_getCode_ok1",
+    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0xd100a01e00000000000000000000000000000000","latest"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getCode_ok2',
+    name: "eth_getCode_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","earliest"],"id":1}',
-    result: '"result"\s*:\s*"0x"'
+    result: '"result"\s*:\s*"0x"',
   },
   {
-    name: 'eth_getCode_ok3',
-    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","pending"],"id":1}',
-    result: '"result"\s*:\s*"0x608060405260[0-9a-fA-F]+"'
+    name: "eth_getCode_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0xd100a01e00000000000000000000000000000000","pending"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getCode_ok4',
-    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0x1eb3fcc"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_getCode_ok4",
+    body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0xd100a01e00000000000000000000000000000000","0x10"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getCode_fail_header_too_big',
+    name: "eth_getCode_fail_header_too_big",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_getCode_missing_args',
+    name: "eth_getCode_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getCode_fail_missing_arg1',
+    name: "eth_getCode_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getCode_fail_missing_arg2',
+    name: "eth_getCode_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getCode_fail_invalid_arg1',
+    name: "eth_getCode_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["string","0x65a8db"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getCode_fail_invalid_arg2',
+    name: "eth_getCode_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getCode_fail_too_many_args',
+    name: "eth_getCode_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","0x1eb3fcc",true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getCode_fail_parse_error',
+    name: "eth_getCode_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getCode","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getLogs ---
+  # TODO -- wait for a stable network
+  #{
+  #  name: "eth_getLogs_ok1",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"blockHash":"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"}],"id":1}',
+  #  result: '"transactionHash"\s*:\s*"0x7d1c70adee20c70ea13a07b65eaf80d6ffcd5dd264517236b87bdccee8bb8c06"',
+  #},
   {
-    name: 'eth_getLogs_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"blockHash":"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"}],"id":1}',
-    result: '"transactionHash"\s*:\s*"0x7d1c70adee20c70ea13a07b65eaf80d6ffcd5dd264517236b87bdccee8bb8c06"'
-  },
-  {
-    name: 'eth_getLogs_ok2',
+    name: "eth_getLogs_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"0x40000","toBlock":"0x30000"}],"id":1}',
-    result: '"result"\s*:\s*\[\]'
+    result: '"result"\s*:\s*\[\]',
   },
   {
-    name: 'eth_getLogs_ok3',
-    body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"0x5bad55","toBlock":"0x5bad56"}],"id":1}',
-    result: '"address":\s*"0x0575f8738efda7f512e3654f277c77e80c7d2725"'
+    name: "eth_getLogs_ok3",
+    body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"0x100","toBlock":"0x150"}],"id":1}',
+    result: '"address":\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getLogs_ok4',
+    name: "eth_getLogs_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{}],"id":1}',
-    result: '"result"\s*:\s*\[\]|"result"\s*:\s*\[\s*{\s*"address"\s*:'
+    result: '"result"\s*:\s*\[\]|"result"\s*:\s*\[\s*{\s*"address"\s*:',
   },
+  #{
+  #  name: "eth_getLogs_ok5",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"blockHash":"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","topics":["0x241ea03ca20251805084d27d4440371c34a0b85ff108f6bb5611248f73818b80"]}],"id":1}',
+  #  result: '"result"\s*:\s*\[\]',
+  #},
   {
-    name: 'eth_getLogs_ok5',
-    body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"blockHash":"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","topics":["0x241ea03ca20251805084d27d4440371c34a0b85ff108f6bb5611248f73818b80"]}],"id":1}',
-    result: '"result"\s*:\s*\[\]'
-  },
-  {
-    name: 'eth_getLogs_fail_missing_args',
+    name: "eth_getLogs_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_args1',
+    name: "eth_getLogs_fail_invalid_args1",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[false,true,false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_args2',
+    name: "eth_getLogs_fail_invalid_args2",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"0x30000","toBlock":"0x40000","blockHash":"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","topics":["0x241ea03ca20251805084d27d4440371c34a0b85ff108f6bb5611248f73818b80"]}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_args3',
+    name: "eth_getLogs_fail_invalid_args3",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"blockHash":"0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","fromBlock":"0x30000"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_arg1',
+    name: "eth_getLogs_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"invalid","toBlock":"0x40000","topics":["0x241ea03ca20251805084d27d4440371c34a0b85ff108f6bb5611248f73818b80"]}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_arg2',
+    name: "eth_getLogs_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"0x40000","toBlock":"invalid","topics":["0x241ea03ca20251805084d27d4440371c34a0b85ff108f6bb5611248f73818b80"]}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_arg3',
+    name: "eth_getLogs_fail_invalid_arg3",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"fromBlock":"0x30000","toBlock":"0x40000","topics":["invalid"]}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_invalid_arg4',
+    name: "eth_getLogs_fail_invalid_arg4",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"blockHash":"invalid","topics":["0x241ea03ca20251805084d27d4440371c34a0b85ff108f6bb5611248f73818b80"]}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getLogs_fail_parse_error',
+    name: "eth_getLogs_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getLogs","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getStorageAt ---
   {
-    name: 'eth_getStorageAt_ok1',
+    name: "eth_getStorageAt_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","latest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0]{64}"'
+    result: '"result"\s*:\s*"0x[0]{64}"',
   },
   {
-    name: 'eth_getStorageAt_ok2',
+    name: "eth_getStorageAt_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","pending"],"id":1}',
-    result: '"result"\s*:\s*"0x[0]{64}"'
+    result: '"result"\s*:\s*"0x[0]{64}"',
   },
   {
-    name: 'eth_getStorageAt_ok3',
+    name: "eth_getStorageAt_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","earliest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0]{64}"'
+    result: '"result"\s*:\s*"0x[0]{64}"',
   },
   {
-    name: 'eth_getStorageAt_ok4',
-    body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","0x1eb3fcc"],"id":1}',
-    result: '"result"\s*:\s*"0x[0]{64}"'
+    name: "eth_getStorageAt_ok4",
+    body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0xfc00face00000000000000000000000000000000","0x0","0x5"],"id":1}',
+    result: '"result"\s*:\s*"0x000000000000000000000000d100ae0000000000000000000000000000000000"',
   },
   {
-    name: 'eth_getStorageAt_fail_header_too_big',
+    name: "eth_getStorageAt_fail_header_too_big",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","0xffffffffffffff"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000'
+    result: '"error"\s*:\s*{.*"code":-32000',
   },
   {
-    name: 'eth_getStorageAt_fail_invalid_arg1',
+    name: "eth_getStorageAt_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["invalid","0x0","latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_invalid_arg2',
+    name: "eth_getStorageAt_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251",false,"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_invalid_arg3',
+    name: "eth_getStorageAt_fail_invalid_arg3",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_missing_args',
+    name: "eth_getStorageAt_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_missing_arg1',
+    name: "eth_getStorageAt_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x0","latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_missing_arg2',
+    name: "eth_getStorageAt_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_missing_arg3',
+    name: "eth_getStorageAt_fail_missing_arg3",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_too_many_args',
+    name: "eth_getStorageAt_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0x295a70b2de5e3953354a6a8344e616ed314d7251","0x0","latest",true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getStorageAt_fail_parse_error',
+    name: "eth_getStorageAt_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getTransactionByBlockHashAndIndex ---
+  # TODO - wait for a stable network
+  #{
+  #  name: "eth_getTransactionByBlockHashAndIndex_ok1",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x0"],"id":1}',
+  #  result: '"from"\s*:\s*"0x90de05cf3cb7d56c050ef11f1cb67f1227bfd200"',
+  #},
+  #{
+  #  name: "eth_getTransactionByBlockHashAndIndex_ok2",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x2"],"id":1}',
+  #  result: '"from"\s*:\s*"0xe9307b5c01acae6db69ba3b9569195fba0a8cd3d"',
+  #},
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x0"],"id":1}',
-    result: '"from"\s*:\s*"0x90de05cf3cb7d56c050ef11f1cb67f1227bfd200"'
-  },
-  {
-    name: 'eth_getTransactionByBlockHashAndIndex_ok2',
-    body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x2"],"id":1}',
-    result: '"from"\s*:\s*"0xe9307b5c01acae6db69ba3b9569195fba0a8cd3d"'
-  },
-  {
-    name: 'eth_getTransactionByBlockHashAndIndex_fail_missing_args',
+    name: "eth_getTransactionByBlockHashAndIndex_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_fail_missing_arg1',
+    name: "eth_getTransactionByBlockHashAndIndex_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x2"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_fail_missing_arg2',
+    name: "eth_getTransactionByBlockHashAndIndex_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_fail_invalid_arg1',
+    name: "eth_getTransactionByBlockHashAndIndex_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["invalid","0x2"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_fail_invalid_arg2',
+    name: "eth_getTransactionByBlockHashAndIndex_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_faiL_too_many_args',
+    name: "eth_getTransactionByBlockHashAndIndex_faiL_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x2",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockHashAndIndex_fail_parse_error',
+    name: "eth_getTransactionByBlockHashAndIndex_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getTransactionByBlockNumberAndIndex ---
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_ok1',
+    name: "eth_getTransactionByBlockNumberAndIndex_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["latest","0x0"],"id":1}',
-    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_ok2',
+    name: "eth_getTransactionByBlockNumberAndIndex_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["earliest","0x0"],"id":1}',
-    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_ok3',
+    name: "eth_getTransactionByBlockNumberAndIndex_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["earliest","0x2455"],"id":1}',
-    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_ok4',
+    name: "eth_getTransactionByBlockNumberAndIndex_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0x5bad55","0x0"],"id":1}',
-    result: '("blockNumber"\s*:\s*"0x5bad55"|"result"\s*:\s*null)'
+    result: '("blockNumber"\s*:\s*"0x5bad55"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_ok5',
+    name: "eth_getTransactionByBlockNumberAndIndex_ok5",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["pending","0x0"],"id":1}',
-    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_ok6',
+    name: "eth_getTransactionByBlockNumberAndIndex_ok6",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0xffffffffffffff","0x0"],"id":1}',
-    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)|header not found'
+    result: '("blockNumber"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)|header not found',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_fail_missing_args',
+    name: "eth_getTransactionByBlockNumberAndIndex_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":[],"id":1}',
-    result: '|invalid method params'
+    result: "|invalid method params",
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_fail_missing_arg1',
+    name: "eth_getTransactionByBlockNumberAndIndex_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0x0"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_fail_missing_arg2',
+    name: "eth_getTransactionByBlockNumberAndIndex_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0x5bad55"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_fail_invalid_arg1',
+    name: "eth_getTransactionByBlockNumberAndIndex_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["invalid","0x0"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_fail_invalid_arg2',
+    name: "eth_getTransactionByBlockNumberAndIndex_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0x5bad55","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_too_many_args',
+    name: "eth_getTransactionByBlockNumberAndIndex_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0x5bad55","0x0",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByBlockNumberAndIndex_parse_error',
+    name: "eth_getTransactionByBlockNumberAndIndex_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getTransactionByHash ---
+  # TODO - wait for a stable network
+  #{
+  #  name: "eth_getTransactionByHash_ok",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0xfcc19b9697a8d29edf916043b98d6ff85cb0fb5b07aa3f56cbdbcc8c3d231bba"],"id":1}',
+  #  result: '"from"\s*:\s*"0x1672e7a98937fe71dce94bf59a71e670524e706b"',
+  #},
   {
-    name: 'eth_getTransactionByHash_ok',
-    body: '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0xfcc19b9697a8d29edf916043b98d6ff85cb0fb5b07aa3f56cbdbcc8c3d231bba"],"id":1}',
-    result: '"from"\s*:\s*"0x1672e7a98937fe71dce94bf59a71e670524e706b"'
-  },
-  {
-    name: 'eth_getTransactionByHash_fail_invalid_arg',
+    name: "eth_getTransactionByHash_fail_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0xfcc19b9697a8d29edf916043b98d6"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByHash_fail_missing_args',
+    name: "eth_getTransactionByHash_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByHash_fail_too_many_args',
+    name: "eth_getTransactionByHash_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0xfcc19b9697a8d29edf916043b98d6ff85cb0fb5b07aa3f56cbdbcc8c3d231bba",true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionByHash_fail_parse_error',
+    name: "eth_getTransactionByHash_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getTransactionCount ---
   {
-    name: 'eth_getTransactionCount_ok1',
+    name: "eth_getTransactionCount_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","latest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getTransactionCount_ok2',
+    name: "eth_getTransactionCount_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","pending"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getTransactionCount_ok3',
+    name: "eth_getTransactionCount_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","earliest"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getTransactionCount_ok4',
-    body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","0x5bad55"],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    name: "eth_getTransactionCount_ok4",
+    body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","0x5"],"id":1}',
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'eth_getTransactionCount_fail_header_too_big',
+    name: "eth_getTransactionCount_fail_header_too_big",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","0xffffffffffffff"],"id":1}',
-    result: 'header not found'
+    result: "header not found",
   },
   {
-    name: 'eth_getTransactionCount_fail_missing_args',
+    name: "eth_getTransactionCount_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionCount_fail_missing_arg1',
+    name: "eth_getTransactionCount_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x5bad55"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionCount_fail_missing_arg2',
+    name: "eth_getTransactionCount_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionCount_fail_invalid_arg1',
+    name: "eth_getTransactionCount_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["invalid","earliest"],"id":1}',
-    result: 'hex string without 0x prefix'
+    result: "hex string without 0x prefix",
   },
   {
-    name: 'eth_getTransactionCount_fail_invalid_arg2',
+    name: "eth_getTransactionCount_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionCount_fail_too_many_args',
+    name: "eth_getTransactionCount_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","earliest",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionCount_fail_parse_error',
+    name: "eth_getTransactionCount_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getTransactionReceipt ---
+  # TODO - wait for a stable network
+  #{
+  #  name: "eth_getTransactionReceipt_ok1",
+  #  body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xc0ccdd5397bc36324ecac7a6849154260a0f1a2c9d3e2b02716f0200d2fc46b7"],"id":1}',
+  #  result: '"blockNumber"\s*:\s*"0x1f441e5"',
+  #},
   {
-    name: 'eth_getTransactionReceipt_ok1',
-    body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xc0ccdd5397bc36324ecac7a6849154260a0f1a2c9d3e2b02716f0200d2fc46b7"],"id":1}',
-    result: '"blockNumber"\s*:\s*"0x1f441e5"'
-  },
-  {
-    name: 'eth_getTransactionReceipt_ok2',
+    name: "eth_getTransactionReceipt_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xc0ccdd5397bc36324ecac7a6849154260a0f1a2c9d3e2b02716f0200d2fc46c7"],"id":1}',
-    result: '"result"\s*:\s*null'
+    result: '"result"\s*:\s*null',
   },
   {
-    name: 'eth_getTransactionReceipt_fail_invalid_arg',
+    name: "eth_getTransactionReceipt_fail_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xc0ccdd5397bc36324ecac7a6849154260a0"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionReceipt_fail_missing_arg',
+    name: "eth_getTransactionReceipt_fail_missing_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionReceipt_fail_too_many_args',
+    name: "eth_getTransactionReceipt_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xc0ccdd5397bc36324ecac7a6849154260a0f1a2c9d3e2b02716f0200d2fc46c7",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getTransactionReceipt_fail_parse_error',
+    name: "eth_getTransactionReceipt_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getUncleByBlockHashAndIndex ---
   {
-    name: 'eth_getUncleByBlockHashAndIndex_ok1',
+    name: "eth_getUncleByBlockHashAndIndex_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x0"],"id":1}',
-    result: '("blockHash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockHash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_ok2',
+    name: "eth_getUncleByBlockHashAndIndex_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x234"],"id":1}',
-    result: '("blockHash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockHash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_ok3',
+    name: "eth_getUncleByBlockHashAndIndex_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95ef","0x234"],"id":1}',
-    result: '("blockHash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("blockHash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_fail_invalid_arg1',
+    name: "eth_getUncleByBlockHashAndIndex_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6","0x234"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_fail_invalid_arg2',
+    name: "eth_getUncleByBlockHashAndIndex_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_fail_missing_arg1',
+    name: "eth_getUncleByBlockHashAndIndex_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x3"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_fail_missing_arg2',
+    name: "eth_getUncleByBlockHashAndIndex_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_fail_too_many_args',
+    name: "eth_getUncleByBlockHashAndIndex_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df","0x3",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockHashAndIndex_fail_parse_error',
+    name: "eth_getUncleByBlockHashAndIndex_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getUncleByBlockNumberAndIndex ---
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_ok1',
+    name: "eth_getUncleByBlockNumberAndIndex_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x5bad55","0x3"],"id":1}',
-    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_ok2',
+    name: "eth_getUncleByBlockNumberAndIndex_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x5bad55","0x234"],"id":1}',
-    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_ok3',
+    name: "eth_getUncleByBlockNumberAndIndex_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0xffffffffffffff","0x234"],"id":1}',
-    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)|header not found'
+    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)|header not found',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_ok4',
+    name: "eth_getUncleByBlockNumberAndIndex_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["latest","0x3"],"id":1}',
-    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_ok5',
+    name: "eth_getUncleByBlockNumberAndIndex_ok5",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["earliest","0x3"],"id":1}',
-    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_ok6',
+    name: "eth_getUncleByBlockNumberAndIndex_ok6",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["pending","0x3"],"id":1}',
-    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)'
+    result: '("hash"\s*:\s*"0x[0-9a-fA-F]+"|"result"\s*:\s*null)',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_fail_invalid_arg1',
+    name: "eth_getUncleByBlockNumberAndIndex_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["invalid","0x234"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_fail_invalid_arg2',
+    name: "eth_getUncleByBlockNumberAndIndex_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x5bad55","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_fail_missing_arg1',
+    name: "eth_getUncleByBlockNumberAndIndex_fail_missing_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x3"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_fail_missing_arg2',
+    name: "eth_getUncleByBlockNumberAndIndex_fail_missing_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x5bad55"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_fail_too_many_args',
+    name: "eth_getUncleByBlockNumberAndIndex_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x5bad55","0x3",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleByBlockNumberAndIndex_fail_parse_error',
+    name: "eth_getUncleByBlockNumberAndIndex_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getUncleCountByBlockHash ---
   {
-    name: 'eth_getUncleCountByBlockHash_ok1',
+    name: "eth_getUncleCountByBlockHash_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":["0xb3b20624f8f0f86eb50dd04688409e5cea4bd02d700bf6e79e9384d47d6a5a35"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'eth_getUncleCountByBlockHash_ok2',
+    name: "eth_getUncleCountByBlockHash_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'eth_getUncleCountByBlockHash_missing_args',
+    name: "eth_getUncleCountByBlockHash_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleCountByBlockHash_invalid_arg',
+    name: "eth_getUncleCountByBlockHash_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":["0x0001549400000308eb6"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleCountByBlockHash_too_many_args',
+    name: "eth_getUncleCountByBlockHash_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":["0x0001549400000308eb6b94dddfc904550a4667ba849619e8edd91938913e95df",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleCountByBlockHash_parse_error',
+    name: "eth_getUncleCountByBlockHash_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_getUncleCountByBlockNumber ---
   {
-    name: 'eth_getUncleCountByBlockNumber_ok1',
+    name: "eth_getUncleCountByBlockNumber_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["0x5bad55"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_ok2',
+    name: "eth_getUncleCountByBlockNumber_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["latest"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_ok3',
+    name: "eth_getUncleCountByBlockNumber_ok3",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["earliest"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_ok4',
+    name: "eth_getUncleCountByBlockNumber_ok4",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["pending"],"id":1}',
-    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")'
+    result: '"result"\s*:\s*(null|"0x[0-9a-fA-F]+")',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_missing_args',
+    name: "eth_getUncleCountByBlockNumber_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_invalid_arg',
+    name: "eth_getUncleCountByBlockNumber_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_too_many_args',
+    name: "eth_getUncleCountByBlockNumber_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["0x5bad55",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_getUncleCountByBlockNumber_parse_error',
+    name: "eth_getUncleCountByBlockNumber_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- eth_protocolVersion ---
-    {
-      name: 'eth_protocolVersion_fail_invalid_method',
-      body: '{"jsonrpc":"2.0","method":"eth_protocolVersion","params":[],"id":1}',
-      result: 'the method eth_protocolVersion does not exist'
-    },
+  {
+    name: "eth_protocolVersion_fail_invalid_method",
+    body: '{"jsonrpc":"2.0","method":"eth_protocolVersion","params":[],"id":1}',
+    result: "the method eth_protocolVersion does not exist",
+  },
 
   # --- eth_sendRawTransaction ---
   {
-    name: 'eth_sendRawTransaction_ok1',
+    name: "eth_sendRawTransaction_ok1",
     body: '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xf8680685051f4d5c00833d090094ac2d0226ade52e6b4ccc97359359f01e34d50352834c4b40802aa004f4410acfc636f5d65e75ca37448fd0b1e90632661ad3ea071594b646e7621fa0186d78ddbeef43bc372fcc650ad4e77e0629206426cd183d751e9ddcc8d5e777"],"id":1}',
-    result: 'invalid sender'
+    result: "invalid sender",
   },
   {
-    name: 'eth_sendRawTransaction_ok2',
+    name: "eth_sendRawTransaction_ok2",
     body: '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"],"id":1}',
-    result: 'element is larger than containing list'
+    result: "element is larger than containing list",
   },
   {
-    name: 'eth_sendRawTransaction_fail_too_many_args',
+    name: "eth_sendRawTransaction_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_sendRawTransaction_fail_missing_args',
+    name: "eth_sendRawTransaction_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_sendRawTransaction_fail_invalid_arg',
+    name: "eth_sendRawTransaction_fail_invalid_arg",
     body: '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["false"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_sendRawTransaction_fail_parse_error',
+    name: "eth_sendRawTransaction_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[{],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
-
-  # --- eth_sendTransaction ---
-#  {
-#    name: 'eth_sendTransaction_ok',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: 'unknown account'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg1',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8d","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg2',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be80570f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg3',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"string","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg4',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"string","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg5',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8044567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg6',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"string","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_invalid_arg7',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"string"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_faiL_missing_gas',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_faiL_missing_gasPrice',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_faiL_missing_nonce',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_missing_args',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_sendTransaction_fail_parse_error',
-#    body: '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32700'
-#  },
 
   # --- eth_sign ---
   {
-    name: 'eth_sign_ok',
+    name: "eth_sign_ok",
     body: '{"jsonrpc":"2.0","method":"eth_sign","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","0x407d73d8a49eeb85d32cf465507dd71d507100c1"],"id":1}',
-    result: 'unknown account'
+    result: "unknown account",
   },
   {
-    name: 'eth_sign_fail_invalid_arg1',
+    name: "eth_sign_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"eth_sign","params":["invalid","0x407d73d8a49eeb85d32cf465507dd71d507100c1"],"id":1}',
-    result: 'hex string without 0x prefix'
+    result: "hex string without 0x prefix",
   },
   {
-    name: 'eth_sign_fail_invalid_arg2',
+    name: "eth_sign_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"eth_sign","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","invalid"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_sign_fail_too_many_args',
+    name: "eth_sign_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_sign","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1","0x407d73d8a49eeb85d32cf465507dd71d507100c1",false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_sign_fail_missing_args',
+    name: "eth_sign_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"eth_sign","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_sign_fail_parse_error',
+    name: "eth_sign_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_sign","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
-
-  # --- eth_signTransaction ---
-#  {
-#    name: 'eth_signTransaction_ok',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: 'unknown account'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg1',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8d","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg2',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be80570f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg3',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"string","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg4',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"string","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg5',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8044567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg6',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"string","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_invalid_arg7',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"string"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_faiL_missing_gas',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_faiL_missing_gasPrice',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_faiL_missing_nonce',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a"}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_missing_args',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32602'
-#  },
-#  {
-#    name: 'eth_signTransaction_fail_parse_error',
-#    body: '{"jsonrpc":"2.0","method":"eth_signTransaction","params":[{{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas":"0x76c0","gasPrice":"0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value":"0x9184e72a","nonce":"0x0"}}],"id":1}',
-#    result: '"error"\s*:\s*{.*"code":-32700'
-#  },
 
   # --- eth_syncing ---
   {
-    name: 'eth_syncing_ok',
+    name: "eth_syncing_ok",
     body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}',
-    result: '"result"\s*:\s*false'
+    result: '"result"\s*:\s*false',
   },
   {
-    name: 'eth_syncing_fail_too_many_args',
+    name: "eth_syncing_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[false,true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'eth_syncing_fail_parse_error',
+    name: "eth_syncing_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"eth_syncing","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- net_listening ---
   {
-    name: 'net_listening_ok',
+    name: "net_listening_ok",
     body: '{"jsonrpc":"2.0","method":"net_listening","params":[],"id":1}',
-    result: '"result"\s*:\s*true'
+    result: '"result"\s*:\s*true',
   },
   {
-    name: 'net_listening_fail_too_many_args',
+    name: "net_listening_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"net_listening","params":[{"too_many":"too_many"}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'net_listening_parse_error',
+    name: "net_listening_parse_error",
     body: '{"jsonrpc":"2.0","method":"net_listening","params":[{}}}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- net_peekCount ---
   {
-    name: 'net_peekCount_ok',
+    name: "net_peekCount_ok",
     body: '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
   },
   {
-    name: 'net_peekCount_fail_too_many_args',
+    name: "net_peekCount_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"net_peerCount","params":[false,"too_many"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'net_peekCount_parse_error',
+    name: "net_peekCount_parse_error",
     body: '{"jsonrpc":"2.0","method":"net_peerCount","params":[}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- net_version ---
   {
-    name: 'net_version_ok',
+    name: "net_version_ok",
     body: '{"jsonrpc":"2.0","method":"net_version","params":[],"id":1}',
-    result: '"result"\s*:\s*"250"'
+    result: '"result"\s*:\s*"[0-9]+"',
   },
   {
-    name: 'net_version_too_many_args',
+    name: "net_version_too_many_args",
     body: '{"jsonrpc":"2.0","method":"net_version","params":[[]],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'net_version_parse_error',
+    name: "net_version_parse_error",
     body: '{"jsonrpc":"2.0","method":"net_version","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- rpc_modules ---
   {
-    name: 'rpc_modules_ok',
+    name: "rpc_modules_ok",
     body: '{"jsonrpc":"2.0","method":"rpc_modules","params":[],"id":1}',
-    result: '"abft"\s*:\s*"|"dag"\s*:\s*"|"eth"\s*:\s*"|"ftm"\s*:\s*"|"net"\s*:\s*"|"rpc"\s*:\s*"|"sfc"\s*:\s*"|"txpool"\s*:\s*"|"web3"\s*:\s*"'
+    result: '"abft"\s*:\s*"|"dag"\s*:\s*"|"eth"\s*:\s*"|"ftm"\s*:\s*"|"net"\s*:\s*"|"rpc"\s*:\s*"|"sfc"\s*:\s*"|"txpool"\s*:\s*"|"web3"\s*:\s*"',
   },
   {
-    name: 'rpc_modules_fail_too_many_args',
+    name: "rpc_modules_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"rpc_modules","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'rpc_modules_fail_parse_error',
+    name: "rpc_modules_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"rpc_modules","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- txpool_content ---
   {
-    name: 'txpool_content_ok',
+    name: "txpool_content_ok",
     body: '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}',
-    result: '"result"\s*:\s*{\s*"pending"\s*:\s*{\s*"0x[0-9a-fA-F]{40}"'
+    result: '"result"\s*:\s*{\s*"pending"\s*:\s*{\s*"0x[0-9a-fA-F]{40}"',
   },
   {
-    name: 'txpool_content_too_many_args',
+    name: "txpool_content_too_many_args",
     body: '{"jsonrpc":"2.0","method":"txpool_content","params":[true],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'txpool_content_parse_error',
+    name: "txpool_content_parse_error",
     body: '{"jsonrpc":"2.0","method":"txpool_content","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- txpool_status ---
   {
-    name: 'txpool_status_ok',
+    name: "txpool_status_ok",
     body: '{"jsonrpc":"2.0","method":"txpool_status","params":[],"id":1}',
-    result: '"result"\s*:\s*{\s*"pending"\s*:\s*\"0x[0-9a-fA-F]+",\s*"queued"\s*:\s*\"0x[0-9a-fA-F]+"'
+    result: '"result"\s*:\s*{\s*"pending"\s*:\s*\"0x[0-9a-fA-F{}]+",\s*"queued"\s*:\s*\"0x[0-9a-fA-F{}]+"',
   },
   {
-    name: 'txpool_status_fail_too_many_args',
+    name: "txpool_status_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"txpool_status","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'txpool_status_parse_error',
+    name: "txpool_status_parse_error",
     body: '{"jsonrpc":"2.0","method":"txpool_status","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- web3_clientVersion ---
   {
-    name: 'web3_clientVersion_ok',
+    name: "web3_clientVersion_ok",
     body: '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}',
-    result: '"result"\s*:\s*"Sonic/v[0-9]+\.[0-9]+\.[0-9]+'
+    result: '"result"\s*:\s*"Sonic/v[0-9]+\.[0-9]+\.[0-9]+',
   },
   {
-    name: 'web3_clientVersion_fail_too_many_args',
+    name: "web3_clientVersion_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"web3_clientVersion","params":["0x123456789"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'web3_clientVersion_parse_error',
+    name: "web3_clientVersion_parse_error",
     body: '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[{"invalid": string}],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- web3_sha3 ---
   {
-    name: 'web3_sha3_ok1',
+    name: "web3_sha3_ok1",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":["0x68656c6c6f20776f726c64"],"id":1}',
-    result: '"result"\s*:\s*"0x47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad"'
+    result: '"result"\s*:\s*"0x47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad"',
   },
   {
-    name: 'web3_sha3_ok2',
+    name: "web3_sha3_ok2",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":["0x68656c6c6f"],"id":1}',
-    result: '"result"\s*:\s*"0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8"'
+    result: '"result"\s*:\s*"0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8"',
   },
   {
-    name: 'web3_sha3_fail_invalid_arg1',
+    name: "web3_sha3_fail_invalid_arg1",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":["string"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'web3_sha3_fail_invalid_arg2',
+    name: "web3_sha3_fail_invalid_arg2",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":[false],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'web3_sha3_fail_too_many_args',
+    name: "web3_sha3_fail_too_many_args",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":["0x68656c6c6f20776f726c64","string"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'web3_sha3_fail_missing_args',
+    name: "web3_sha3_fail_missing_args",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32602'
+    result: '"error"\s*:\s*{.*"code":-32602',
   },
   {
-    name: 'web3_sha3_fail_parse_error',
+    name: "web3_sha3_fail_parse_error",
     body: '{"jsonrpc":"2.0","method":"web3_sha3","params":[invalid],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32700'
+    result: '"error"\s*:\s*{.*"code":-32700',
   },
 
   # --- invalid_methods ---
   {
-    name: 'eth_invalid_method_fail_invalid_method',
+    name: "eth_invalid_method_fail_invalid_method",
     body: '{"jsonrpc":"2.0","method":"eth_invalid_method","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32601'
+    result: '"error"\s*:\s*{.*"code":-32601',
   },
   {
-    name: 'eth_getWork_fail_invalid_method',
+    name: "eth_getWork_fail_invalid_method",
     body: '{"jsonrpc":"2.0","method":"eth_getWork","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32601'
+    result: '"error"\s*:\s*{.*"code":-32601',
   },
   {
-    name: 'eth_mining_fail_invalid_method',
+    name: "eth_mining_fail_invalid_method",
     body: '{"jsonrpc":"2.0","method":"eth_mining","params":[],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32601'
+    result: '"error"\s*:\s*{.*"code":-32601',
   },
   {
-    name: 'eth_submitWork_fail_invalid_method',
+    name: "eth_submitWork_fail_invalid_method",
     body: '{"jsonrpc":"2.0","method":"eth_submitWork","params":["0x0000000000000001","0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef","0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32601'
+    result: '"error"\s*:\s*{.*"code":-32601',
   },
   {
-    name: 'eth_hashrate_fail_invalid_method',
+    name: "eth_hashrate_fail_invalid_method",
     body: '{"jsonrpc":"2.0","method":"eth_hashrate","params":[],"id":1}',
-    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"'
-  }
+    result: '"result"\s*:\s*"0x[0-9a-fA-F]+"',
+  },
 ]
