@@ -90,6 +90,7 @@ pipeline {
                         sh "wget -O ${tomlpath} https://storage.googleapis.com/sonic-snapshots/devnet/config.toml"
 
                         // prepare stateDb from genesis
+                        sh "rm -rf ${SONICSTATEDB}"
                         sh """./build/sonictool --datadir ${SONICSTATEDB} \
                             genesis json ${genesispath} \
                             --experimental --mode rpc"""
