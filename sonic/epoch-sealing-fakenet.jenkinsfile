@@ -120,6 +120,7 @@ pipeline {
 
         stage('Teardown') {
             steps {
+                sh "rm -rf ${SONICSTATEDB}"
                 dir('lascala/utils/network-rules-updator') {
                     sh "rm -rf package-lock.json node_modules"
                 }
