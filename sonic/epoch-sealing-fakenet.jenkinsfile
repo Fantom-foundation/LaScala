@@ -117,12 +117,12 @@ pipeline {
                 }
             }
         }
-    }
 
-    stage('Teardown') {
-        steps {
-            dir('lascala/utils/network-rules-updator') {
-                sh "rm -rf package-lock.json node_modules"
+        stage('Teardown') {
+            steps {
+                dir('lascala/utils/network-rules-updator') {
+                    sh "rm -rf package-lock.json node_modules"
+                }
             }
         }
     }
