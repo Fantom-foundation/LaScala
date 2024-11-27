@@ -28,11 +28,6 @@ pipeline {
             description: 'Branch or commit hash for LaScala'
         )
         string(
-            name: 'ReferentialUrl',
-            defaultValue: "http://10.128.0.10",
-            description: 'URL address of referential Sonic node'
-        )
-        string(
             //default agent for devnet. For mainnet, use x86-4-32-archive
             name: 'Agent',
             defaultValue: 'x86-4-32-m',
@@ -159,9 +154,19 @@ pipeline {
 
                         sh 'echo "Start comparing block receipts"'
 
-                        dir('lascala/utils') {
-                            sh 'chmod +x ./test_getBlockReceipts.sh'
-                            sh "./test_getBlockReceipts.sh http://127.0.0.1 ${ReferentialUrl}"
+                        script {
+                            def ReferentialUrl
+
+                            if (params.Network == 'Sonic devnet') {
+                                ReferentialUrl = 'http://34.56.203.77:80'
+                            } else if (params.Network == 'Opera mainnet') {
+                                ReferentialUrl = 'http://10.128.0.10'
+                            }
+
+                            dir('lascala/utils') {
+                                sh 'chmod +x ./test_getBlockReceipts.sh'
+                                sh "./test_getBlockReceipts.sh http://127.0.0.1 ${ReferentialUrl}"
+                            }
                         }
                     }
                 }
