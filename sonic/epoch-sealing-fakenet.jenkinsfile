@@ -84,7 +84,7 @@ pipeline {
                         sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
 
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            sh """timeout 60m ./build/sonicd \
+                            sh """timeout 20m ./build/sonicd \
                                 --mode=rpc \
                                 --fakenet 1/1 \
                                 --datadir=${SONICSTATEDB} \
@@ -95,16 +95,34 @@ pipeline {
                     }
                 }
 
+                stage('Modify epoch frequency') {
+                    steps {
+                        sleep(time:15,unit:"SECONDS")
+                        dir('lascala/utils/network-rules-updator') {
+                            sh "npm install"
+                            sh 'node index.js --url http://127.0.0.1:80 --rulesPath rules-epoch-every-10sec.json'
+                        }
+                    }
+                }
+
                 stage('Validate fakenet') {
                     steps {
-                        // wait 59 minutes then 1 minutes for validation is enough
-                        sleep(time:3540,unit:"SECONDS")
+                        // wait 19 minutes then 1 minutes for validation is enough
+                        sleep(time:1140,unit:"SECONDS")
 
                         dir('lascala/utils') {
                             sh 'python3 validate-epoch-sealing.py 2 last http://127.0.0.1:80'
                         }
                     }
                 }
+            }
+        }
+    }
+
+    stage('Teardown') {
+        steps {
+            dir('lascala/utils/network-rules-updator') {
+                sh "rm -rf package-lock.json node_modules"
             }
         }
     }
