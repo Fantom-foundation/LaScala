@@ -58,7 +58,9 @@ def find_last(web3, epoch, min, max):
         # choosing the smaller block in the middle of the interval
         half = math.floor((max - min) / 2) + min
         e = load_epoch(web3, half)
-        if max - min <= 1:
+        if max - min == 0:
+            return max
+        if max - min == 1:
             if epoch != e:
                 raise Exception(e, ' != ', epoch)
             if e + 1 != load_epoch(web3, half + 1):
@@ -78,9 +80,12 @@ def load_block_range(web3, epoch):
                         " isn't finished. Lastest finished epoch is: ",
                         current_epoch - 1)
     r = find_first(web3, epoch, 0, max)
+    last_min_bound = r[1]
+    last_max_bound = r[2]
     if r[1] == -1 or r[2] == -1:
-        raise Exception('ERROR epoch: ', epoch, " not found")
-    l = find_last(web3, epoch, r[1], r[2])
+        last_min_bound = r[0]
+        last_max_bound = max
+    l = find_last(web3, epoch, last_min_bound, last_max_bound)
     return [r[0], l]
 
 
@@ -93,6 +98,9 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
     expected_nonce = get_zero_addr_nonce_at_block(web3, first_block)
     i = load_epoch(web3, first_block)
     last_epoch = load_epoch(web3, last_block)
+
+    if i == last_epoch:
+        pass
 
     # check if the last block isn't the last of an epoch
     rf = load_block_range(web3, i)
