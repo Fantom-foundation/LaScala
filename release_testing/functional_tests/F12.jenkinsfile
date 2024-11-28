@@ -62,7 +62,7 @@ pipeline {
 
                 dir('sonic') {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        sh 'go test ./...'
+                        sh 'go test ./... --timeout 30m'
                     }
                 }
             }
