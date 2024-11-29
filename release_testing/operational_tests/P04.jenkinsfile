@@ -160,16 +160,14 @@ pipeline {
                         sh 'echo "Start comparing block receipts"'
 
                         script {
-                            def referentialUrl
+                            String referentialUrl = params.ReferentialUrl
 
-                            if (params.ReferentialUrl == '') {
+                            if (referentialUrl == '') {
                                 if (params.Network == 'Sonic devnet') {
                                     referentialUrl = 'http://34.56.203.77:80'
                                 } else if (params.Network == 'Opera mainnet') {
                                     referentialUrl = 'http://10.128.0.10'
                                 }
-                            } else {
-                                referentialUrl = params.ReferentialUrl
                             }
 
                             dir('lascala/utils') {
