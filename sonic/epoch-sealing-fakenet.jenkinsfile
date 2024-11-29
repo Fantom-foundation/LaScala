@@ -111,7 +111,7 @@ pipeline {
                         sleep(time:1140,unit:"SECONDS")
 
                         dir('lascala/utils') {
-                            sh 'python3 validate-epoch-sealing.py 2 last http://127.0.0.1:80'
+                            sh 'python3 validate-epoch-sealing.py 1 last http://127.0.0.1:80'
                         }
                     }
                 }

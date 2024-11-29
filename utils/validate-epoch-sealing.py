@@ -102,8 +102,9 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
     if i == last_epoch:
         pass
 
-    # check if the last block isn't the last of an epoch
+    # check if the first block isn't the epoch seal block
     rf = load_block_range(web3, i)
+    # check if the last block isn't the epoch seal block
     rl = load_block_range(web3, last_epoch)
     if latest_block['result']['number'] != rl[1]:
         # last epoch can be checked only if we know for sure that the last block is really epoch seal
@@ -114,7 +115,8 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
         # the first checked block is epoch seal block so expected nonce is decremented by 2
         # (state before SealEpochStats and SealEpochValidators calls)
         expected_nonce -= 2
-        print(f"Block {first_block} is epoch seal block, so block {first_block-1} needs to be checked for nonce as well")
+        print(
+            f"Block {first_block} is epoch seal block, so block {first_block - 1} needs to be checked for nonce as well")
 
     #  check nonces of all epochs within the range
     while i < last_epoch:
@@ -123,7 +125,7 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
 
         # check nonce is correct before sealing epoch
         before_seal_nonce = get_zero_addr_nonce_at_block(web3, r[1] - 1)
-        if before_seal_nonce != expected_nonce:
+        if before_seal_nonce != expected_nonce and r[1] - 1 != 0:
             raise Exception(f"Error: block {r[1] - 1} nonce expected: {expected_nonce} got: {before_seal_nonce}")
 
         # check nonce is correct in block that is sealing the epoch (SealEpochStats and SealEpochValidators were called)
@@ -134,6 +136,7 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
             print(
                 f"Progress: {round((r[1] - first_block) / (last_block - first_block) * 100, 2)}% - epoch {i} - block {r[1]}")
         i += 1
+
 
 async def main():
     fb = int(sys.argv[1])

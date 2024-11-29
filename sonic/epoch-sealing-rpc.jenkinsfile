@@ -22,7 +22,7 @@ pipeline {
     parameters {
         string(
             name: 'RPC',
-            defaultValue: "http://34.56.203.77:80",
+            defaultValue: "https://rpc.blaze.soniclabs.com",
             description: 'RPC endpoint.'
         )
         string(
@@ -32,7 +32,7 @@ pipeline {
         )
         string(
             name: 'FirstBLock',
-            defaultValue: "2",
+            defaultValue: "1",
             description: 'First block to check.'
         )
         string(
