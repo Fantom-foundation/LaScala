@@ -60,20 +60,20 @@ pipeline {
         }
 
         stage('Configure & Build') {
-                    steps {
-                        sh 'make'
-
-                        script {
-                            def tmppath = '/mnt/tmp-disk/'
-                            def genesispath = "${tmppath}/genesis.json"
-
-                            SONICSTATEDB = "${tmppath}/fakenet"
-                            sh "rm -rf ${SONICSTATEDB}"
-                            sh """./build/sonictool --datadir ${SONICSTATEDB} \
-                                genesis fake --mode rpc 1"""
-                        }
-                    }
+            steps {
+                sh 'make'
+    
+                script {
+                    def tmppath = '/mnt/tmp-disk/'
+                    def genesispath = "${tmppath}/genesis.json"
+    
+                    SONICSTATEDB = "${tmppath}/fakenet"
+                    sh "rm -rf ${SONICSTATEDB}"
+                    sh """./build/sonictool --datadir ${SONICSTATEDB} \
+                        genesis fake --mode rpc 1"""
                 }
+            }
+        }
 
         stage('Fakenet validation') {
             parallel {
