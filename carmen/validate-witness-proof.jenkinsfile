@@ -46,7 +46,7 @@ pipeline {
 
                 dir('sonic') {
                     checkout scmGit(
-                        branches: [[name: "${CarmenVersion}"]],
+                        branches: [[name: "${SonicVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
                     )
                 }
