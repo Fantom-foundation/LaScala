@@ -33,6 +33,11 @@ pipeline {
             defaultValue: 'x86-4-32-m',
             description: 'Agent label to run the job. For Opera mainnet, use x86-4-32-archive.'
         )
+        string(
+            name: 'ReferentialUrl',
+            defaultValue: "",
+            description: 'URL address of referential Sonic node'
+        )
         choice(
             name: 'Network',
             choices: ['Sonic devnet', 'Opera mainnet'],
@@ -155,17 +160,21 @@ pipeline {
                         sh 'echo "Start comparing block receipts"'
 
                         script {
-                            def ReferentialUrl
+                            def referentialUrl
 
-                            if (params.Network == 'Sonic devnet') {
-                                ReferentialUrl = 'http://34.56.203.77:80'
-                            } else if (params.Network == 'Opera mainnet') {
-                                ReferentialUrl = 'http://10.128.0.10'
+                            if (params.ReferentialUrl == '') {
+                                if (params.Network == 'Sonic devnet') {
+                                    referentialUrl = 'http://34.56.203.77:80'
+                                } else if (params.Network == 'Opera mainnet') {
+                                    referentialUrl = 'http://10.128.0.10'
+                                }
+                            } else {
+                                referentialUrl = params.ReferentialUrl
                             }
 
                             dir('lascala/utils') {
                                 sh 'chmod +x ./test_getBlockReceipts.sh'
-                                sh "./test_getBlockReceipts.sh http://127.0.0.1 ${ReferentialUrl}"
+                                sh "./test_getBlockReceipts.sh http://127.0.0.1 ${referentialUrl}"
                             }
                         }
                     }
