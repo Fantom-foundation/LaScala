@@ -132,9 +132,8 @@ def validate_epoch_seal_calls_locations(web3, first_block, last_block):
         expected_nonce += 2
         if ln != expected_nonce:
             raise Exception(f"Error: block {r[1]} nonce expected: {expected_nonce} got: {ln}")
-        if i % 1 == 0:
-            print(
-                f"Progress: {round((r[1] - first_block) / (last_block - first_block) * 100, 2)}% - epoch {i} - block {r[1]}")
+        print(
+            f"Progress: {round((r[1] - first_block) / (last_block - first_block) * 100, 2)}% - epoch {i} - block {r[1]}")
         i += 1
 
 
