@@ -19,6 +19,7 @@ pipeline {
         string(defaultValue: "1000", description: 'How many iterations will script do.', name: 'NumberOfIterations')
         string(defaultValue: "1", description: 'Delay between start of sync process and forced termination (in seconds).', name: 'Window')
         string(defaultValue: "1", description: 'How often will Carmen create checkpoints (in blocks).', name: 'CheckpointGranularity')
+        string(name: 'SonicVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
     }
 
     stages {
@@ -40,6 +41,13 @@ pipeline {
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                     )
                 }
+
+                dir('sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${SonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                    )
+                }                   
             }
         }
 

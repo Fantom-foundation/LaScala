@@ -19,6 +19,7 @@ pipeline {
         string(name: 'secondBlockHeight', defaultValue: '6000000', description: 'Second block height to import.')
         string(name: 'aidaVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
         string(name: 'carmenVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
+        string(name: 'SonicVersion', defaultValue: "main", description: 'Can be either branch name or commit hash.')
     }
 
     stages {
@@ -37,6 +38,13 @@ pipeline {
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Carmen.git']]
                     )
                 }
+
+                dir('sonic') {
+                    checkout scmGit(
+                        branches: [[name: "${SonicVersion}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
+                    )
+                }                   
             }
         }
 
