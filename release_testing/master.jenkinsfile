@@ -716,6 +716,7 @@ pipeline {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P01', parameters: [
                             string(name: 'NormaVersion', value: "${NormaVersion}"),
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
