@@ -1,8 +1,10 @@
 // Runs unit test of Carmen to secure that Carmen functions operates as intended
 @Library('shared-library') _
 
+def buildSuccess = false
+
 pipeline {
-    agent { label 'norma' }
+    agent { label 'x86-16-64-m-norma' }
 
     options {
         timestamps ()
@@ -10,12 +12,10 @@ pipeline {
     }
 
     environment {
-        GOROOT = '/usr/local/go'
+    	GOROOT = '/usr/local/go'
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
-        
-        // norma
-        DOCKER_API_VERSION = 1.45 // golang docker library
+        GOMEMLIMIT = '60GiB'
+    	DOCKER_API_VERSION = 1.45
     }
 
     parameters {
@@ -29,11 +29,11 @@ pipeline {
             defaultValue: "develop",
             description: 'Branch or commit hash for Sonic'
         )
-        string(
-            name: 'PathToScenario',
-            defaultValue: "scenarios/test/baseline_check.yml", 
-            description: 'Scenario to run' 
-        )
+	    string(
+    	    name: 'PathToScenario',
+    	    defaultValue: "scenarios/test/baseline_check.yml",
+    	    description: 'Scenario to run'
+    	)
     }
 
     stages {
@@ -43,41 +43,51 @@ pipeline {
                     currentBuild.description = "Building on ${env.NODE_NAME}"
                 }
 
-                dir('norma') {
+        		dir('norma') {
                     checkout scmGit(
                         branches: [[name: "${params.NormaVersion}"]],
                         userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Norma.git']]
                     )
 
-                    sh "make clean"
-                    sh "git submodule update --init --recursive"
+        		    sh "make clean"
+        		    sh "git submodule update --init --recursive"
 
-                    dir('client') {
-                        checkout scmGit(
+        		    dir('client') {
+        			    checkout scmGit(
                             branches: [[name: "${params.SonicVersion}"]],
                             userRemoteConfigs: [[url: 'https://github.com/Fantom-foundation/Sonic.git']]
                         )
-                    }
+        		    }
 
                     sh "go mod tidy"
                     sh "make -j"
+ 		        }
+            }
+
+    	    post {
+                success {
+                    script {
+                        buildSuccess = true
+                    }
                 }
             }
         }
 
-        stage('Run Scenario') {
+	    stage('Run Scenario') {
+    	    when { expression { buildSuccess }}
+
             steps {
-                echo "Starting Norma scenario: ${params.PathToScenario}"
+	            echo "Starting Norma scenario: ${params.PathToScenario}"
                 dir('runs') {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """../norma/build/norma run \
                             -o ${pwd} \
                             --label runs \
                             ../norma/${params.PathToScenario}"""
-                    }
+		            }
                 }
-            }
-        }
+	        }
+	    }
 
         stage('Teardown') {
             steps {
