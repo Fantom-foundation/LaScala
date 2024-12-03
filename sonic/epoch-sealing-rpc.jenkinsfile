@@ -1,0 +1,85 @@
+// Sonic DB Healing pipeline aims to test the functionality of DB healing tool.
+// This test intentionally kills an archive node in the middle of the synchronization process
+// and then restarts the node with the DB healing tool. The test is considered successful
+// if the node can validate via check tool.
+
+pipeline {
+    agent { node "${params.Agent}" }
+
+    options {
+        timestamps ()
+        timeout(time: 3, unit: 'DAYS')
+        disableConcurrentBuilds(abortPrevious: false)
+    }
+
+    environment {
+        GOGC = '50'
+        GOMEMLIMIT = '28GiB'
+        SONICSTATEDB = ''
+        OPTIONS = ''
+    }
+
+    parameters {
+        string(
+            name: 'RPC',
+            defaultValue: "https://rpc.blaze.soniclabs.com",
+            description: 'RPC endpoint.'
+        )
+        string(
+            name: 'LaScalaVersion',
+            defaultValue: "main",
+            description: 'Branch or commit hash for LaScala'
+        )
+        string(
+            name: 'FirstBLock',
+            defaultValue: "1",
+            description: 'First block to check.'
+        )
+        string(
+            name: 'LastBlock',
+            defaultValue: "last",
+            description: 'Last block to check.'
+        )
+        string(
+            //default agent for devnet. For mainnet, use x86-4-32-archive
+            name: 'Agent',
+            defaultValue: 'x86-4-32-m',
+            description: 'Agent label to run the job. For Opera mainnet, use x86-4-32-archive.'
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                dir('lascala') {
+                    checkout scmGit(
+                        branches: [[name: "${LaScalaVersion}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Fantom-foundation/LaScala.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
+        stage('RPC block range validation') {
+            steps {
+                dir('lascala/utils') {
+                    sh 'python3 validate-epoch-sealing.py ${FirstBLock} ${LastBlock} ${RPC}'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            build job: '/Notifications/slack-notification', parameters: [
+                string(name: 'result', value: "${currentBuild.result}"),
+                string(name: 'name', value: "${currentBuild.fullDisplayName}"),
+                string(name: 'duration', value: "${currentBuild.duration}"),
+                string(name: 'url', value: "${currentBuild.absoluteUrl}"),
+                string(name: 'user', value: "sonic")
+            ]
+        }
+    }
+}

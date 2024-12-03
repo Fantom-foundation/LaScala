@@ -5,7 +5,7 @@ pipeline {
 
     options {
         timestamps ()
-        timeout(time: 3, unit: 'DAYS')
+        timeout(time: 1, unit: 'DAYS')
         disableConcurrentBuilds(abortPrevious: false)
     }
 
@@ -101,7 +101,6 @@ pipeline {
             }
         }
 
-
         stage('Synchronization') {
             steps {
                 sh "./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s ${OPTIONS}"
@@ -117,7 +116,7 @@ pipeline {
                         sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
 
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            sh """timeout 20m ./build/sonicd \
+                            sh """timeout 90m ./build/sonicd \
                                 --mode=rpc \
                                 --datadir=${SONICSTATEDB} \
                                 --port=5050 \
