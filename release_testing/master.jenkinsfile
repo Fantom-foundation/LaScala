@@ -64,11 +64,6 @@ pipeline {
             defaultValue: "main",
             description: 'Can be either branch name or commit hash.'
         )
-        string(
-            name: 'Genesis',
-            defaultValue: "mainnet-latest-validator.g",
-            description: 'Name of the genesis file to download'
-        )
         booleanParam(
             name: 'RunF01',
             defaultValue: true,
@@ -742,7 +737,6 @@ pipeline {
                     }
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
-                            string(name: 'Genesis', value: "${Genesis}"),
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
