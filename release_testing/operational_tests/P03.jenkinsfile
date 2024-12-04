@@ -1,11 +1,5 @@
 // P03 performs end-to-end test synchronizing from the first block to the current head on chosen network
 
-// Global variables
-def genesis
-def genesisUrl
-def configFile
-def additionalFlags
-
 pipeline {
     agent { node "x86-4-32-m" }
 
