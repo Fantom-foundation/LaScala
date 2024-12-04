@@ -38,11 +38,6 @@ pipeline {
             defaultValue: "develop",
             description: 'Branch or commit hash for Sonic'
         )
-        string(
-            name: 'LaScalaVersion',
-            defaultValue: "main",
-            description: 'Branch or commit hash for LaScala'
-        )
         choice(
             name: 'Network',
             choices: ['Sonic mainnet', 'Blaze testnet'],
@@ -59,15 +54,6 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
-
-                dir('lascala') {
-                    checkout scmGit(
-                        branches: [[name: "${LaScalaVersion}"]],
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/Fantom-foundation/LaScala.git'
-                        ]]
-                    )
-                }
 
                 sh "make"
             }

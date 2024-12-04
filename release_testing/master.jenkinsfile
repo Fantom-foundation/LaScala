@@ -743,8 +743,7 @@ pipeline {
                     steps {
                         build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
                             string(name: 'Genesis', value: "${Genesis}"),
-                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
-                            string(name: 'LaScalaVersion', value: "${LASCALA_VERSION}")
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
