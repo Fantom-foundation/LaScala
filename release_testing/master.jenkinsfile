@@ -729,15 +729,16 @@ pipeline {
                     }
                 }
 
-                stage('P03 Sonic Synchronization Test') {
+                stage('P03 Sonic Mainnet Genesis Synchronization Test') {
                     when {
                         expression {
                             return params.RunP03;
                         }
                     }
                     steps {
-                        build job: '/ReleaseTesting/OperationalTests/P03', parameters: [
-                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
+                        build job: '/Sonic/Genesis-sync', parameters: [
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
+                            choice(name: 'Network', value: 'Sonic mainnet')
                         ]
                     }
                 }
@@ -756,16 +757,17 @@ pipeline {
                     }
                 }
 
-                stage('P05 Sonic Official Testnet Genesis Import Test') {
+                stage('P05 Blaze Testnet Genesis Synchronization Test') {
                     when {
                         expression {
                             return params.RunP05;
                         }
                     }
                     steps {
-                        build job: '/Sonic/Testnet-genesis-sync', parameters: [
+                        build job: '/Sonic/Genesis-sync', parameters: [
                             string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
-                            string(name: 'LaScalaVersion', value: "${LASCALA_VERSION}")
+                            string(name: 'LaScalaVersion', value: "${LASCALA_VERSION}"),
+                            choice(name: 'Network', value: 'Blaze testnet')
                         ]
                     }
                 }

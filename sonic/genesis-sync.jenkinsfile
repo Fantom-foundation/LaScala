@@ -1,4 +1,4 @@
-// P03 performs end-to-end test synchronizing from the first block to the current head on chosen network
+// Pipeline performs end-to-end test synchronizing from the first block to the current head on chosen network
 
 pipeline {
     agent { node "x86-4-32-m" }
