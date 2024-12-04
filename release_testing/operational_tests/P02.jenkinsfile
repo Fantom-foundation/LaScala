@@ -17,12 +17,12 @@ pipeline {
         EVENTDBPATH = "${DATAROOTPATH}/sonic_from_events"
         GENESISDBPATH = "${DATAROOTPATH}/sonic_from_genesis"
         GENESISPATH = "${DATAROOTPATH}/genesis"
-        TOMLPATH = "${DATAROOTPATH}/sonic-devnet.toml"
+        TOMLPATH = "${DATAROOTPATH}/sonic-config.toml"
 
         // genesis download url
         GENESISURL = ''
         TOMLURL = ''
-        GENESISFILE = 'genesis.json'
+        GENESISFILE = 'genesis.g'
 
         // client additional options
         OPTIONS = ''
@@ -37,13 +37,13 @@ pipeline {
         )
         choice(
             name: 'Network',
-            choices: ['Sonic devnet', 'Opera mainnet'],
+            choices: ['Sonic mainnet', 'Blaze testnet'],
             description: 'Network to test'
         )
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout ad build') {
             steps {
                 checkout scmGit(
                     branches: [[name: "${SonicVersion}"]],
@@ -51,6 +51,8 @@ pipeline {
                         url: 'https://github.com/Fantom-foundation/Sonic.git'
                     ]]
                 )
+
+                sh "make"
             }
         }
 
@@ -60,34 +62,56 @@ pipeline {
         stage('Configure Network Parameters') {
             steps{
                 script {
-                    if ("${Network}" == "Opera mainnet") {
-                        echo 'Target network: Opera mainnet'
-                        GENESISURL = 'https://download.fantom.network/opera/mainnet/mainnet-5577-archive.g'
-                        TOMLURL = ''
-                        OPTIONS = '--lachesis.suppress-frame-panic'
-                        EPOCH = 5577
-                    } else if ("${Network}" == "Sonic devnet") {
-                        echo 'Target network: Sonic devnet'
-                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/devnet/genesis.json'
-                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/devnet/config.toml'
+                    if ("${Network}" == "Sonic mainnet") {
+                        echo 'Target network: Sonic mainnet'
+                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/sonic.g'
+                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/config.toml'
+                        OPTIONS = "--lachesis.suppress-frame-panic --config ${TOMLPATH}"
+                        GENESISFILE = 'sonic.g'
+                    } else if ("${Network}" == "Blaze testnet") {
+                        echo 'Target network: Blaze testnet'
+                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/blaze.g'
+                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/config.toml'
                         OPTIONS = "--config ${TOMLPATH}"
-                        EPOCH = 0
+                        GENESISFILE = 'blaze.g'
                     }
                 }
             }
         }
 
-        stage('Preparation and build') {
+        stage('Genesis download and verification') {
             steps {
                 // setup
                 sh "mkdir -p $GENESISPATH"
-                sh "make"
 
                 // download genesis
                 script {
                     sh "wget -O ${GENESISPATH}/${GENESISFILE} ${GENESISURL} -nv"
                     sh "wget -O ${TOMLPATH} ${TOMLURL} -nv"
 
+                    // download MD5
+                    sh "wget -O ${GENESISPATH}/${GENESISFILE}.md5 ${GENESISURL}.md5 -nv"
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${GENESISFILE}.md5", returnStdout: true);
+
+                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
+
+                    // calculate MD5
+                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${GENESISFILE}", returnStdout: true);
+
+                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    sh "echo ${md5ExpectedHash}"
+                    sh "echo ${md5CalculatedHash}"
+
+                    // compare MD5
+                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                        sh "echo removing corrupted file ${GENESISPATH}/${GENESISFILE}"
+                        sh "rm ${GENESISPATH}/${GENESISFILE}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                    } else {
+                        sh "echo hash ${md5CalculatedHash} confirmed"
+                    }
                 }
             }
         }
@@ -95,10 +119,9 @@ pipeline {
         stage('Create DB from genesis') {
            steps {
                sh "rm -fr ${DATADIRPATH}"
+
                // create db from a genesis file
-                sh """./build/sonictool --datadir ${DATADIRPATH} genesis \
-                    ${params.Network == 'Sonic devnet' ? 'json' : ''} \
-                    --experimental ${GENESISPATH}/${GENESISFILE}"""
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${GENESISFILE}"
 
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
 
