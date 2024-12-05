@@ -1,7 +1,7 @@
 // P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests adn compare block receipts
 
 pipeline {
-    agent { node "${params.Agent}" }
+    agent { node 'x86-4-32-m' }
 
     options {
         timestamps ()
@@ -12,7 +12,17 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '28GiB'
-        SONICSTATEDB = ''
+        DATAROOTPATH="/mnt/tmp-disk/tooltmp"
+        DATADIRPATH="${DATAROOTPATH}/sonic"
+        GENESISPATH = "${DATAROOTPATH}/genesis"
+        TOMLPATH = "${DATAROOTPATH}/sonic-config.toml"
+
+        // genesis download url
+        GENESISURL = ''
+        TOMLURL = ''
+        GENESISFILE = 'genesis.json'
+
+        // client additional options
         OPTIONS = ''
     }
 
@@ -28,25 +38,19 @@ pipeline {
             description: 'Branch or commit hash for LaScala'
         )
         string(
-            //default agent for devnet. For mainnet, use x86-4-32-archive
-            name: 'Agent',
-            defaultValue: 'x86-4-32-m',
-            description: 'Agent label to run the job. For Opera mainnet, use x86-4-32-archive.'
-        )
-        string(
             name: 'ReferentialUrl',
             defaultValue: "",
             description: 'URL address of referential Sonic node'
         )
         choice(
             name: 'Network',
-            choices: ['Sonic devnet', 'Opera mainnet'],
+            choices: ['Sonic mainnet', 'Blaze testnet'],
             description: 'Network to test'
         )
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout and build') {
             steps {
                 checkout scmGit(
                     branches: [[name: "${SonicVersion}"]],
@@ -63,47 +67,82 @@ pipeline {
                         ]]
                     )
                 }
+
+                sh "make"
             }
         }
 
-        stage('Configure & Build') {
-            steps {
-                sh 'make'
-
+        // This stage sets genesis download url for the chosen network,
+        // and also download the configuration file if needed.
+        // Set addtional options for the network here.
+        stage('Configure Network Parameters') {
+            steps{
                 script {
-                    // resume from an existing statedb
-                    if ("${Network}" == 'Opera mainnet') {
-                        SONICSTATEDB = '/mnt/sonic-statedb/mainnet'
-                        OPTIONS = '--lachesis.suppress-frame-panic'
-                    // needs genesis and config files
-                    } else if ("${Network}" == 'Sonic devnet') {
-                        // variables
-                        def tmppath = '/mnt/tmp-disk/'
-                        def genesispath = "${tmppath}/genesis.json"
-                        def tomlpath = "${tmppath}/sonic-devnet.toml"
-
-                        SONICSTATEDB = "${tmppath}/sonic"
-                        OPTIONS = "--config ${tomlpath}"
-
-                        // download genesis and config files
-                        sh "wget -O ${genesispath} https://storage.googleapis.com/sonic-snapshots/devnet/genesis.json"
-                        sh "wget -O ${tomlpath} https://storage.googleapis.com/sonic-snapshots/devnet/config.toml"
-
-                        // prepare stateDb from genesis
-                        sh "rm -rf ${SONICSTATEDB}"
-                        sh """./build/sonictool --datadir ${SONICSTATEDB} \
-                            genesis json ${genesispath} \
-                            --experimental --mode rpc"""
-                    } else {
-                        error 'Invalid network'
+                    if ("${Network}" == "Sonic mainnet") {
+                        echo 'Target network: Sonic mainnet'
+                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/sonic.g'
+                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/config.toml'
+                        OPTIONS = "--lachesis.suppress-frame-panic --config ${TOMLPATH}"
+                        GENESISFILE = 'sonic.g'
+                    } else if ("${Network}" == "Blaze testnet") {
+                        echo 'Target network: Blaze testnet'
+                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/blaze.g'
+                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/config.toml'
+                        OPTIONS = "--config ${TOMLPATH}"
+                        GENESISFILE = 'blaze.g'
                     }
                 }
             }
         }
 
+        stage('Genesis download and verification') {
+            steps {
+                // setup
+                sh "mkdir -p $GENESISPATH"
+
+                // download genesis
+                script {
+                    sh "wget -O ${GENESISPATH}/${GENESISFILE} ${GENESISURL} -nv"
+                    sh "wget -O ${TOMLPATH} ${TOMLURL} -nv"
+
+                    // download MD5
+                    sh "wget -O ${GENESISPATH}/${GENESISFILE}.md5 ${GENESISURL}.md5 -nv"
+                    def md5Expected = sh(script: "cat ${GENESISPATH}/${GENESISFILE}.md5", returnStdout: true);
+
+                    String md5ExpectedHash = md5Expected.substring(0, md5Expected.lastIndexOf(' '));
+
+                    // calculate MD5
+                    def genesisMd5 = sh(script: "md5sum ${GENESISPATH}/${GENESISFILE}", returnStdout: true);
+
+                    String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
+
+                    sh "echo ${md5ExpectedHash}"
+                    sh "echo ${md5CalculatedHash}"
+
+                    // compare MD5
+                    if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
+                        sh "echo removing corrupted file ${GENESISPATH}/${GENESISFILE}"
+                        sh "rm ${GENESISPATH}/${GENESISFILE}"
+                        currentBuild.result = 'FAILURE'
+                        error("Error hash mismatch: got ${md5CalculatedHash}, expected got ${md5ExpectedHash}")
+                    } else {
+                        sh "echo hash ${md5CalculatedHash} confirmed"
+                    }
+                }
+            }
+        }
+
+        stage('Create DB from genesis') {
+           steps {
+               // create db from a genesis file
+                sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${GENESISFILE}"
+                sh "./build/sonictool --datadir ${DATADIRPATH} check live"
+            }
+        }
+
         stage('Synchronization') {
             steps {
-                sh "./build/sonicd --datadir ${SONICSTATEDB} --verbosity 2 --exitwhensynced.age 1s ${OPTIONS}"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.age 1s ${OPTIONS}"
             }
         }
 
@@ -116,7 +155,7 @@ pipeline {
                         sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
 
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            sh """timeout 90m ./build/sonicd \
+                            sh """timeout 240m ./build/sonicd \
                                 --mode=rpc \
                                 --datadir=${SONICSTATEDB} \
                                 --port=5050 \
@@ -162,10 +201,10 @@ pipeline {
                             String referentialUrl = params.ReferentialUrl
 
                             if (referentialUrl == '') {
-                                if (params.Network == 'Sonic devnet') {
-                                    referentialUrl = 'http://34.56.203.77:80'
-                                } else if (params.Network == 'Opera mainnet') {
-                                    referentialUrl = 'http://10.128.0.10'
+                                if (params.Network == 'Sonic mainnet') {
+                                    referentialUrl = 'https://rpc.sonic.soniclabs.com'
+                                } else if (params.Network == 'Blaze testnet') {
+                                    referentialUrl = 'https://rpc.blaze.soniclabs.com'
                                 }
                             }
 
