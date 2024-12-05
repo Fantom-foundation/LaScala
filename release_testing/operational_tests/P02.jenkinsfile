@@ -43,7 +43,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout ad build') {
+        stage('Checkout and build') {
             steps {
                 checkout scmGit(
                     branches: [[name: "${SonicVersion}"]],
