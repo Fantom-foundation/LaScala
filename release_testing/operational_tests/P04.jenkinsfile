@@ -105,8 +105,8 @@ pipeline {
 
                     String md5CalculatedHash = genesisMd5.substring(0, genesisMd5.lastIndexOf(' '));
 
-                    sh "echo ${md5ExpectedHash}"
-                    sh "echo ${md5CalculatedHash}"
+                    echo "${md5ExpectedHash}"
+                    echo "${md5CalculatedHash}"
 
                     // compare MD5
                     if (md5ExpectedHash.trim() != md5CalculatedHash.trim()) {
@@ -139,7 +139,7 @@ pipeline {
             parallel {
                 stage('Start RPC node') {
                     steps {
-                        sh "echo 'Start RPC node'"
+                        echo 'Start RPC node'
 
                         sh "sudo setcap 'cap_net_bind_service=+ep' ./build/sonicd"
 
@@ -167,27 +167,24 @@ pipeline {
                     }
                 }
 
-                stage('Iterate RPC requests') {
+                stage('RPC request tests') {
                     steps {
+                        // wait for the node to start and catch up with the network
                         sleep(time:180,unit:"SECONDS")
 
-                        sh 'echo "Start RPC request iteration"'
-
+                        // Test 1: RPC reponses match expected patterns
+                        echo 'Start RPC request iteration'
                         dir('lascala/utils') {
                             sh 'python3 rpc-requests.py'
                         }
-                    }
-                }
 
-                stage('Compare block receipts') {
-                    steps {
-                        sleep(time:180,unit:"SECONDS")
-
-                        sh 'echo "Start comparing block receipts"'
+                        // Test 2: Compare block receipts to referential node
+                        echo 'Start comparing block receipts'
 
                         script {
                             String referentialUrl = params.ReferentialUrl
 
+                            // official RPC urls
                             if (referentialUrl == '') {
                                 if (params.Network == 'Sonic mainnet') {
                                     referentialUrl = 'https://rpc.sonic.soniclabs.com'
@@ -200,6 +197,12 @@ pipeline {
                                 sh 'chmod +x ./test_getBlockReceipts.sh'
                                 sh "./test_getBlockReceipts.sh http://127.0.0.1 ${referentialUrl}"
                             }
+                        }
+
+                        // Stop sonicd
+                        echo 'Stop sonic'
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            sh 'pkill -f sonicd'
                         }
                     }
                 }
