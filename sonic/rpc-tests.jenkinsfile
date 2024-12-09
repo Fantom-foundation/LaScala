@@ -85,8 +85,6 @@ pipeline {
 
                 stage('Run RPC tests') {
                     steps {
-                        sleep(time:30,unit:"SECONDS")
-
                         sh 'echo "Start RPC tests"'
 
                         dir('rpcTest') {
