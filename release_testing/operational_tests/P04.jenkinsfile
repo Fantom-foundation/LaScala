@@ -74,11 +74,11 @@ pipeline {
                 script {
                     if ("${Network}" == "Sonic mainnet") {
                         echo 'Target network: Sonic mainnet'
-                        GENESISURL = 'https://genesis.soniclabs.com/latest-sonic-pruned.g'
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-full.g'
                         GENESISFILE = 'sonic.g'
                     } else if ("${Network}" == "Blaze testnet") {
                         echo 'Target network: Blaze testnet'
-                        GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-pruned.g'
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-full.g'
                         GENESISFILE = 'blaze.g'
                     }
                 }
@@ -146,7 +146,7 @@ pipeline {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             sh """timeout 240m ./build/sonicd \
                                 --mode=rpc \
-                                --datadir=${SONICSTATEDB} \
+                                --datadir=${DATADIRPATH} \
                                 --port=5050 \
                                 --cache=65536 \
                                 --maxpeers=251 \
