@@ -32,11 +32,6 @@ pipeline {
             defaultValue: "main",
             description: 'Branch or commit hash for LaScala'
         )
-        string(
-            name: 'ReferentialUrl',
-            defaultValue: "",
-            description: 'URL address of referential Sonic node'
-        )
         choice(
             name: 'Network',
             choices: ['Sonic mainnet', 'Blaze testnet'],
