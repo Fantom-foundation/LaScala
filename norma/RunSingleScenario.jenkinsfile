@@ -2,7 +2,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'norma' }
+    agent { label 'worker' }
 
     options {
         timestamps ()
