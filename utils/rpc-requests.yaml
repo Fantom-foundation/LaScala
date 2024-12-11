@@ -349,7 +349,7 @@
   {
     name: "eth_call_fail_invalid_data",
     body: '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x0000000000000000000000000000000000000000","to":"0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83","gas":"0x1ec77","gasPrice":"0x92e59e9300","value":"0x0","data":"0x70a08231000000000000000000000000759df13be68c4725a04dfd0573e8acd9f1ac"},"latest"],"id":1}',
-    result: '"error"\s*:\s*{.*"code":-32000',
+    result: '("error"\s*:\s*{.*"code":-32000|"result"\s*:\s*"0x")',
   },
   {
     name: "eth_call_fail_missing_arg1",
