@@ -17,22 +17,18 @@ pipeline {
         EVENTDBPATH = "${DATAROOTPATH}/sonic_from_events"
         GENESISDBPATH = "${DATAROOTPATH}/sonic_from_genesis"
         GENESISPATH = "${DATAROOTPATH}/genesis"
-        TOMLPATH = "${DATAROOTPATH}/sonic-config.toml"
 
         // genesis download url
         GENESISURL = ''
-        TOMLURL = ''
         GENESISFILE = 'genesis.g'
 
-        // client additional options
-        OPTIONS = ''
         EPOCH = 0
     }
 
     parameters {
         string(
             name: 'SonicVersion',
-            defaultValue: 'develop',
+            defaultValue: 'main',
             description: 'Branch or commit hash for Sonic'
         )
         choice(
@@ -64,15 +60,11 @@ pipeline {
                 script {
                     if ("${Network}" == "Sonic mainnet") {
                         echo 'Target network: Sonic mainnet'
-                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/sonic.g'
-                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/config.toml'
-                        OPTIONS = "--lachesis.suppress-frame-panic --config ${TOMLPATH}"
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-sonic-pruned.g'
                         GENESISFILE = 'sonic.g'
                     } else if ("${Network}" == "Blaze testnet") {
                         echo 'Target network: Blaze testnet'
-                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/blaze.g'
-                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/config.toml'
-                        OPTIONS = "--config ${TOMLPATH}"
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-pruned.g'
                         GENESISFILE = 'blaze.g'
                     }
                 }
@@ -87,7 +79,6 @@ pipeline {
                 // download genesis
                 script {
                     sh "wget -O ${GENESISPATH}/${GENESISFILE} ${GENESISURL} -nv"
-                    sh "wget -O ${TOMLPATH} ${TOMLURL} -nv"
 
                     // download MD5
                     sh "wget -O ${GENESISPATH}/${GENESISFILE}.md5 ${GENESISURL}.md5 -nv"
@@ -122,7 +113,6 @@ pipeline {
 
                // create db from a genesis file
                 sh "./build/sonictool --datadir ${DATADIRPATH} genesis --experimental ${GENESISPATH}/${GENESISFILE}"
-
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
 
                 // copy db for import events
@@ -134,7 +124,7 @@ pipeline {
             steps {
                 script {
                     EPOCH = EPOCH + 5 // target epoch for exporting events and genesis
-                    sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    sh "./build/sonicd --datadir ${DATADIRPATH} --exitwhensynced.epoch ${EPOCH}"
                     EPOCH = EPOCH + 5 // target epoch for synchronization
                 }
             }
@@ -151,7 +141,7 @@ pipeline {
         stage('Continue synchronize event-imported DB') {
             steps {
                 script {
-                    sh "./build/sonicd --datadir ${EVENTDBPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    sh "./build/sonicd --datadir ${EVENTDBPATH} --exitwhensynced.epoch ${EPOCH}"
                     sh "./build/sonictool --datadir ${EVENTDBPATH} check live"
                 }
             }
@@ -169,7 +159,7 @@ pipeline {
             steps {
                 script {
                     EPOCH = EPOCH + 5 // update target epoch
-                    sh "./build/sonicd --datadir ${GENESISDBPATH} --exitwhensynced.epoch ${EPOCH} ${OPTIONS}"
+                    sh "./build/sonicd --datadir ${GENESISDBPATH} --exitwhensynced.epoch ${EPOCH}"
                     sh "./build/sonictool --datadir ${GENESISDBPATH} check live"
                 }
             }

@@ -29,7 +29,7 @@ pipeline {
     parameters {
         string(
             name: 'SonicVersion',
-            defaultValue: "develop",
+            defaultValue: "main",
             description: 'Branch or commit hash for Sonic'
         )
         choice(
@@ -61,15 +61,11 @@ pipeline {
                 script {
                     if ("${Network}" == "Sonic mainnet") {
                         echo 'Target network: Sonic mainnet'
-                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/sonic.g'
-                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/sonic-mainnet/config.toml'
-                        OPTIONS = "--lachesis.suppress-frame-panic --config ${TOMLPATH}"
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-sonic-pruned.g'
                         GENESISFILE = 'sonic.g'
                     } else if ("${Network}" == "Blaze testnet") {
                         echo 'Target network: Blaze testnet'
-                        GENESISURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/blaze.g'
-                        TOMLURL = 'https://storage.googleapis.com/sonic-snapshots/blaze-testnet/config.toml'
-                        OPTIONS = "--config ${TOMLPATH}"
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-pruned.g'
                         GENESISFILE = 'blaze.g'
                     }
                 }
@@ -84,7 +80,6 @@ pipeline {
                 // download genesis
                 script {
                     sh "wget -O ${GENESISPATH}/${GENESISFILE} ${GENESISURL} -nv"
-                    sh "wget -O ${TOMLPATH} ${TOMLURL} -nv"
 
                     // download MD5
                     sh "wget -O ${GENESISPATH}/${GENESISFILE}.md5 ${GENESISURL}.md5 -nv"
@@ -123,7 +118,7 @@ pipeline {
 
         stage('Synchronization and check') {
             steps {
-                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.age 1s ${OPTIONS}"
+                sh "./build/sonicd --datadir ${DATADIRPATH} --verbosity 2 --exitwhensynced.age 1s"
                 sh "./build/sonictool --datadir ${DATADIRPATH} check live"
             }
         }
