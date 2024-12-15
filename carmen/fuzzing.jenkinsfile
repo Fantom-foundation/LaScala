@@ -48,7 +48,7 @@ pipeline {
         }
         
         stage('Build') {
-            agent {label 'db-small-ssd'}
+            agent {label 'x86-8-32-m'}
             steps {
                 deleteDir()
                 unstash 'source'

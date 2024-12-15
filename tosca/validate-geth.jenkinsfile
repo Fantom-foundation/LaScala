@@ -1,7 +1,7 @@
 // Validate Substate using Ethereum's reference VM implementation
 
 pipeline {
-    agent { label 'db-small-ssd' }
+    agent { label 'x86-8-32-m' }
 
     options {
         timestamps ()
