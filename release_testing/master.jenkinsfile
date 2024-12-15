@@ -413,8 +413,7 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
-                            string(name: 'RpcRecording', value: "api-recording-2023-05-19_11-36.gz")
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
@@ -696,8 +695,7 @@ pipeline {
                             string(name: 'AidaVersion', value: "${AIDA_VERSION}"),
                             string(name: 'CarmenVersion', value: "${CARMEN_VERSION}"),
                             string(name: 'ToscaVersion', value: "${TOSCA_VERSION}"),
-                            string(name: 'SonicVersion', value: "${SONIC_VERSION}"),
-                            string(name: 'RpcRecording', value: "api-recording-2023-05-19_11-36.gz")
+                            string(name: 'SonicVersion', value: "${SONIC_VERSION}")
                         ]
                     }
                 }
