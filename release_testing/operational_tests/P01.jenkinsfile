@@ -2,7 +2,9 @@
 @Library('shared-library') _
 
 def baselineScenarios = [
-    'scenarios/test/baseline_check.yml'
+    'scenarios/test/baseline_check.yml',
+    'scenarios/test/nodes_net_consistency.yml',
+    'scenarios/test/nodes_start_stop.yml'
 ]
 
 pipeline {
@@ -97,7 +99,6 @@ pipeline {
         stage('Run Target Scenarios in parallel') {
             steps {
                 script {
-                    // currently we only have one baseline scenario, more to be added
                     parallel baselineScenarios.collectEntries { s -> [
                         (s): {
                             build job: '/Norma/RunSingleScenario',
