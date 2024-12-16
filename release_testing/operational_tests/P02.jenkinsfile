@@ -1,3 +1,5 @@
+// Tests Sonic genesis and events import/export tests
+
 pipeline {
     agent {label 'x86-4-16-m'}
 
