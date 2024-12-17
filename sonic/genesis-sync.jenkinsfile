@@ -34,7 +34,7 @@ pipeline {
         )
         choice(
             name: 'Network',
-            choices: ['Sonic mainnet', 'Blaze testnet'],
+            choices: ['Sonic mainnet', 'Sonic mainnet archive', 'Blaze testnet', 'Blaze testnet archive'],
             description: 'Network to test'
         )
     }
@@ -63,9 +63,17 @@ pipeline {
                         echo 'Target network: Sonic mainnet'
                         GENESISURL = 'https://genesis.soniclabs.com/latest-sonic-pruned.g'
                         GENESISFILE = 'sonic.g'
+                    } else if ("${Network}" == "Sonic mainnet archive") {
+                        echo 'Target network: Sonic mainnet with archive'
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-sonic-full.g'
+                        GENESISFILE = 'sonic.g'
                     } else if ("${Network}" == "Blaze testnet") {
                         echo 'Target network: Blaze testnet'
                         GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-pruned.g'
+                        GENESISFILE = 'blaze.g'
+                    } else if ("${Network}" == "Blaze testnet archive") {
+                        echo 'Target network: Blaze testnet with archive'
+                        GENESISURL = 'https://genesis.soniclabs.com/latest-blaze-full.g'
                         GENESISFILE = 'blaze.g'
                     }
                 }
