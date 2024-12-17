@@ -1,7 +1,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent { label 'db-large-nvme' }
+    agent { label 'x86-8-64-xl' }
 
     options {
         timestamps ()
