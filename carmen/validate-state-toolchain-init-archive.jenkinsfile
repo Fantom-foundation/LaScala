@@ -11,7 +11,7 @@ pipeline {
         GOGC = '50'
         GOMEMLIMIT = '120GiB'
         TMP_DB = '/mnt/tmp-disk'
-        AIDA_DB = '/mnt/aida-db-central/aida-db'
+        AIDA_DB = '/mnt/aida-db-mainnet/aida-db'
     }
 
     parameters {
