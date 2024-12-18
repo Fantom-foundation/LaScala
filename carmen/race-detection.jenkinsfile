@@ -11,7 +11,7 @@ pipeline {
         GORACE = 'halt_on_error=1'
         GOGC = '50'
         GOMEMLIMIT = '60GiB'
-        AIDADB = '/mnt/aida-db-central/aida-db'
+        AIDADB = '/mnt/aida-db-mainnet/aida-db'
 	    TMPDB = '/mnt/tmp-disk'
     }
 

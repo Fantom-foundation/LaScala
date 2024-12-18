@@ -15,7 +15,7 @@ pipeline {
 
     parameters {
         string(name: 'tmpDb', defaultValue: '/mnt/tmp-disk', description: 'Temporary directory to store the state DB.')
-        string(name: 'aidaDb', defaultValue: '/mnt/aida-db-central/aida-db', description: 'Temporary directory to read Aida DB from.')
+        string(name: 'aidaDb', defaultValue: '/mnt/aida-db-mainnet/aida-db', description: 'Temporary directory to read Aida DB from.')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'AidaVersion')
         string(defaultValue: "main", description: 'Can be either branch name or commit hash.', name: 'CarmenVersion')
         string(defaultValue: "5000000", description: 'The block height to import and test witness proof on', name: 'Blocks')

@@ -53,7 +53,7 @@ pipeline {
             steps {
                 sh "rm -f *.cpuprofile *.memprofile *.log"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Test Suite had a failure') {
-                    sh "build/aida-vm --workers 20 --aida-db /mnt/aida-db-central/aida-db --vm-impl geth --validate-tx ${BlockFrom} ${BlockTo}"
+                    sh "build/aida-vm --workers 20 --aida-db /mnt/aida-db-mainnet/aida-db --vm-impl geth --validate-tx ${BlockFrom} ${BlockTo}"
                 }
             }
         }

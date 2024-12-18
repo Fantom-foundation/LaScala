@@ -19,7 +19,7 @@ pipeline {
     environment {
         GOGC = '50'
         GOMEMLIMIT = '6GiB'
-        AIDADB = '/mnt/aida-db-central/aida-db'
+        AIDADB = '/mnt/aida-db-mainnet/aida-db'
         TMPDB = '/mnt/tmp-disk'
         AIDA_VERSION = ''
         CARMEN_VERSION  = ''
