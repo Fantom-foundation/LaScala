@@ -1,4 +1,5 @@
-// Test functional correctness of live-db using mainnet and aida-rpc tool
+// Measure RPC processing rate by block processing without interference of other components
+
 @Library('shared-library') _
 
 pipeline {

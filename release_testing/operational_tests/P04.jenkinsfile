@@ -1,4 +1,4 @@
-// P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests adn compare block receipts
+// P04 performs end-to-end test synchronizing from genesis to the head of the chain, test runs artificial RPC requests and compare block receipts
 
 pipeline {
     agent { node 'x86-4-32-m' }

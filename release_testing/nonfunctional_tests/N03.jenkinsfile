@@ -1,4 +1,5 @@
-// Measure transaction processing time while
+// A simulation of an RPC node where archive-db processes requests in concurrent with block processing
+
 @Library('shared-library') _
 
 pipeline {

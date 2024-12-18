@@ -1,4 +1,5 @@
-// Test processing of custom transactions and blocks
+// Tests functional correctness test using randomly generated transactions
+
 @Library('shared-library') _
 
 pipeline {

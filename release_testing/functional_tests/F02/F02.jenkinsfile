@@ -1,4 +1,5 @@
-// Test functional correctness of live-db using mainnet and aida-rpc tool
+// Tests functional correctness of live-db using mainnet and aida-rpc tool
+
 @Library('shared-library') _
 
 pipeline {

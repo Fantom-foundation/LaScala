@@ -1,4 +1,5 @@
-// Runs unit test of Carmen to secure that Carmen functions operates as intended
+// Runs Carmen's race detection and stress unit tests
+
 pipeline {
     agent { label 'coordinator' }
 

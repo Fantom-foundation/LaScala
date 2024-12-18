@@ -1,3 +1,5 @@
+// Runs lachesis-base-sonic unit tests
+
 pipeline {
     agent { label 'x86-4-16-s' }
 

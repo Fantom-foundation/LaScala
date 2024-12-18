@@ -1,4 +1,5 @@
-// Test functional correctness of live-db using testnet
+// Tests functional correctness of live-db using testnet
+
 @Library('shared-library') _
 
 pipeline {

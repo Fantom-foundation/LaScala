@@ -1,4 +1,5 @@
-// F04 test processes transactions on live db and archive db concurently.
+// Tests functional correctness test of block processing when retrieving information from an archive-db in parallel (using mainnet data)
+
 pipeline {
     agent { label 'coordinator' }
 

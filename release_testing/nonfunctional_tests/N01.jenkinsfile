@@ -1,4 +1,5 @@
-// Measure transaction processing time
+// Measure performance of block processing without an archive database
+
 @Library('shared-library') _
 
 pipeline {
