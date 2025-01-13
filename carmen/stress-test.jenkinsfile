@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'x86-8-32-m'}
+    agent {label 'x86-8-64-m'}
 
     options {
         timestamps ()
@@ -10,7 +10,7 @@ pipeline {
     environment {
         GORACE = 'halt_on_error=1'
         GOGC = '50'
-        GOMEMLIMIT = '120GiB'
+        GOMEMLIMIT = '60GiB'
     }
 
     parameters {

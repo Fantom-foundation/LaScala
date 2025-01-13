@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'x86-8-32-m'}
+    agent {label 'x86-8-64-m'}
 
     options {
         timestamps ()
